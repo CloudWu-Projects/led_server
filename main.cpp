@@ -1,3 +1,5 @@
+
+#include "httplib.h"
 #include <stdio.h>
 #include "LedDll.h"
 
@@ -33,6 +35,17 @@ int LedServerCallback( int Msg, int wParam, void* lParam)
 	return 0;
 }
 
+void startHttpServer()
+{
+    // HTTP
+    httplib::Server svr;
+
+    svr.Get("/hi", [](const httplib::Request &, httplib::Response &res)
+            { res.set_content("Hello World!", "text/plain"); });
+
+    svr.listen("0.0.0.0", 8080);
+}
+
 int main()
 {
     printf("aaaaaaaaaaaaaa");
@@ -43,6 +56,8 @@ int main()
     int ret = ledDll.LV_LedInitServer(10008);
 
     printf("LV_LedInitServer ret=%d\n",ret);
+
+    startHttpServer();
     getchar();
     return 0;
 }
