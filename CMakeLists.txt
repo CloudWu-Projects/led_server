@@ -1,8 +1,11 @@
 cmake_minimum_required (VERSION 3.8)
 
+ADD_DEFINITIONS(-DUNICODE)
+ADD_DEFINITIONS(-D_UNICODE)
+
 project ("led_server")
 
-add_executable(${PROJECT_NAME} "main.cpp" "lib/LedDll.cpp")
+add_executable(${PROJECT_NAME} "main.cpp" "lib/LedDll.cpp" "lib/stringHelper.h")
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
     CXX_STANDARD 20

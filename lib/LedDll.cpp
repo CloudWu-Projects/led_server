@@ -26,7 +26,12 @@ CLedDll::~CLedDll()
 BOOL CLedDll::InitDll()
 {
 #ifdef _WIN32
-	m_hDll=LoadLibrary ("lv_led_MBCS_32.DLL");
+#ifdef UNICODE
+	m_hDll = LoadLibrary(L"LV_LED_32.DLL");
+#else
+	m_hDll = LoadLibrary(("lv_led_MBCS_32.dll"));
+#endif
+
 #else
 	m_hDLL = dlopen("libledplayer7.so",RTLD_LAZY);	
 #endif

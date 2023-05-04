@@ -6,7 +6,7 @@
 typedef void* LPVOID;
 
 typedef LPVOID				HPROGRAM;	//节目句柄类型
-typedef char TCHAR;
+//typedef char TCHAR;
 #define COLOR_RED			0xff		//红色
 #define COLOR_GREEN			0xff00		//绿色
 #define COLOR_YELLOW		0Xffff		//黄色
