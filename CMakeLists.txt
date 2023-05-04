@@ -5,7 +5,10 @@ ADD_DEFINITIONS(-D_UNICODE)
 
 project ("led_server")
 
-add_executable(${PROJECT_NAME} "main.cpp" "lib/LedDll.cpp" "lib/stringHelper.h")
+file(GLOB_RECURSE source_cpp "./source/*.cpp")
+
+
+add_executable(${PROJECT_NAME} ${source_cpp} "lib/LedDll.cpp")
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
     CXX_STANDARD 20
