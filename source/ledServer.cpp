@@ -11,22 +11,20 @@
 #include <format>
 
 #include "stringHelper.h"
-
+#include "logLib.h"
 std::mutex queue_mutex;
 std::set<std::wstring> clientNetWorkID;
 
 int LedServerCallback(int Msg, int wParam, void* lParam)
 {
-	printf("LedServerCallback msg:%d \n", Msg);
+	SPDLOG_DEBUG("LedServerCallback msg:%d \n", Msg);
 	switch (Msg)
 	{
 	case LV_MSG_CARD_ONLINE:
 	{
 		LP_CARD_INFO pCardInfo = (LP_CARD_INFO)lParam;
-		TRACE("LV_MSG_CARD_ONLINE\n");
-		TRACE("pCardInfo->port:%d\n", pCardInfo->port);
-		wprintf(L"pCardInfo->ipStr:%s\n", pCardInfo->ipStr);
-		wprintf(L"pCardInfo->networkIdStr:%s\n", pCardInfo->networkIdStr);
+		SPDLOG_DEBUG(L"LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", 		pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+		
 		{
 			std::lock_guard<std::mutex> lock(queue_mutex);
 			clientNetWorkID.emplace(pCardInfo->networkIdStr);
@@ -36,10 +34,9 @@ int LedServerCallback(int Msg, int wParam, void* lParam)
 	case LV_MSG_CARD_OFFLINE:
 	{
 		LP_CARD_INFO pCardInfo = (LP_CARD_INFO)lParam;
-		TRACE("LV_MSG_CARD_OFFLINE\n");
-		TRACE("pCardInfo->port:%d\n", pCardInfo->port);
-		wprintf(L"pCardInfo->ipStr:%s\n", pCardInfo->ipStr);
-		wprintf(L"pCardInfo->networkIdStr:%s\n", pCardInfo->networkIdStr);
+		
+		SPDLOG_DEBUG(L"LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", 		pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+		
 		{
 			std::lock_guard<std::mutex> lock(queue_mutex);
 			clientNetWorkID.erase(pCardInfo->networkIdStr);
@@ -106,59 +103,59 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::wstring WnetworkID,
 	std::string networkID = to_byte_string(WnetworkID);
 
 	int nResult = 0;
-	COMMUNICATIONINFO CommunicationInfo; // ¶¨ÒåÒ»Í¨Ñ¶²ÎÊý½á¹¹Ìå±äÁ¿ÓÃÓÚ¶ÔÉè¶¨µÄLEDÍ¨Ñ¶£¬¾ßÌå¶Ô´Ë½á¹¹ÌåÔªËØ¸³ÖµËµÃ÷¼ûCOMMUNICATIONINFO½á¹¹Ìå¶¨Òå²¿·Ý×¢Ê¾
+	COMMUNICATIONINFO CommunicationInfo; // å®šä¹‰ä¸€é€šè®¯å‚æ•°ç»“æž„ä½“å˜é‡ç”¨äºŽå¯¹è®¾å®šçš„LEDé€šè®¯ï¼Œå…·ä½“å¯¹æ­¤ç»“æž„ä½“å…ƒç´ èµ‹å€¼è¯´æ˜Žè§COMMUNICATIONINFOç»“æž„ä½“å®šä¹‰éƒ¨ä»½æ³¨ç¤º
 	ZeroMemory(&CommunicationInfo, sizeof(COMMUNICATIONINFO));
 	CommunicationInfo.LEDType = m_ledType;
 
 	CommunicationInfo.SendType = 4;
-	_tcscpy(CommunicationInfo.NetworkIdStr, (TCHAR*)WnetworkID.data()); // Ö¸¶¨Î¨Ò»ÍøÂçID
+	_tcscpy(CommunicationInfo.NetworkIdStr, (TCHAR*)WnetworkID.data()); // æŒ‡å®šå”¯ä¸€ç½‘ç»œID
 
-	HPROGRAM hProgram;																			 // ½ÚÄ¿¾ä±ú
-	hProgram = g_Dll->LV_CreateProgramEx(m_ledWidth, m_ledHeight, m_ledColor, m_ledGraylevel, 0); // ×¢Òâ´Ë´¦ÆÁ¿í¸ß¼°ÑÕÉ«²ÎÊý±ØÐèÓëÉèÖÃÆÁ²ÎµÄÆÁ¿í¸ß¼°ÑÕÉ«Ò»ÖÂ£¬·ñÔò·¢ËÍÊ±»áÌáÊ¾´íÎó
-	// ´Ë´¦¿É×ÔÐÐÅÐ¶ÏÓÐÎ´´´½¨³É¹¦£¬hProgram·µ»ØNULLÊ§°Ü£¬·ÇNULL³É¹¦,Ò»°ã²»»áÊ§°Ü
+	HPROGRAM hProgram;																			 // èŠ‚ç›®å¥æŸ„
+	hProgram = g_Dll->LV_CreateProgramEx(m_ledWidth, m_ledHeight, m_ledColor, m_ledGraylevel, 0); // æ³¨æ„æ­¤å¤„å±å®½é«˜åŠé¢œè‰²å‚æ•°å¿…éœ€ä¸Žè®¾ç½®å±å‚çš„å±å®½é«˜åŠé¢œè‰²ä¸€è‡´ï¼Œå¦åˆ™å‘é€æ—¶ä¼šæç¤ºé”™è¯¯
+	// æ­¤å¤„å¯è‡ªè¡Œåˆ¤æ–­æœ‰æœªåˆ›å»ºæˆåŠŸï¼ŒhProgramè¿”å›žNULLå¤±è´¥ï¼ŒéžNULLæˆåŠŸ,ä¸€èˆ¬ä¸ä¼šå¤±è´¥
 
-	nResult = g_Dll->LV_AddProgram(hProgram, 0, 0, 1); // Ìí¼ÓÒ»¸ö½ÚÄ¿£¬²ÎÊýËµÃ÷¼ûº¯ÊýÉùÃ÷×¢Ê¾
+	nResult = g_Dll->LV_AddProgram(hProgram, 0, 0, 1); // æ·»åŠ ä¸€ä¸ªèŠ‚ç›®ï¼Œå‚æ•°è¯´æ˜Žè§å‡½æ•°å£°æ˜Žæ³¨ç¤º
 	if (nResult)
 	{
 		TCHAR ErrStr[256];
-		g_Dll->LV_GetError(nResult, 256, ErrStr); // ¼ûº¯ÊýÉùÃ÷×¢Ê¾
+		g_Dll->LV_GetError(nResult, 256, ErrStr); // è§å‡½æ•°å£°æ˜Žæ³¨ç¤º
 
 		return std::make_tuple(nResult, std::format("{}>>LV_AddProgram ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
 	}
-	AREARECT AreaRect; // ÇøÓò×ø±êÊôÐÔ½á¹¹Ìå±äÁ¿
+	AREARECT AreaRect; // åŒºåŸŸåæ ‡å±žæ€§ç»“æž„ä½“å˜é‡
 	AreaRect.left = 0;
 	AreaRect.top = 0;
 	AreaRect.width = m_ledWidth;
 	AreaRect.height = m_ledHeight;
 
-	FONTPROP FontProp; // ÎÄ×ÖÊôÐÔ
+	FONTPROP FontProp; // æ–‡å­—å±žæ€§
 	ZeroMemory(&FontProp, sizeof(FONTPROP));
-	_tcscpy(FontProp.FontName, L"ËÎÌå");
+	_tcscpy(FontProp.FontName, L"å®‹ä½“");
 	FontProp.FontSize = 12;
 	FontProp.FontColor = COLOR_RED;
 
-	nResult = g_Dll->LV_QuickAddSingleLineTextArea(hProgram, 0, 1, &AreaRect, ADDTYPE_STRING, showText.data(), &FontProp, 32); // ¿ìËÙÍ¨¹ý×Ö·ûÌí¼ÓÒ»¸öµ¥ÐÐÎÄ±¾ÇøÓò£¬º¯Êý¼ûº¯ÊýÉùÃ÷×¢Ê¾
-	// nResult=g_Dll.LV_QuickAddSingleLineTextArea(hProgram,1,1,&AreaRect,ADDTYPE_FILE,_T("test.rtf"),NULL,4);//¿ìËÙÍ¨¹ýrtfÎÄ¼þÌí¼ÓÒ»¸öµ¥ÐÐÎÄ±¾ÇøÓò£¬º¯Êý¼ûº¯ÊýÉùÃ÷×¢Ê¾
-	// nResult=g_Dll.LV_QuickAddSingleLineTextArea(hProgram,1,1,&AreaRect,ADDTYPE_FILE,_T("test.txt"),&FontProp,4);//¿ìËÙÍ¨¹ýtxtÎÄ¼þÌí¼ÓÒ»¸öµ¥ÐÐÎÄ±¾ÇøÓò£¬º¯Êý¼ûº¯ÊýÉùÃ÷×¢Ê¾
+	nResult = g_Dll->LV_QuickAddSingleLineTextArea(hProgram, 0, 1, &AreaRect, ADDTYPE_STRING, showText.data(), &FontProp, 32); // å¿«é€Ÿé€šè¿‡å­—ç¬¦æ·»åŠ ä¸€ä¸ªå•è¡Œæ–‡æœ¬åŒºåŸŸï¼Œå‡½æ•°è§å‡½æ•°å£°æ˜Žæ³¨ç¤º
+	// nResult=g_Dll.LV_QuickAddSingleLineTextArea(hProgram,1,1,&AreaRect,ADDTYPE_FILE,_T("test.rtf"),NULL,4);//å¿«é€Ÿé€šè¿‡rtfæ–‡ä»¶æ·»åŠ ä¸€ä¸ªå•è¡Œæ–‡æœ¬åŒºåŸŸï¼Œå‡½æ•°è§å‡½æ•°å£°æ˜Žæ³¨ç¤º
+	// nResult=g_Dll.LV_QuickAddSingleLineTextArea(hProgram,1,1,&AreaRect,ADDTYPE_FILE,_T("test.txt"),&FontProp,4);//å¿«é€Ÿé€šè¿‡txtæ–‡ä»¶æ·»åŠ ä¸€ä¸ªå•è¡Œæ–‡æœ¬åŒºåŸŸï¼Œå‡½æ•°è§å‡½æ•°å£°æ˜Žæ³¨ç¤º
 
 	if (nResult)
 	{
 		TCHAR ErrStr[256];
-		g_Dll->LV_GetError(nResult, 256, ErrStr); // ¼ûº¯ÊýÉùÃ÷×¢Ê¾
+		g_Dll->LV_GetError(nResult, 256, ErrStr); // è§å‡½æ•°å£°æ˜Žæ³¨ç¤º
 
 
 		return std::make_tuple(nResult, std::format("{}>>LV_QuickAddSingleLineTextArea ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
 	}
 
-	nResult = g_Dll->LV_Send(&CommunicationInfo, hProgram); // ·¢ËÍ£¬¼ûº¯ÊýÉùÃ÷×¢Ê¾
-	g_Dll->LV_DeleteProgram(hProgram);					   // É¾³ý½ÚÄ¿ÄÚ´æ¶ÔÏó£¬Ïê¼ûº¯ÊýÉùÃ÷×¢Ê¾
+	nResult = g_Dll->LV_Send(&CommunicationInfo, hProgram); // å‘é€ï¼Œè§å‡½æ•°å£°æ˜Žæ³¨ç¤º
+	g_Dll->LV_DeleteProgram(hProgram);					   // åˆ é™¤èŠ‚ç›®å†…å­˜å¯¹è±¡ï¼Œè¯¦è§å‡½æ•°å£°æ˜Žæ³¨ç¤º
 	if (nResult)
 	{
 		TCHAR ErrStr[256];
-		g_Dll->LV_GetError(nResult, 256, ErrStr); // ¼ûº¯ÊýÉùÃ÷×¢Ê¾
+		g_Dll->LV_GetError(nResult, 256, ErrStr); // è§å‡½æ•°å£°æ˜Žæ³¨ç¤º
 
 
-		return std::make_tuple(nResult, std::format("{}>>LV_Send ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
+		return std::make_tuple(nResult, fmt::format("{}>>LV_Send ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
 	}
-	return std::make_tuple(0, std::format("{}>>·¢ËÍ³É¹¦",networkID));
+	return std::make_tuple(0,fmt::format("{}>>sucess",networkID));
 }

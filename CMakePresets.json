@@ -9,8 +9,7 @@
             "installDir": "${sourceDir}/out/install/${presetName}",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_CXX_COMPILER": "cl.exe",
-        "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
+        "CMAKE_CXX_COMPILER": "cl.exe"
             },
             "condition": {
                 "type": "equals",
@@ -26,12 +25,13 @@
                 "value": "x64",
                 "strategy": "external"
             },
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_PREFIX_PATH": "D:/VG_modules/submodule/",  
-                "CMAKE_MODULE_PATH": "D:/VG_modules/submodule/",               
-                "SIMPLYLIVE_INSTALL_PATH": "D:/VG_modules/submodule/"
-            }
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Debug",
+            "CMAKE_PREFIX_PATH": "D:/VG_modules/submodule/",
+            "CMAKE_MODULE_PATH": "D:/VG_modules/submodule/",
+            "SIMPLYLIVE_INSTALL_PATH": "D:/VG_modules/submodule/",
+            "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
+          }
         },
       {
         "name": "x64-release",
