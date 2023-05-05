@@ -8,7 +8,8 @@
 #include <set>
 #include <thread>
 #include <mutex>
-#include <format>
+//#include <format>
+
 
 #include "stringHelper.h"
 #include "logLib.h"
@@ -125,7 +126,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::wstring WnetworkID,
 		TCHAR ErrStr[256];
 		g_Dll->LV_GetError(nResult, 256, ErrStr); // 见函数声明注示
 
-		return std::make_tuple(nResult, std::format("{}>>LV_AddProgram ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
+		return std::make_tuple(nResult, fmt::format("{}>>LV_AddProgram ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
 	}
 	AREARECT AreaRect; // 区域坐标属性结构体变量
 	AreaRect.left = 0;
@@ -149,7 +150,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::wstring WnetworkID,
 		g_Dll->LV_GetError(nResult, 256, ErrStr); // 见函数声明注示
 
 
-		return std::make_tuple(nResult, std::format("{}>>LV_QuickAddSingleLineTextArea ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
+		return std::make_tuple(nResult, fmt::format("{}>>LV_QuickAddSingleLineTextArea ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
 	}
 
 	nResult = g_Dll->LV_Send(&CommunicationInfo, hProgram); // 发送，见函数声明注示
@@ -162,5 +163,5 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::wstring WnetworkID,
 
 		return std::make_tuple(nResult, fmt::format("{}>>LV_Send ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
 	}
-	return std::make_tuple(0,fmt::format("{}>>sucess",networkID));
+	return std::make_tuple(0,fmt::format("{} setContent sucess",networkID));
 }
