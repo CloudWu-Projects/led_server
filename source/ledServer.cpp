@@ -59,7 +59,8 @@ LED_Server::LED_Server()
 int LED_Server::start(int port)
 {
 	g_Dll = new CLedDll();
-	g_Dll->InitDll();
+	if (!g_Dll->InitDll())
+		return -1;
 
 	g_Dll->LV_RegisterLedServerCallback((SERVERINFOCALLBACK)LedServerCallback);
 	int ret = g_Dll->LV_LedInitServer(port);

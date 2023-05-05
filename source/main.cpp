@@ -35,8 +35,9 @@ void startHttpServer(LED_Server& ledServer,int httpPort)
 
 	svr.listen("0.0.0.0", httpPort);
 }
-
-int main()
+#include <filesystem>
+namespace fs = std::filesystem;
+int main(int argc,char*argv[])
 {
 	int httpPort = 8080;
 	int ledPort = 10008;
@@ -44,6 +45,13 @@ int main()
 	printf("\na httpPort=%6d   a",httpPort);
 	printf("\na ledPort =%6d   a",ledPort);
 	printf("\naaaaaaaaaaaaaaaaaaaaa\n");
+	
+	auto a = std::filesystem::path(argv[0]);
+	auto b = a.remove_filename();
+	std::cout << "Current path is " << fs::current_path() << '\n'; 	
+	fs::current_path(b);	
+	std::cout << "Current path is " << fs::current_path() << '\n';
+
 	LED_Server ledServer;
 	ledServer.start(ledPort);
 	std::thread httpThread = std::thread([&]() {
