@@ -14,6 +14,7 @@ public:
 		int AreaRect_Top = 0;
 		int AreaRect_Right = 40;
 		int AreaRect_Bottom = 40;
+		int InSpeed = 0;
 	};
 	struct Program {
 		std::vector< Area> areas;

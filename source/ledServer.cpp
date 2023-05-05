@@ -280,7 +280,7 @@ HPROGRAM LED_Server::createAProgram_withLspj(std::wstring& showText)
 							pShowText = stringArr[area.AreaNo-1].data();
 
 
-						nResult = g_Dll->LV_QuickAddSingleLineTextArea(hProgram, 0, area.AreaNo, &AreaRect, ADDTYPE_STRING, pShowText, &FontProp, 32); // 快速通过字符添加一个单行文本区域，函数见函数声明注示
+						nResult = g_Dll->LV_QuickAddSingleLineTextArea(hProgram, 0, area.AreaNo, &AreaRect, ADDTYPE_STRING, pShowText, &FontProp, area.InSpeed); // 快速通过字符添加一个单行文本区域，函数见函数声明注示
 						// nResult=g_Dll.LV_QuickAddSingleLineTextArea(hProgram,1,1,&AreaRect,ADDTYPE_FILE,_T("test.rtf"),NULL,4);//快速通过rtf文件添加一个单行文本区域，函数见函数声明注示
 						// nResult=g_Dll.LV_QuickAddSingleLineTextArea(hProgram,1,1,&AreaRect,ADDTYPE_FILE,_T("test.txt"),&FontProp,4);//快速通过txt文件添加一个单行文本区域，函数见函数声明注示
 

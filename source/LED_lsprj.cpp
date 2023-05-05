@@ -69,6 +69,8 @@ void LED_lsprj::parse(tinyxml2::XMLDocument* doc)
 		pArea->FindAttribute("AreaRect_Top")->QueryIntValue(&area.AreaRect_Top);
 		pArea->FindAttribute("AreaRect_Right")->QueryIntValue(&area.AreaRect_Right);
 		pArea->FindAttribute("AreaRect_Bottom")->QueryIntValue(&area.AreaRect_Bottom);
+
+		pArea->FirstChildElement("SingleLineArea")->FindAttribute("InSpeed")->QueryIntValue(&area.InSpeed);
 		program.areas.push_back(area);
 	}
 	led.programs.push_back(program);
