@@ -1,14 +1,16 @@
 #include "LED_lsprj.h"
 #include "logLib.h"
-void LED_lsprj::loadFile(const char*filePath) {
+#include "tinyxml2.h"
+bool LED_lsprj::loadFile(const char*filePath) {
 	tinyxml2::XMLDocument doc;
 	if (auto error = doc.LoadFile(filePath);
 		error != tinyxml2::XMLError::XML_SUCCESS)
 	{
 		SPDLOG_ERROR("LoadFile xml failed. {}", error);
-		return;
+		return false;
 	}
-	parse(doc);
+	parse(&doc);
+	return true;
 }
 
 bool LED_lsprj::loadMem(const char* pText) {
@@ -20,12 +22,15 @@ bool LED_lsprj::loadMem(const char* pText) {
 		SPDLOG_ERROR("loadMem xml failed. {}", error);
 		return false;
 	}
-	parse(doc);
+	parse(&doc);
 	return true;
 }
 
-void LED_lsprj::parse(tinyxml2::XMLDocument& doc) {
+void LED_lsprj::parse(tinyxml2::XMLDocument* doc)
+{
 
+	clear();
+	std::lock_guard<std::mutex> lock(leds_mutex);
 	/*
 	* LEDS>>>LED>>
 	ModuleWidth="80"   ModuleHeight="40"
@@ -39,15 +44,9 @@ void LED_lsprj::parse(tinyxml2::XMLDocument& doc) {
 
 
 	*/
-	// Structure of the XML file:
-	// - Element "PLAY"      the root Element, which is the
-	//                       FirstChildElement of the Document
-	// - - Element "TITLE"   child of the root PLAY Element
-	// - - - Text            child of the TITLE Element
-
-	// Navigate to the title, using the convenience function,
-	// with a dangerous lack of error checking.
-	auto pLed = doc.FirstChildElement("LEDS")->FirstChildElement("LED");
+	
+	
+	auto pLed = doc->FirstChildElement("LEDS")->FirstChildElement("LED");
 	LED led;
 	pLed->FindAttribute("ModuleWidth")->QueryIntValue(&led.ModuleWidth);
 	pLed->FindAttribute("ModuleHeight")->QueryIntValue(&led.ModuleHeight);
@@ -55,7 +54,12 @@ void LED_lsprj::parse(tinyxml2::XMLDocument& doc) {
 	pLed->FindAttribute("HeightModuleNum")->QueryIntValue(&led.HeightModuleNum);
 	pLed->FindAttribute("LedWidth")->QueryIntValue(&led.LedWidth);
 	pLed->FindAttribute("LedHeight")->QueryIntValue(&led.LedHeight);
-
+	pLed->FindAttribute("LedType")->QueryIntValue(&led.LedType);
+	pLed->FindAttribute("LedColor")->QueryIntValue(&led.LedColor); 
+	led.LedColor++;
+	pLed->FindAttribute("LedGray")->QueryIntValue(&led.LedGray); 
+	led.LedGray++;
+	
 	Program program;
 	for (auto pArea = pLed->FirstChildElement("Program")->FirstChildElement("Area"); pArea != nullptr; pArea = pArea->NextSiblingElement())
 	{
@@ -70,4 +74,18 @@ void LED_lsprj::parse(tinyxml2::XMLDocument& doc) {
 	led.programs.push_back(program);
 	leds.push_back(led);
 
+}
+
+void LED_lsprj::clear() {
+
+	std::lock_guard<std::mutex> lock(leds_mutex);
+	for (auto led : leds)
+	{
+		for (auto p : led.programs)
+		{
+			p.areas.clear();
+		}
+		led.programs.clear();
+	}
+	leds.clear();
 }

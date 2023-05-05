@@ -5,10 +5,10 @@
 #include "stringHelper.h"
 #include "config.h"
 
-void HttpServer::startHttpServer(const Config* config, LED_Server& ledServer)
+void HttpServer::startHttpServer(LED_Server& ledServer)
 {
 	auto SetHandler =
-		[&ledServer, &config](const httplib::Request& req, httplib::Response& res)
+		[&ledServer](const httplib::Request& req, httplib::Response& res)
 	{
 		std::wstring sendValue = L"test NUll";
 		if (req.method == "POST")
@@ -30,8 +30,7 @@ void HttpServer::startHttpServer(const Config* config, LED_Server& ledServer)
 			}
 		}
 		SPDLOG_DEBUG(L"handle a set key:{}", sendValue);
-
-		auto createRet = ledServer.createAProgram(sendValue, config->ledParam);
+		auto createRet = (req.path == "/create_onePGM") ? ledServer.createAProgram2(sendValue) : ledServer.createAProgram(sendValue);
 		std::string htmlContent = "{";
 		htmlContent += fmt::format("\"ret\":{},\"msg\":\"{}\",", std::get<0>(createRet), std::get<1>(createRet));
 		htmlContent += fmt::format("\"sendValue\":\"{}\",", to_byte_string(sendValue));
@@ -51,9 +50,19 @@ void HttpServer::startHttpServer(const Config* config, LED_Server& ledServer)
 			{
 				std::string htmlContent;
 				htmlContent = "{" + ledServer.getNetWorkIDList() + "}";
-				res.set_content(htmlContent, "application/json"); })
-		.Get("/set", SetHandler)
-					.Post("/set", SetHandler);
+				res.set_content(htmlContent, "application/json");
+			})
+		.Post("/set", SetHandler)
+		.Get("/create_onePGM", SetHandler)
+		.Get("/create_withPGM", SetHandler)
+		.Get("/reloadpgm", [&ledServer](const httplib::Request& req, httplib::Response& res)
+			{
+				std::string htmlContent;
+				htmlContent = "{";
+				htmlContent += (IConfig.ReloadPGM() ? "sucess" : "failed");
+				htmlContent += "}";
+				res.set_content(htmlContent, "application/json");
+			});
 
-				svr.listen("0.0.0.0", config->httpPort);
+			svr.listen("0.0.0.0", IConfig.httpPort);
 }

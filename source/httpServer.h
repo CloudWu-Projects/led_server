@@ -4,6 +4,6 @@ class Config;
 class HttpServer
 {
 public:
-     void startHttpServer(const Config* g_Config, LED_Server &ledServer);
+     void startHttpServer( LED_Server &ledServer);
    
 };

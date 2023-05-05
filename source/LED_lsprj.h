@@ -1,9 +1,11 @@
-
+#pragma once
 #include <vector>
-#include <tinyxml2.h>
+
+#include <mutex>
+namespace tinyxml2 { class XMLDocument; };
 class LED_lsprj {
 public:
-	void loadFile(const char* filePath);
+	bool loadFile(const char* filePath);
 
 	bool loadMem(const char* pText);
 	struct Area {
@@ -24,12 +26,19 @@ public:
 		int 	HeightModuleNum = 0;
 		int LedWidth = 0;
 		int 	LedHeight = 0;
+		int  LedType = 0;
+		int LedColor = 0;
+		int LedGray = 0;
 
 	};
+
 
 	std::vector<LED> leds;
 
 private:
-	void parse(tinyxml2::XMLDocument& doc);
+	void parse(tinyxml2::XMLDocument* doc);
+	void clear();
+
+	std::mutex leds_mutex;
 
 };
