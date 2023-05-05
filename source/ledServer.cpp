@@ -68,19 +68,24 @@ int LED_Server::start(int port)
 
 std::string LED_Server::getNetWorkIDList()
 {
-	std::string htmlContent = "";
+	std::string htmlContent = "\"idlist\":[";
 	{
 		std::lock_guard<std::mutex> lock(queue_mutex);
 
+		int i = 0;
 		for (auto id : clientNetWorkID)
 		{
-			htmlContent += std::format("<li>{}</li>", to_byte_string(id));
+			if (i != 0)
+				htmlContent += ",";
+			i++;
+			htmlContent += "\""+to_byte_string(id)+ "\"";
 		}
 	}
+	htmlContent += "]";
 	return htmlContent;
 }
 
-std::tuple<int, std::string> LED_Server::createAProgram(std::wstring& showText)
+std::tuple<int, std::string> LED_Server::createAProgram(std::wstring& showText, const Config::LEDParam& ledParam)
 {
 	std::lock_guard<std::mutex> lock(queue_mutex);
 
@@ -91,27 +96,27 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::wstring& showText)
 
 	for (auto WnetworkID : clientNetWorkID)
 	{
-		auto ret = createAProgram(WnetworkID, showText);
+		auto ret = createAProgram(WnetworkID, showText,ledParam);
 		retHtml += std::get<1>(ret);
 	}
 	
 	return std::make_tuple(0, retHtml);
 }
 
-std::tuple<int, std::string> LED_Server::createAProgram(std::wstring WnetworkID, std::wstring& showText)
+std::tuple<int, std::string> LED_Server::createAProgram(std::wstring WnetworkID, std::wstring& showText, const Config::LEDParam& ledParam)
 {
 	std::string networkID = to_byte_string(WnetworkID);
 
 	int nResult = 0;
 	COMMUNICATIONINFO CommunicationInfo; // 定义一通讯参数结构体变量用于对设定的LED通讯，具体对此结构体元素赋值说明见COMMUNICATIONINFO结构体定义部份注示
 	ZeroMemory(&CommunicationInfo, sizeof(COMMUNICATIONINFO));
-	CommunicationInfo.LEDType = m_ledType;
+	CommunicationInfo.LEDType = ledParam.ledType;
 
 	CommunicationInfo.SendType = 4;
 	_tcscpy(CommunicationInfo.NetworkIdStr, (TCHAR*)WnetworkID.data()); // 指定唯一网络ID
 
 	HPROGRAM hProgram;																			 // 节目句柄
-	hProgram = g_Dll->LV_CreateProgramEx(m_ledWidth, m_ledHeight, m_ledColor, m_ledGraylevel, 0); // 注意此处屏宽高及颜色参数必需与设置屏参的屏宽高及颜色一致，否则发送时会提示错误
+	hProgram = g_Dll->LV_CreateProgramEx(ledParam.ledWidth, ledParam.ledHeight, ledParam.ledColor, ledParam.ledGraylevel, 0); // 注意此处屏宽高及颜色参数必需与设置屏参的屏宽高及颜色一致，否则发送时会提示错误
 	// 此处可自行判断有未创建成功，hProgram返回NULL失败，非NULL成功,一般不会失败
 
 	nResult = g_Dll->LV_AddProgram(hProgram, 0, 0, 1); // 添加一个节目，参数说明见函数声明注示
@@ -125,8 +130,8 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::wstring WnetworkID,
 	AREARECT AreaRect; // 区域坐标属性结构体变量
 	AreaRect.left = 0;
 	AreaRect.top = 0;
-	AreaRect.width = m_ledWidth;
-	AreaRect.height = m_ledHeight;
+	AreaRect.width = ledParam.ledWidth;
+	AreaRect.height = ledParam.ledHeight;
 
 	FONTPROP FontProp; // 文字属性
 	ZeroMemory(&FontProp, sizeof(FONTPROP));

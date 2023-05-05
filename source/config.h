@@ -23,18 +23,7 @@ public:
 		load();
 	}
 	
-	int getConfigInt(const char* szApp, const char* szKey,int defalut=0)
-	{
-		if (bWriteIni)
-			WritePrivateProfileStringA(szApp, szKey, "", m_ConfigPathA.data());
-		return GetPrivateProfileIntA(szApp, szKey, defalut, m_ConfigPathA.data());
-	}
-	int getConfigString(const char* szApp, const char* szKey, char* retVal,const char* defaultV)
-	{
-		if (bWriteIni)
-			WritePrivateProfileStringA(szApp, szKey, defaultV, m_ConfigPathA.data());
-		return GetPrivateProfileStringA(szApp, szKey, defaultV, retVal, MAX_PATH, m_ConfigPathA.data());
-	}
+	
 	struct MyTM
 	{
 		bool isValid = false;
@@ -90,14 +79,33 @@ public:
 
 	};
 	
-	bool bWriteIni = false;
+	struct LEDParam {
+		int ledType = 3;
+		int ledWidth = 320; 
+		int ledHeight = 40;
+		int ledColor = 3;
+		int ledGraylevel = 1;		
+	};
+	
 
 	int httpPort = 8080;
 	int ledPort = 10008;
-
-private:
+	LEDParam ledParam;
+	bool bWriteIni ;
 	std::string m_ConfigPathA = ".\\config.ini";
-
+private:
+	int getConfigInt(const char* szApp, const char* szKey, int defalut = 0)
+	{
+		if (bWriteIni)
+			WritePrivateProfileStringA(szApp, szKey, "", m_ConfigPathA.data());
+		return GetPrivateProfileIntA(szApp, szKey, defalut, m_ConfigPathA.data());
+	}
+	int getConfigString(const char* szApp, const char* szKey, char* retVal, const char* defaultV)
+	{
+		if (bWriteIni)
+			WritePrivateProfileStringA(szApp, szKey, defaultV, m_ConfigPathA.data());
+		return GetPrivateProfileStringA(szApp, szKey, defaultV, retVal, MAX_PATH, m_ConfigPathA.data());
+	}
 	bool load()
 	{
 		char szBuf1[MAX_PATH];
@@ -105,8 +113,15 @@ private:
 		char szApp[MAX_PATH];
 		int nret = 0;
 
-		httpPort = getConfigInt("main","httpport",38080);
-		ledPort=getConfigInt("main", "ledPort", 10008);
+		httpPort = getConfigInt("main", "httpport", 38080);
+		ledPort = getConfigInt("main", "ledPort", 10008);
+
+
+		ledParam.ledType = getConfigInt("main", "ledType", ledParam.ledType);
+		ledParam.ledWidth = getConfigInt("main", "ledWidth", ledParam.ledWidth);
+		ledParam.ledHeight = getConfigInt("main", "ledHeight", ledParam.ledHeight);
+		ledParam.ledColor = getConfigInt("main", "ledColor", ledParam.ledColor);
+		ledParam.ledGraylevel = getConfigInt("main", "ledType", ledParam.ledGraylevel);
 		return true;
 	}
 };
