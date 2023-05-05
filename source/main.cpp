@@ -1,5 +1,7 @@
 
 #include "httplib.h"
+
+#include "config.h"
 #include <stdio.h>
 #include "LedDll.h"
 
@@ -46,17 +48,14 @@ svr.Get("/", [&ledServer](const httplib::Request& req, httplib::Response& res)
 
 	svr.listen("0.0.0.0", httpPort);
 }
-#include <filesystem>
-namespace fs = std::filesystem;
 int main(int argc,char*argv[])
 {
 	initLogger(nullptr);
-	int httpPort = 8080;
-	int ledPort = 10008;
 
+	Config c;
 	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaa");
-	SPDLOG_INFO("a httpPort={:6d}   a",httpPort);
-	SPDLOG_INFO("a ledPort ={:6d}   a",ledPort);
+	SPDLOG_INFO("a httpPort={:6d}   a",c.httpPort);
+	SPDLOG_INFO("a ledPort ={:6d}   a",c.ledPort);
 	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaa");
 	
 	auto a = std::filesystem::path(argv[0]);
@@ -64,11 +63,13 @@ int main(int argc,char*argv[])
 	std::cout << "Current path is " << fs::current_path() << '\n'; 	
 	fs::current_path(b);	
 	std::cout << "Current path is " << fs::current_path() << '\n';
+	
+	
 
 	LED_Server ledServer;
-	ledServer.start(ledPort);
+	ledServer.start(c.ledPort);
 	std::thread httpThread = std::thread([&]() {
-		startHttpServer(ledServer, httpPort);;
+		startHttpServer(ledServer, c.httpPort);;
 		});
 	
 

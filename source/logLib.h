@@ -1,3 +1,4 @@
+#pragma once
 
 #include <fmt/format.h>
 #define SPDLOG_ACTIVE_LEVEL 0
