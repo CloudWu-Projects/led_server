@@ -1,5 +1,5 @@
 #include "LED_lsprj.h"
-
+#include "logLib.h"
 void LED_lsprj::loadFile(const char*filePath) {
 	tinyxml2::XMLDocument doc;
 	if (auto error = doc.LoadFile(filePath);

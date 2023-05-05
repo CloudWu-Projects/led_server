@@ -75,6 +75,10 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "filesystem": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "chrono": "cpp",
+        "codecvt": "cpp",
+        "forward_list": "cpp",
+        "variant": "cpp"
     }
 }
