@@ -15,6 +15,11 @@ public:
 		int AreaRect_Right = 40;
 		int AreaRect_Bottom = 40;
 		int InSpeed = 0;
+		int InStyle = 0;
+		int  OutStyle = 0;
+		int DelayTime = 0;
+		int FontColor = 0;//BBGGRR
+		int BackColor = 0;//
 	};
 	struct Program {
 		std::vector< Area> areas;

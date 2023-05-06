@@ -5,6 +5,7 @@
   "dependencies": [
     "spdlog",
     "cpp-httplib",
-    "tinyxml2"
+    "tinyxml2",
+    "cpp-base64"
   ]
 }

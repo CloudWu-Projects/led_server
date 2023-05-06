@@ -1,6 +1,7 @@
 #include "LED_lsprj.h"
 #include "logLib.h"
 #include "tinyxml2.h"
+#include "cpp-base64/base64.h"
 bool LED_lsprj::loadFile(const char*filePath) {
 	tinyxml2::XMLDocument doc;
 	if (auto error = doc.LoadFile(filePath);
@@ -26,6 +27,36 @@ bool LED_lsprj::loadMem(const char* pText) {
 	return true;
 }
 
+int parseFontColor_From_RTF(std::string &RTFtext)
+{
+	/*
+	TODO: RTFtext is
+			{\rtf1\fbidis\ansi\ansicpg936\deff0\nouicompat\rtldoc{\fonttbl{\f0\fswiss\fprq2\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\colortbl ;\red0\green255\blue0;\red255\green0\blue0;}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1
+\pard\ltrpar\cf1\f0\fs32\lang2052\'d7\'d6\'c4\'bb1\cf2\fs24\par
+}
+	parser RTFtext to get color
+			*/
+
+	size_t redStart = RTFtext.find("\\red");
+	size_t greenStart = RTFtext.find("\\green");
+	size_t blueStart = RTFtext.find("\\blue");
+	if (redStart == std::string::npos || greenStart == std::string::npos || blueStart == std::string::npos)
+	{
+		// Malformed color table
+		return -1;
+	}
+	redStart += 4;
+	greenStart += 6;
+	blueStart += 5;
+	int red = std::stoi(RTFtext.substr(redStart, greenStart - redStart - 1));
+	int green = std::stoi(RTFtext.substr(greenStart, blueStart - greenStart - 1));
+	int blue = std::stoi(RTFtext.substr(blueStart));
+	int color = (blue << 16) | (green << 8) | red;
+	//BBGGRR
+	return color;
+}
 void LED_lsprj::parse(tinyxml2::XMLDocument* doc)
 {
 
@@ -70,7 +101,20 @@ void LED_lsprj::parse(tinyxml2::XMLDocument* doc)
 		pArea->FindAttribute("AreaRect_Right")->QueryIntValue(&area.AreaRect_Right);
 		pArea->FindAttribute("AreaRect_Bottom")->QueryIntValue(&area.AreaRect_Bottom);
 
-		pArea->FirstChildElement("SingleLineArea")->FindAttribute("InSpeed")->QueryIntValue(&area.InSpeed);
+		auto pSingleLineArea = pArea->FirstChildElement("SingleLineArea");
+		if (pSingleLineArea)
+		{
+			pSingleLineArea->FindAttribute("InSpeed")->QueryIntValue(&area.InSpeed);
+			pSingleLineArea->FindAttribute("InStyle")->QueryIntValue(&area.InStyle);
+			pSingleLineArea->FindAttribute("OutStyle")->QueryIntValue(&area.OutStyle);
+			pSingleLineArea->FindAttribute("DelayTime")->QueryIntValue(&area.DelayTime);
+			auto pV = pSingleLineArea->GetText();
+			std::string decoded = base64_decode(pV);
+			
+			area.FontColor = parseFontColor_From_RTF(decoded);
+		
+
+		}
 		program.areas.push_back(area);
 	}
 	led.programs.push_back(program);

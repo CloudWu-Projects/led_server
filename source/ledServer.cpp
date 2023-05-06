@@ -258,7 +258,7 @@ HPROGRAM LED_Server::createAProgram_withLspj(std::wstring& showText)
 							g_Dll->LV_DeleteProgram(hProgram);//删除节目内存对象，详见函数声明注示
 							hProgram = nullptr;
 						}
-						return ;
+						return;
 					}
 					for (auto area : p.areas)
 					{
@@ -269,21 +269,25 @@ HPROGRAM LED_Server::createAProgram_withLspj(std::wstring& showText)
 						.height = area.AreaRect_Bottom - area.AreaRect_Top,
 						};
 
+						nResult = g_Dll->LV_AddImageTextArea(hProgram, 0, area.AreaNo, &AreaRect, 1);
+
+
+						PLAYPROP PlayProp;//显示属性
+						PlayProp.DelayTime = area.DelayTime;
+						PlayProp.InStyle = area.InStyle;
+						PlayProp.OutStyle = area.OutStyle;
+						PlayProp.Speed = area.InSpeed;
 
 						FONTPROP FontProp; // 文字属性
 						ZeroMemory(&FontProp, sizeof(FONTPROP));
 						_tcscpy(FontProp.FontName, L"宋体");
 						FontProp.FontSize = 12;
-						FontProp.FontColor = COLOR_RED;
+						FontProp.FontColor = area.FontColor;
 						auto pShowText = showText.data();
-						if (p.areas.size() > 1 && stringArr.size()==p.areas.size())
-							pShowText = stringArr[area.AreaNo-1].data();
-
-
-						nResult = g_Dll->LV_QuickAddSingleLineTextArea(hProgram, 0, area.AreaNo, &AreaRect, ADDTYPE_STRING, pShowText, &FontProp, area.InSpeed); // 快速通过字符添加一个单行文本区域，函数见函数声明注示
-						// nResult=g_Dll.LV_QuickAddSingleLineTextArea(hProgram,1,1,&AreaRect,ADDTYPE_FILE,_T("test.rtf"),NULL,4);//快速通过rtf文件添加一个单行文本区域，函数见函数声明注示
-						// nResult=g_Dll.LV_QuickAddSingleLineTextArea(hProgram,1,1,&AreaRect,ADDTYPE_FILE,_T("test.txt"),&FontProp,4);//快速通过txt文件添加一个单行文本区域，函数见函数声明注示
-
+						if (p.areas.size() > 1 && stringArr.size() == p.areas.size())
+							pShowText = stringArr[area.AreaNo - 1].data();
+						nResult = g_Dll->LV_AddSingleLineTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
+						//nResult = g_Dll->LV_AddStaticTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, area.DelayTime, 0, true);
 						if (nResult)
 						{
 							TCHAR ErrStr[256];
