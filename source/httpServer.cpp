@@ -35,7 +35,7 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 		SPDLOG_DEBUG("handle a set key:{}", sendValue);
 #endif
 		std::string htmlContent = "{";
-	/*	auto createRet = (req.path == "/create_onePGM") ? ledServer.createAProgram2(sendValue) : ledServer.createAProgram(sendValue);
+		auto createRet = (req.path == "/create_onePGM") ? ledServer.createAProgram2(sendValue) : ledServer.createAProgram(sendValue);
 		
 		htmlContent += fmt::format("\"ret\":{},\"msg\":\"{}\",", std::get<0>(createRet), std::get<1>(createRet));
 		htmlContent += fmt::format("\"sendValue\":\"{}\",", to_byte_string(sendValue));

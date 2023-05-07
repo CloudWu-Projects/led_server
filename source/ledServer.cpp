@@ -108,7 +108,7 @@ std::string LED_Server::getNetWorkIDList()
 	return htmlContent;
 }
 
-std::tuple<int, std::string> LED_Server::createAProgram(std::wstring& showText)
+std::tuple<int, std::string> LED_Server::createAProgram(std::string& showText)
 {
 	std::lock_guard<std::mutex> lock(queue_mutex);
 
@@ -137,7 +137,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::wstring& showText)
 	return std::make_tuple(0, retHtml);
 }
 
-std::tuple<int, std::string> LED_Server::createAProgram2(std::wstring& showText)
+std::tuple<int, std::string> LED_Server::createAProgram2(std::string& showText)
 {
 	std::lock_guard<std::mutex> lock(queue_mutex);
 
@@ -180,7 +180,7 @@ std::tuple<int, std::string> LED_Server::sendProgram(NETWORKID WnetworkID, HPROG
 	}
 	return std::make_tuple(0, fmt::format("{} setContent sucess", networkID));
 }
-std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, std::wstring& showText, const Config::LEDParam& ledParam)
+std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, std::string& showText, const Config::LEDParam& ledParam)
 {
 	std::string networkID = to_byte_string(WnetworkID);
 
@@ -215,7 +215,11 @@ std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, st
 #ifdef UNICODE
 	_tcscpy(FontProp.FontName, L"宋体");
 #else 
+#ifdef WIN32
 	strcpy(FontProp.FontName, "宋体");
+#else
+	strcpy(FontProp.FontName, "./simsun.ttc");
+#endif
 #endif
 	FontProp.FontSize = 12;
 	FontProp.FontColor = COLOR_RED;
@@ -246,26 +250,26 @@ std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, st
 	return std::make_tuple(0, fmt::format("{} setContent sucess", networkID));
 }
 
-inline std::vector<std::wstring> split_string(const std::wstring& s, wchar_t delim)
+inline std::vector<std::string> split_string(const std::string& s, char delim)
 {
 	if (s.empty())
 		return {};
 
-	std::vector<std::wstring> elems;
-	std::wstringstream ss;
+	std::vector<std::string> elems;
+	std::stringstream ss;
 	ss.str(s);
-	std::wstring item;
+	std::string item;
 	while (std::getline(ss, item, delim))
 		elems.push_back(item);
 	return elems;
 }
 
-HPROGRAM LED_Server::createAProgram_withLspj(std::wstring& showText)
+HPROGRAM LED_Server::createAProgram_withLspj(std::string& showText)
 {
 	int nResult = 0;
 	HPROGRAM hProgram = nullptr;																			 // 节目句柄
 
-	auto stringArr = split_string(showText, L',');
+	auto stringArr = split_string(showText, ',');
 	IConfig.foreach_PGM([&](LED_lsprj& led_lsprj)
 		{
 			for (auto led : led_lsprj.leds)
@@ -310,8 +314,14 @@ HPROGRAM LED_Server::createAProgram_withLspj(std::wstring& showText)
 #ifdef UNICODE
 						_tcscpy(FontProp.FontName, L"宋体");
 #else 
+#ifdef WIN32
 						strcpy(FontProp.FontName, "宋体");
+#else
+						strcpy(FontProp.FontName, "./simsun.ttc");
 #endif
+	
+#endif
+
 						FontProp.FontSize = 12;
 						FontProp.FontColor = area.FontColor;
 						auto pShowText = showText.data();

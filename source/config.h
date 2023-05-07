@@ -114,7 +114,7 @@ public:
 private:
 
 	LED_lsprj led_lsprj;
-	std::string pgmFIlePath = "";
+	std::string pgmFIlePath = "20230427170156.lsprj";
 	int getConfigInt(const char* szApp, const char* szKey, int defalut = 0)
 	{
 #ifdef WIN32
