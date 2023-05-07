@@ -109,7 +109,7 @@ void LED_lsprj::parse(tinyxml2::XMLDocument* doc)
 			pSingleLineArea->FindAttribute("OutStyle")->QueryIntValue(&area.OutStyle);
 			pSingleLineArea->FindAttribute("DelayTime")->QueryIntValue(&area.DelayTime);
 			auto pV = pSingleLineArea->GetText();
-			std::string decoded = base64_decode(pV);
+			std::string decoded = base64_decode(std::string(pV));
 			
 			area.FontColor = parseFontColor_From_RTF(decoded);
 		

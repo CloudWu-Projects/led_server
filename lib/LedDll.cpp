@@ -7,7 +7,9 @@
 
 #endif
 
+#include <filesystem>
 
+namespace fs = std::filesystem;
 
 
 
@@ -42,15 +44,22 @@ BOOL CLedDll::InitDll()
 		#endif
 	#endif
 	m_hDll = LoadLibrary(dll_file_name);
-#else
-	m_hDll = dlopen("libledplayer7.so",RTLD_LAZY);
-#endif
-	if(m_hDll==NULL)
+	if (m_hDll == NULL)
 	{
 		printf("Load \"LV_LED.DLL\" Failed");
 		return FALSE;
-	}	
-
+	}
+#else
+	auto soPath= fs::current_path().append("libledplayer7.so");
+	m_hDll = dlopen(soPath.string().data(), RTLD_LAZY);
+	if (m_hDll == NULL)
+	{
+		printf("Load \"LV_LED.DLL\" Failed  %s", dlerror());
+		return FALSE;
+	}
+#endif
+	
+	
 #ifndef _WIN32
 	#define GetProcAddress dlsym
 #endif
