@@ -14,12 +14,9 @@
 #pragma once
 
 
-#ifdef _WIN32
 #include "ledWin.h"
 #include <tchar.h>
-#else
-#include "ledplayer7.h"
-#endif
+
 
 class CLedDll
 {

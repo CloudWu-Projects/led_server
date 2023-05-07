@@ -26,7 +26,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE httplib::httplib
                                            
                                             tinyxml2::tinyxml2)
                                             
-if(LINUX)
+if(UNIX)
+message(STATUS  "aaaaaaaaaaaaaaaaaaaa" "${CMAKE_SOURCE_DIR}/lib/dll/libledplayer7.so")
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/lib/dll/libledplayer7.so")
 endif()
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/bin)

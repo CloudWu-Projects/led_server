@@ -165,11 +165,11 @@ private:
 		ledParam.ledColor = getConfigInt("LED", "ledColor", ledParam.ledColor);
 		ledParam.ledGraylevel = getConfigInt("LED", "ledType", ledParam.ledGraylevel);
 
-		if (getConfigString("LED", "lsprj_path", szBuf1, R"(D:\Cloud_wu\LED\led_server\20230427170156.lsprj)") && szBuf1[0] != '\0')
+		if (getConfigString("LED", "lsprj_path", szBuf1, R"(20230427170156.lsprj)") && szBuf1[0] != '\0')
 		{
 			pgmFIlePath = szBuf1;
-			ReloadPGM();
 		}
+		ReloadPGM();
 		bLoaded = true;
 		return true;
 	}

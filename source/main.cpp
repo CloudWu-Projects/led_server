@@ -3,7 +3,6 @@
 
 #include "config.h"
 #include <stdio.h>
-#include "LedDll.h"
 
 #define TRACE printf
 
