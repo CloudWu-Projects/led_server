@@ -159,12 +159,12 @@ typedef struct _card_info
 
 
 /********************************************************************************************
-*   LV_LedInit            初始化缓存文件路径 如"/home/listenvision/"       注意：不调用此接口，缓存文件默认为执行程序的路径
+*   _LV_LedInit            初始化缓存文件路径 如"/home/listenvision/"       注意：不调用此接口，缓存文件默认为执行程序的路径
 *
 *   参数说明
 *               workPath        缓存文件路径
 ********************************************************************************************/
-void LV_LedInit(const char *workPath);
+void _LV_LedInit(const char *workPath);
 
 /********************************************************************************************
 *	LV_CreateProgramEx			创建节目对象，返回类型为 HPROGRAM
@@ -179,7 +179,8 @@ void LV_LedInit(const char *workPath);
 *				0				创建节目对象失败
 *				非0				创建节目对象成功
 ********************************************************************************************/
-HPROGRAM LV_CreateProgramEx(int LedWidth,int LedHeight,int ColorType,int GrayLevel,int SaveType);
+//HPROGRAM _LV_CreateProgramEx(int LedWidth,int LedHeight,int ColorType,int GrayLevel,int SaveType);
+typedef	HPROGRAM ( *_LV_CreateProgramEx)(int LedWidth,int LedHeight,int ColorType,int GrayLevel,int SaveType);
 /*********************************************************************************************
 *	LV_AddProgram				添加一个节目
 *
@@ -192,7 +193,7 @@ HPROGRAM LV_CreateProgramEx(int LedWidth,int LedHeight,int ColorType,int GrayLev
 *				0				成功
 *				非0				失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_AddProgram(HPROGRAM hProgram,int ProgramNo,int ProgramTime,int LoopCount);
+int _LV_AddProgram(HPROGRAM hProgram,int ProgramNo,int ProgramTime,int LoopCount);
 
 /*********************************************************************************************
 *	LV_AddImageTextArea				添加一个图文区域
@@ -207,7 +208,7 @@ int LV_AddProgram(HPROGRAM hProgram,int ProgramNo,int ProgramTime,int LoopCount)
 *				0					成功
 *				非0					失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_AddImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,BOOL IsBackgroundArea);
+int _LV_AddImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,BOOL IsBackgroundArea);
 /*********************************************************************************************
 *	LV_AddFileToImageTextArea			添加一个文件到图文区
 *
@@ -221,7 +222,7 @@ int LV_AddImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pA
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_AddFileToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPCTSTR FilePath,PLAYPROP *pPlayProp);
+int _LV_AddFileToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPCTSTR FilePath,PLAYPROP *pPlayProp);
 /*********************************************************************************************
 *	LV_AddSingleLineTextToImageTextArea	添加一个单行文本到图文区
 *
@@ -237,7 +238,7 @@ int LV_AddFileToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPCTSTR
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_AddSingleLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp);
+int _LV_AddSingleLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp);
 /*********************************************************************************************
 *	LV_AddMultiLineTextToImageTextArea	添加一个多行文本到图文区
 *
@@ -255,7 +256,7 @@ int LV_AddSingleLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int Area
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int	LV_AddMultiLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp,int nAlignment,BOOL IsVCenter);
+int	_LV_AddMultiLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp,int nAlignment,BOOL IsVCenter);
 /*********************************************************************************************
  *	LV_AddStaticTextToImageTextArea		添加一个静止文本到图文区
  *	
@@ -273,7 +274,7 @@ int	LV_AddMultiLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaN
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-int	LV_AddStaticTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int DelayTime,int nAlignment,BOOL IsVCenter);
+int	_LV_AddStaticTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int DelayTime,int nAlignment,BOOL IsVCenter);
 /*********************************************************************************************
 *	LV_QuickAddSingleLineTextArea		快速添加一个左移单行文本区域
 *
@@ -290,7 +291,7 @@ int	LV_AddStaticTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,i
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_QuickAddSingleLineTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int nSpeed);
+int _LV_QuickAddSingleLineTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int nSpeed);
 
 /*********************************************************************************************
 *	LV_AddDigitalClockArea				添加一个数字时钟区域
@@ -305,10 +306,10 @@ int LV_QuickAddSingleLineTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPA
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_AddDigitalClockArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPDIGITALCLOCKAREAINFO pDigitalClockAreaInfo);
+int _LV_AddDigitalClockArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPDIGITALCLOCKAREAINFO pDigitalClockAreaInfo);
 
 /*********************************************************************************************
- *  LV_AddTimeArea                      添加一个计时区域
+ *  _LV_AddTimeArea                      添加一个计时区域
  *  
  *  参数说明
  *              hProgram                节目对象句柄
@@ -320,10 +321,10 @@ int LV_AddDigitalClockArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT
  *              0                       成功
  *              非0                      失败，调用LV_GetError来获取错误信息 
  ********************************************************************************************/
-int LV_AddTimeArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPTIMEAREAINFO pTimeAreaInfo);
+int _LV_AddTimeArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPTIMEAREAINFO pTimeAreaInfo);
 
 /*********************************************************************************************
- *  LV_AddNeiMaArea                     添加一个内码区域,局部文本刷新，卡型号是否支持和开发流程，请查看内码区域局部更新协议
+ *  _LV_AddNeiMaArea                     添加一个内码区域,局部文本刷新，卡型号是否支持和开发流程，请查看内码区域局部更新协议
  *  
  *  参数说明
  *              hProgram                节目对象句柄
@@ -338,7 +339,7 @@ int LV_AddTimeArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRe
  *              0                       成功
  *              非0                      失败，调用LV_GetError来获取错误信息 
  ********************************************************************************************/
-int LV_AddNeiMaArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPCTSTR NeiMaStr,int FontSize,int FontColor,PLAYPROP* pPlayProp);
+int _LV_AddNeiMaArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPCTSTR NeiMaStr,int FontSize,int FontColor,PLAYPROP* pPlayProp);
 
 /*********************************************************************************************
 *	LV_DeleteProgram					销毁节目对象(注意：如果此节目对象不再使用，请调用此函数销毁，否则会造成内存泄露)
@@ -346,7 +347,7 @@ int LV_AddNeiMaArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaR
 *	参数说明
 *				hProgram				节目对象句柄
 ********************************************************************************************/
-void LV_DeleteProgram(HPROGRAM hProgram);
+void _LV_DeleteProgram(HPROGRAM hProgram);
 /*********************************************************************************************
 *	LV_Send								发送节目，此发送为一对一发送
 *
@@ -357,7 +358,7 @@ void LV_DeleteProgram(HPROGRAM hProgram);
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_Send(LPCOMMUNICATIONINFO pCommunicationInfo,HPROGRAM hProgram);
+int _LV_Send(LPCOMMUNICATIONINFO pCommunicationInfo,HPROGRAM hProgram);
 
 /*********************************************************************************************
 *	LV_SetBasicInfoEx						设置基本屏参
@@ -372,7 +373,7 @@ int LV_Send(LPCOMMUNICATIONINFO pCommunicationInfo,HPROGRAM hProgram);
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_SetBasicInfoEx(LPCOMMUNICATIONINFO pCommunicationInfo,int ColorType,int GrayLevel,int LedWidth,int LedHeight);
+int _LV_SetBasicInfoEx(LPCOMMUNICATIONINFO pCommunicationInfo,int ColorType,int GrayLevel,int LedWidth,int LedHeight);
 /*********************************************************************************************
 *	LV_GetError								获取错误信息（只支持中文）
 *
@@ -381,7 +382,7 @@ int LV_SetBasicInfoEx(LPCOMMUNICATIONINFO pCommunicationInfo,int ColorType,int G
 *				nMaxCount					pErrStr字符串缓冲区的大小（为字符的个数，非字节数）
 *				pErrStr						待获取错误信息的字符串地址
 ********************************************************************************************/
-void LV_GetError(int nErrCode,int nMaxCount,OUT LPTSTR pErrStr);
+void _LV_GetError(int nErrCode,int nMaxCount,OUT LPTSTR pErrStr);
 /*********************************************************************************************
 *	LV_PowerOnOff						设置屏开关
 *
@@ -392,7 +393,7 @@ void LV_GetError(int nErrCode,int nMaxCount,OUT LPTSTR pErrStr);
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_PowerOnOff(LPCOMMUNICATIONINFO pCommunicationInfo, int OnOff);
+int _LV_PowerOnOff(LPCOMMUNICATIONINFO pCommunicationInfo, int OnOff);
 
 /*********************************************************************************************
 *	LV_AdjustTime						校时
@@ -403,7 +404,7 @@ int LV_PowerOnOff(LPCOMMUNICATIONINFO pCommunicationInfo, int OnOff);
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_AdjustTime(LPCOMMUNICATIONINFO pCommunicationInfo);
+int _LV_AdjustTime(LPCOMMUNICATIONINFO pCommunicationInfo);
 
 /*********************************************************************************************
 *	LV_TestOnline						测试是否通讯正常
@@ -414,7 +415,7 @@ int LV_AdjustTime(LPCOMMUNICATIONINFO pCommunicationInfo);
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_TestOnline(LPCOMMUNICATIONINFO pCommunicationInfo);
+int _LV_TestOnline(LPCOMMUNICATIONINFO pCommunicationInfo);
 
 /*********************************************************************************************
 *	LV_LedInitServer			启动监听服务端口
@@ -425,12 +426,12 @@ int LV_TestOnline(LPCOMMUNICATIONINFO pCommunicationInfo);
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息	
 ********************************************************************************************/
-int LV_LedInitServer(int port);
+int _LV_LedInitServer(int port);
 
 /*********************************************************************************************
 *	LV_LedShudownServer			断开控制卡心跳包服务
 ********************************************************************************************/
-int LV_LedShudownServer();
+int _LV_LedShudownServer();
 
 /*********************************************************************************************
 *	LV_RegisterLedServerCallback			注册回调函数
@@ -439,7 +440,7 @@ int LV_LedShudownServer();
 *				ledServerCallback					回调函数
 
 ********************************************************************************************/
-void LV_RegisterLedServerCallback(SERVERINFOCALLBACK ledServerCallback);
+void _LV_RegisterLedServerCallback(SERVERINFOCALLBACK ledServerCallback);
 
 #endif
 

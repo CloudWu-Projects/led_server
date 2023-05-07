@@ -24,7 +24,7 @@ namespace httplib
 			if (httpPort != 0 && webSocketPort != 0)
 			{
 				char buff[1025];
-				sprintf_s(buff, R"({"moduleName":"%s","httpPort":%d,"webSocketPort":%d })", moduleName.c_str(), httpPort, webSocketPort);
+				sprintf(buff, R"({"moduleName":"%s","httpPort":%d,"webSocketPort":%d })", moduleName.c_str(), httpPort, webSocketPort);
 				m_getModuleInfo = buff;
 
 				this->Get("/getModuleInfo", [&](const httplib::Request& req, httplib::Response& res)

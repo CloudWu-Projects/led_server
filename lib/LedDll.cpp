@@ -3,6 +3,8 @@
 #include <stdio.h>
 #ifndef  _WIN32
 	#include <dlfcn.h>
+#define FreeLibrary  dlclose
+
 #endif
 
 
@@ -18,7 +20,7 @@ CLedDll::CLedDll()
 CLedDll::~CLedDll()
 {
 	if(m_hDll!=NULL)
-		FreeLibrary(m_hDll);
+		FreeLibrary(m_hDll);	
 
 }
 
@@ -41,7 +43,7 @@ BOOL CLedDll::InitDll()
 	#endif
 	m_hDll = LoadLibrary(dll_file_name);
 #else
-	m_hDLL = dlopen("libledplayer7.so",RTLD_LAZY);	
+	m_hDll = dlopen("libledplayer7.so",RTLD_LAZY);
 #endif
 	if(m_hDll==NULL)
 	{

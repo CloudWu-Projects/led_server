@@ -2,7 +2,9 @@
 
 #include <fmt/format.h>
 #define SPDLOG_ACTIVE_LEVEL 0
+#ifdef WIN32
 #define SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#endif
 #include <spdlog/spdlog.h>
 #include "spdlog/sinks/daily_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"

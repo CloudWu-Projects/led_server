@@ -18,6 +18,7 @@
 #include "httpServer.h"
 #include <iostream>
 #include "logLib.h"
+#include <thread>
 int main(int argc, char* argv[])
 {
 	initLogger(nullptr);
@@ -48,7 +49,7 @@ int main(int argc, char* argv[])
 	uint64_t loopCnt = 0;
 	while (httpThread.joinable())
 	{
-		Sleep(1000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		printf("%u\r", loopCnt++);
 	}
 	if (httpThread.joinable())

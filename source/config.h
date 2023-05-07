@@ -1,6 +1,6 @@
 
 #pragma once
-
+#define MAX_PATH 256
 #include "logLib.h"
 #include "LED_lsprj.h"
 #include <filesystem>
@@ -117,15 +117,23 @@ private:
 	std::string pgmFIlePath = "";
 	int getConfigInt(const char* szApp, const char* szKey, int defalut = 0)
 	{
+#ifdef WIN32
 		if (bWriteIni)
 			WritePrivateProfileStringA(szApp, szKey, "", m_ConfigPathA.data());
 		return GetPrivateProfileIntA(szApp, szKey, defalut, m_ConfigPathA.data());
+#else
+		return defalut;
+#endif
 	}
 	int getConfigString(const char* szApp, const char* szKey, char* retVal, const char* defaultV)
 	{
+#ifdef WIN32
 		if (bWriteIni)
 			WritePrivateProfileStringA(szApp, szKey, defaultV, m_ConfigPathA.data());
 		return GetPrivateProfileStringA(szApp, szKey, defaultV, retVal, MAX_PATH, m_ConfigPathA.data());
+#else
+		return 0;
+#endif
 	}
 	bool bLoaded = false;
 	bool load()

@@ -14,7 +14,15 @@
 #include "stringHelper.h"
 #include "logLib.h"
 std::mutex queue_mutex;
+#ifdef UNICODE
 std::set<std::wstring> clientNetWorkID;
+#else
+std::set<std::string> clientNetWorkID;
+#endif
+
+#ifndef WIN32
+#define _tcscpy strcpy
+#endif
 
 int LedServerCallback(int Msg, int wParam, void* lParam)
 {
@@ -24,7 +32,12 @@ int LedServerCallback(int Msg, int wParam, void* lParam)
 	case LV_MSG_CARD_ONLINE:
 	{
 		LP_CARD_INFO pCardInfo = (LP_CARD_INFO)lParam;
+
+#ifdef UNICODE
 		SPDLOG_DEBUG(L"LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+#else
+		SPDLOG_DEBUG("LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+#endif
 
 		{
 			std::lock_guard<std::mutex> lock(queue_mutex);
@@ -36,8 +49,11 @@ int LedServerCallback(int Msg, int wParam, void* lParam)
 	{
 		LP_CARD_INFO pCardInfo = (LP_CARD_INFO)lParam;
 
+#ifdef UNICODE
 		SPDLOG_DEBUG(L"LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
-
+#else
+		SPDLOG_DEBUG("LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+#endif
 		{
 			std::lock_guard<std::mutex> lock(queue_mutex);
 			clientNetWorkID.erase(pCardInfo->networkIdStr);
@@ -79,7 +95,13 @@ std::string LED_Server::getNetWorkIDList()
 			if (i != 0)
 				htmlContent += ",";
 			i++;
-			htmlContent += "\"" + to_byte_string(id) + "\"";
+			htmlContent += "\"" + 
+#ifdef WIN32
+				to_byte_string(id) 
+#else
+				id
+#endif
+				+ "\"";
 		}
 	}
 	htmlContent += "]";
@@ -135,13 +157,13 @@ std::tuple<int, std::string> LED_Server::createAProgram2(std::wstring& showText)
 	return std::make_tuple(0, retHtml);
 }
 
-std::tuple<int, std::string> LED_Server::sendProgram(std::wstring WnetworkID, HPROGRAM hProgram)
+std::tuple<int, std::string> LED_Server::sendProgram(NETWORKID WnetworkID, HPROGRAM hProgram)
 {
 	std::string networkID = to_byte_string(WnetworkID);
 
 	int nResult = 0;
 	COMMUNICATIONINFO CommunicationInfo; // 定义一通讯参数结构体变量用于对设定的LED通讯，具体对此结构体元素赋值说明见COMMUNICATIONINFO结构体定义部份注示
-	ZeroMemory(&CommunicationInfo, sizeof(COMMUNICATIONINFO));
+	memset(&CommunicationInfo,0, sizeof(COMMUNICATIONINFO));
 	CommunicationInfo.LEDType = IConfig.ledParam.ledType;
 
 	CommunicationInfo.SendType = 4;
@@ -158,13 +180,13 @@ std::tuple<int, std::string> LED_Server::sendProgram(std::wstring WnetworkID, HP
 	}
 	return std::make_tuple(0, fmt::format("{} setContent sucess", networkID));
 }
-std::tuple<int, std::string> LED_Server::createAProgram(std::wstring WnetworkID, std::wstring& showText, const Config::LEDParam& ledParam)
+std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, std::wstring& showText, const Config::LEDParam& ledParam)
 {
 	std::string networkID = to_byte_string(WnetworkID);
 
 	int nResult = 0;
 	COMMUNICATIONINFO CommunicationInfo; // 定义一通讯参数结构体变量用于对设定的LED通讯，具体对此结构体元素赋值说明见COMMUNICATIONINFO结构体定义部份注示
-	ZeroMemory(&CommunicationInfo, sizeof(COMMUNICATIONINFO));
+	memset(&CommunicationInfo,0, sizeof(COMMUNICATIONINFO));
 	CommunicationInfo.LEDType = ledParam.ledType;
 
 	CommunicationInfo.SendType = 4;
@@ -189,12 +211,16 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::wstring WnetworkID,
 	AreaRect.height = ledParam.ledHeight;
 
 	FONTPROP FontProp; // 文字属性
-	ZeroMemory(&FontProp, sizeof(FONTPROP));
+	memset(&FontProp,0, sizeof(FONTPROP));
+#ifdef UNICODE
 	_tcscpy(FontProp.FontName, L"宋体");
+#else 
+	strcpy(FontProp.FontName, "宋体");
+#endif
 	FontProp.FontSize = 12;
 	FontProp.FontColor = COLOR_RED;
 
-	nResult = g_Dll->LV_QuickAddSingleLineTextArea(hProgram, 0, 1, &AreaRect, ADDTYPE_STRING, showText.data(), &FontProp, 32); // 快速通过字符添加一个单行文本区域，函数见函数声明注示
+	nResult = g_Dll->LV_QuickAddSingleLineTextArea(hProgram, 0, 1, &AreaRect, ADDTYPE_STRING, "showText.data()", &FontProp, 32); // 快速通过字符添加一个单行文本区域，函数见函数声明注示
 	// nResult=g_Dll.LV_QuickAddSingleLineTextArea(hProgram,1,1,&AreaRect,ADDTYPE_FILE,_T("test.rtf"),NULL,4);//快速通过rtf文件添加一个单行文本区域，函数见函数声明注示
 	// nResult=g_Dll.LV_QuickAddSingleLineTextArea(hProgram,1,1,&AreaRect,ADDTYPE_FILE,_T("test.txt"),&FontProp,4);//快速通过txt文件添加一个单行文本区域，函数见函数声明注示
 
@@ -220,7 +246,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::wstring WnetworkID,
 	return std::make_tuple(0, fmt::format("{} setContent sucess", networkID));
 }
 
-inline std::vector<std::wstring> split_string(const std::wstring& s, TCHAR delim)
+inline std::vector<std::wstring> split_string(const std::wstring& s, wchar_t delim)
 {
 	if (s.empty())
 		return {};
@@ -279,14 +305,19 @@ HPROGRAM LED_Server::createAProgram_withLspj(std::wstring& showText)
 						PlayProp.Speed = area.InSpeed;
 
 						FONTPROP FontProp; // 文字属性
-						ZeroMemory(&FontProp, sizeof(FONTPROP));
+						memset(&FontProp,0, sizeof(FONTPROP));
+						memset(&FontProp, 0, sizeof(FONTPROP));
+#ifdef UNICODE
 						_tcscpy(FontProp.FontName, L"宋体");
+#else 
+						strcpy(FontProp.FontName, "宋体");
+#endif
 						FontProp.FontSize = 12;
 						FontProp.FontColor = area.FontColor;
 						auto pShowText = showText.data();
 						if (p.areas.size() > 1 && stringArr.size() == p.areas.size())
 							pShowText = stringArr[area.AreaNo - 1].data();
-						nResult = g_Dll->LV_AddSingleLineTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
+						nResult = g_Dll->LV_AddSingleLineTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, "pShowText", &FontProp, &PlayProp);
 						//nResult = g_Dll->LV_AddStaticTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, area.DelayTime, 0, true);
 						if (nResult)
 						{

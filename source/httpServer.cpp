@@ -10,7 +10,7 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 	auto SetHandler =
 		[&ledServer](const httplib::Request& req, httplib::Response& res)
 	{
-		std::wstring sendValue = L"test NUll";
+		std::string sendValue = "test NUll";
 		if (req.method == "POST")
 		{
 			if (req.get_header_value("Content-Type") != "application/json")
@@ -28,15 +28,20 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 			{
 				sendValue = to_wide_string(req.get_param_value("key"));
 			}
-		}
+		}	
+#ifdef UNICODE
 		SPDLOG_DEBUG(L"handle a set key:{}", sendValue);
-		auto createRet = (req.path == "/create_onePGM") ? ledServer.createAProgram2(sendValue) : ledServer.createAProgram(sendValue);
+#else
+		SPDLOG_DEBUG("handle a set key:{}", sendValue);
+#endif
 		std::string htmlContent = "{";
+	/*	auto createRet = (req.path == "/create_onePGM") ? ledServer.createAProgram2(sendValue) : ledServer.createAProgram(sendValue);
+		
 		htmlContent += fmt::format("\"ret\":{},\"msg\":\"{}\",", std::get<0>(createRet), std::get<1>(createRet));
 		htmlContent += fmt::format("\"sendValue\":\"{}\",", to_byte_string(sendValue));
 		htmlContent += ledServer.getNetWorkIDList();
 		htmlContent += "}";
-
+		/**/
 		SPDLOG_DEBUG(htmlContent);
 
 		res.set_content(htmlContent, "application/json");

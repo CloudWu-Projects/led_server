@@ -1,11 +1,38 @@
 #pragma once
 
-#include <windows.h>
 #include <stdint.h>
 
 typedef void* LPVOID;
 
 typedef LPVOID				HPROGRAM;	//节目句柄类型
+
+
+#ifdef WIN32
+#include <windows.h>
+#define __STDCALL __stdcall
+#else
+
+
+typedef void* LPVOID;
+typedef LPVOID				HPROGRAM;	//节目句柄类型
+typedef unsigned long       DWORD;
+typedef DWORD   COLORREF;
+typedef char TCHAR;
+typedef bool BOOL;
+typedef unsigned int        UINT;
+#define FALSE   0
+#define TRUE    1
+#define LPCTSTR const char *
+#define LPTSTR  char *
+#define HMODULE void*
+#define MAX_PATH          260
+#ifndef OUT
+#define OUT
+#endif
+
+#define __STDCALL
+#endif
+
 //typedef char TCHAR;
 #define COLOR_RED			0xff		//红色
 #define COLOR_GREEN			0xff00		//绿色
@@ -283,7 +310,7 @@ typedef struct VOICEAREAINFO
  *				0				创建节目对象失败
  *				非0				创建节目对象成功
  ********************************************************************************************/
-typedef	HPROGRAM	(__stdcall *_LV_CreateProgramEx)(int LedWidth,int LedHeight,int ColorType,int GrayLevel,int SaveType);
+typedef	HPROGRAM	(__STDCALL *_LV_CreateProgramEx)(int LedWidth,int LedHeight,int ColorType,int GrayLevel,int SaveType);
 
 /*********************************************************************************************
  *	LV_AddProgram				添加一个节目
@@ -297,7 +324,7 @@ typedef	HPROGRAM	(__stdcall *_LV_CreateProgramEx)(int LedWidth,int LedHeight,int
  *				0				成功
  *				非0				失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddProgram)(HPROGRAM hProgram,int ProgramNo,int ProgramTime,int LoopCount);
+typedef	int			(__STDCALL *_LV_AddProgram)(HPROGRAM hProgram,int ProgramNo,int ProgramTime,int LoopCount);
 
 /*********************************************************************************************
  *	LV_SetProgramTime			设置节目定时
@@ -310,7 +337,7 @@ typedef	int			(__stdcall *_LV_AddProgram)(HPROGRAM hProgram,int ProgramNo,int Pr
  *				0				成功
  *				非0				失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_SetProgramTime)(HPROGRAM hProgram,int ProgramNo,LPPROGRAMTIME pProgramTime);
+typedef	int			(__STDCALL *_LV_SetProgramTime)(HPROGRAM hProgram,int ProgramNo,LPPROGRAMTIME pProgramTime);
 
 /*********************************************************************************************
  *	LV_AddImageTextArea				添加一个图文区域
@@ -325,7 +352,7 @@ typedef	int			(__stdcall *_LV_SetProgramTime)(HPROGRAM hProgram,int ProgramNo,LP
  *				0					成功
  *				非0					失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddImageTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,BOOL IsBackgroundArea);
+typedef	int			(__STDCALL *_LV_AddImageTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,BOOL IsBackgroundArea);
 
 
 /*********************************************************************************************
@@ -341,7 +368,7 @@ typedef	int			(__stdcall *_LV_AddImageTextArea)(HPROGRAM hProgram,int ProgramNo,
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddFileToImageTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPCTSTR FilePath,PLAYPROP *pPlayProp);
+typedef	int			(__STDCALL *_LV_AddFileToImageTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPCTSTR FilePath,PLAYPROP *pPlayProp);
 
 /*********************************************************************************************
  *	LV_AddSingleLineTextToImageTextArea	添加一个单行文本到图文区
@@ -358,7 +385,7 @@ typedef	int			(__stdcall *_LV_AddFileToImageTextArea)(HPROGRAM hProgram,int Prog
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddSingleLineTextToImageTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp);
+typedef	int			(__STDCALL *_LV_AddSingleLineTextToImageTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp);
 
 /*********************************************************************************************
  *	LV_AddMultiLineTextToImageTextArea	添加一个多行文本到图文区
@@ -377,7 +404,7 @@ typedef	int			(__stdcall *_LV_AddSingleLineTextToImageTextArea)(HPROGRAM hProgra
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddMultiLineTextToImageTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp,int nAlignment,BOOL IsVCenter);
+typedef	int			(__STDCALL *_LV_AddMultiLineTextToImageTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp,int nAlignment,BOOL IsVCenter);
 
 /*********************************************************************************************
  *	LV_AddStaticTextToImageTextArea		添加一个静止文本到图文区
@@ -396,7 +423,7 @@ typedef	int			(__stdcall *_LV_AddMultiLineTextToImageTextArea)(HPROGRAM hProgram
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddStaticTextToImageTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int DelayTime,int nAlignment,BOOL IsVCenter);
+typedef	int			(__STDCALL *_LV_AddStaticTextToImageTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int DelayTime,int nAlignment,BOOL IsVCenter);
 
 /*********************************************************************************************
  *	LV_QuickAddSingleLineTextArea		快速添加一个向左移的单行文本区域
@@ -414,7 +441,7 @@ typedef	int			(__stdcall *_LV_AddStaticTextToImageTextArea)(HPROGRAM hProgram,in
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_QuickAddSingleLineTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int nSpeed);
+typedef	int			(__STDCALL *_LV_QuickAddSingleLineTextArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int nSpeed);
 
 /*********************************************************************************************
  *	LV_AddDigitalClockArea				添加一个数字时钟区域
@@ -429,7 +456,7 @@ typedef	int			(__stdcall *_LV_QuickAddSingleLineTextArea)(HPROGRAM hProgram,int 
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddDigitalClockArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPDIGITALCLOCKAREAINFO pDigitalClockAreaInfo);
+typedef	int			(__STDCALL *_LV_AddDigitalClockArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPDIGITALCLOCKAREAINFO pDigitalClockAreaInfo);
 
 /*********************************************************************************************
  *	LV_AddTimeArea						添加一个计时区域
@@ -444,7 +471,7 @@ typedef	int			(__stdcall *_LV_AddDigitalClockArea)(HPROGRAM hProgram,int Program
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddTimeArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPTIMEAREAINFO pTimeAreaInfo);
+typedef	int			(__STDCALL *_LV_AddTimeArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPTIMEAREAINFO pTimeAreaInfo);
 
 /*********************************************************************************************
 *	LV_AddVoiceArea						添加一个语音区域
@@ -458,7 +485,7 @@ typedef	int			(__stdcall *_LV_AddTimeArea)(HPROGRAM hProgram,int ProgramNo,int A
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息	
 ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddVoiceArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPVOICEAREAINFO pVoiceAreaInfo);
+typedef	int			(__STDCALL *_LV_AddVoiceArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPVOICEAREAINFO pVoiceAreaInfo);
 
 /*********************************************************************************************
 *	LV_AddNeiMaArea						添加一个内码区域
@@ -476,7 +503,7 @@ typedef	int			(__stdcall *_LV_AddVoiceArea)(HPROGRAM hProgram,int ProgramNo,int 
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息	
 ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddNeiMaArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPCTSTR NeiNaStr,int FontSize,int FontColor,PLAYPROP* pPlayProp);
+typedef	int			(__STDCALL *_LV_AddNeiMaArea)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPCTSTR NeiNaStr,int FontSize,int FontColor,PLAYPROP* pPlayProp);
 
 /*********************************************************************************************
 *	LV_AddWaterBorder						添加一个边框
@@ -490,7 +517,7 @@ typedef	int			(__stdcall *_LV_AddNeiMaArea)(HPROGRAM hProgram,int ProgramNo,int 
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息	
 ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AddWaterBorder)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPWATERBORDERINFO pWaterBorderInfo);
+typedef	int			(__STDCALL *_LV_AddWaterBorder)(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,LPWATERBORDERINFO pWaterBorderInfo);
 
 /*********************************************************************************************
  *	LV_DeleteProgram					销毁节目对象(注意：如果此节目对象不再使用，请调用此函数销毁，否则会造成内存泄露)
@@ -498,7 +525,7 @@ typedef	int			(__stdcall *_LV_AddWaterBorder)(HPROGRAM hProgram,int ProgramNo,in
  *	参数说明
  *				hProgram				节目对象句柄
  ********************************************************************************************/
-typedef	void		(__stdcall *_LV_DeleteProgram)(HPROGRAM hProgram);
+typedef	void		(__STDCALL *_LV_DeleteProgram)(HPROGRAM hProgram);
 
 
 /*********************************************************************************************
@@ -511,7 +538,7 @@ typedef	void		(__stdcall *_LV_DeleteProgram)(HPROGRAM hProgram);
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_Send)(LPCOMMUNICATIONINFO pCommunicationInfo,HPROGRAM hProgram);
+typedef	int			(__STDCALL *_LV_Send)(LPCOMMUNICATIONINFO pCommunicationInfo,HPROGRAM hProgram);
 
 /*********************************************************************************************
  *	LV_MultiSendOne						发送节目，此发送为多块屏共享一个节目对象并行发送
@@ -525,7 +552,7 @@ typedef	int			(__stdcall *_LV_Send)(LPCOMMUNICATIONINFO pCommunicationInfo,HPROG
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_MultiSendOne)(LPCOMMUNICATIONINFO pCommunicationInfoArray,HPROGRAM hProgram,OUT int* pResultArray,int LedCount);
+typedef	int			(__STDCALL *_LV_MultiSendOne)(LPCOMMUNICATIONINFO pCommunicationInfoArray,HPROGRAM hProgram,OUT int* pResultArray,int LedCount);
 
 /*********************************************************************************************
  *	LV_MultiSend						发送节目，此发送为多块屏发送不同的节目，并行发送
@@ -539,7 +566,7 @@ typedef	int			(__stdcall *_LV_MultiSendOne)(LPCOMMUNICATIONINFO pCommunicationIn
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_MultiSend)(LPCOMMUNICATIONINFO pCommunicationInfoArray,HPROGRAM *phProgramArray,OUT int* pResultArray,int LedCount);
+typedef	int			(__STDCALL *_LV_MultiSend)(LPCOMMUNICATIONINFO pCommunicationInfoArray,HPROGRAM *phProgramArray,OUT int* pResultArray,int LedCount);
 
 /*********************************************************************************************
  *	LV_SetBasicInfoEx						设置基本屏参
@@ -554,7 +581,7 @@ typedef	int			(__stdcall *_LV_MultiSend)(LPCOMMUNICATIONINFO pCommunicationInfoA
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-typedef	int			(__stdcall *_LV_SetBasicInfoEx)(LPCOMMUNICATIONINFO pCommunicationInfo,int ColorType,int GrayLevel,int LedWidth,int LedHeight);
+typedef	int			(__STDCALL *_LV_SetBasicInfoEx)(LPCOMMUNICATIONINFO pCommunicationInfo,int ColorType,int GrayLevel,int LedWidth,int LedHeight);
 
 /*********************************************************************************************
 *	LV_TestOnline						测试LED屏是否可连接上
@@ -565,7 +592,7 @@ typedef	int			(__stdcall *_LV_SetBasicInfoEx)(LPCOMMUNICATIONINFO pCommunication
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息	
 ********************************************************************************************/
-typedef	int			(__stdcall *_LV_TestOnline)(LPCOMMUNICATIONINFO pCommunicationInfo);
+typedef	int			(__STDCALL *_LV_TestOnline)(LPCOMMUNICATIONINFO pCommunicationInfo);
 
 /*********************************************************************************************
 *	LV_SetOEDA							设置OE DA
@@ -578,7 +605,7 @@ typedef	int			(__stdcall *_LV_TestOnline)(LPCOMMUNICATIONINFO pCommunicationInfo
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息	
 ********************************************************************************************/
-typedef	int			(__stdcall *_LV_SetOEDA)(LPCOMMUNICATIONINFO pCommunicationInfo,int Oe,int Da);
+typedef	int			(__STDCALL *_LV_SetOEDA)(LPCOMMUNICATIONINFO pCommunicationInfo,int Oe,int Da);
 
 /*********************************************************************************************
 *	LV_AdjustTime						校时
@@ -589,7 +616,7 @@ typedef	int			(__stdcall *_LV_SetOEDA)(LPCOMMUNICATIONINFO pCommunicationInfo,in
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息	
 ********************************************************************************************/
-typedef	int			(__stdcall *_LV_AdjustTime)(LPCOMMUNICATIONINFO pCommunicationInfo);
+typedef	int			(__STDCALL *_LV_AdjustTime)(LPCOMMUNICATIONINFO pCommunicationInfo);
 
 /*********************************************************************************************
 *	LV_PowerOnOff						开关屏
@@ -601,7 +628,7 @@ typedef	int			(__stdcall *_LV_AdjustTime)(LPCOMMUNICATIONINFO pCommunicationInfo
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息	
 ********************************************************************************************/
-typedef	int			(__stdcall *_LV_PowerOnOff)(LPCOMMUNICATIONINFO pCommunicationInfo,int OnOff);
+typedef	int			(__STDCALL *_LV_PowerOnOff)(LPCOMMUNICATIONINFO pCommunicationInfo,int OnOff);
 
 /*********************************************************************************************
 *	LV_SetBrightness					设置亮度
@@ -613,7 +640,7 @@ typedef	int			(__stdcall *_LV_PowerOnOff)(LPCOMMUNICATIONINFO pCommunicationInfo
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息	
 ********************************************************************************************/
-typedef	int			(__stdcall *_LV_SetBrightness)(LPCOMMUNICATIONINFO pCommunicationInfo,int BrightnessValue);
+typedef	int			(__STDCALL *_LV_SetBrightness)(LPCOMMUNICATIONINFO pCommunicationInfo,int BrightnessValue);
 
 /*********************************************************************************************
  *	LV_GetError								获取错误信息（只支持中文）
@@ -623,7 +650,7 @@ typedef	int			(__stdcall *_LV_SetBrightness)(LPCOMMUNICATIONINFO pCommunicationI
  *				nMaxCount					pErrStr字符串缓冲区的大小（为字符的个数，非字节数）
  *				pErrStr						待获取错误信息的字符串地址
  ********************************************************************************************/
-typedef void		(__stdcall *_LV_GetError)(int nErrCode,int nMaxCount,OUT LPTSTR pErrStr);
+typedef void		(__STDCALL *_LV_GetError)(int nErrCode,int nMaxCount,OUT LPTSTR pErrStr);
 
 
 /*********************************************************************************************
@@ -635,12 +662,12 @@ typedef void		(__stdcall *_LV_GetError)(int nErrCode,int nMaxCount,OUT LPTSTR pE
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息	
 ********************************************************************************************/
-typedef	int			(__stdcall *_LV_LedInitServer)(int port);
+typedef	int			(__STDCALL *_LV_LedInitServer)(int port);
 
 /*********************************************************************************************
 *	LV_ShudownServer			断开控制卡心跳包服务  注：只有C2M、C4M才支持
 ********************************************************************************************/
-typedef void		(__stdcall *_LV_LedShudownServer)(void);
+typedef void		(__STDCALL *_LV_LedShudownServer)(void);
 
 /*********************************************************************************************
 *	LV_RegisterLedServerCallback			注册回调函数  注：只有C2M、C4M才支持
@@ -649,5 +676,5 @@ typedef void		(__stdcall *_LV_LedShudownServer)(void);
 *				serverCallback					回调函数指针
 
 ********************************************************************************************/
-typedef void		(__stdcall *_LV_RegisterLedServerCallback)(SERVERINFOCALLBACK serverCallback);
+typedef void		(__STDCALL *_LV_RegisterLedServerCallback)(SERVERINFOCALLBACK serverCallback);
 
