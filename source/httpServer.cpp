@@ -10,6 +10,7 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 	auto SetHandler =
 		[&ledServer](const httplib::Request& req, httplib::Response& res)
 	{
+		res.set_header("Access-Control-Allow-Origin", "*");
 		ExtSeting extSetting;
 		std::string sendValue = "test NUll";
 		if (req.method == "POST")
@@ -75,7 +76,11 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 				htmlContent += (IConfig.ReloadPGM() ? "sucess" : "failed");
 				htmlContent += "}";
 				res.set_content(htmlContent, "application/json");
-			});
-
-			svr.listen("0.0.0.0", IConfig.httpPort);
+			})
+		.Get("/b", [&ledServer](const httplib::Request& req, httplib::Response& res)
+			{
+						
+				//res.set_content(htmlContent, "application/json");
+			})
+		.listen("0.0.0.0", IConfig.httpPort);
 }
