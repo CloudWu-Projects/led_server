@@ -10,6 +10,7 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 	auto SetHandler =
 		[&ledServer](const httplib::Request& req, httplib::Response& res)
 	{
+		ExtSeting extSetting;
 		std::string sendValue = "test NUll";
 		if (req.method == "POST")
 		{
@@ -24,18 +25,25 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 		}
 		else
 		{
-			if (req.has_param("key"))
-			{
-				sendValue = to_wide_string(req.get_param_value("key"));
-			}
-		}	
+		}
+
+		if (req.has_param("content"))
+		{
+			sendValue = to_wide_string(req.get_param_value("content"));
+		}
+		if (req.has_param("fontsize"))
+		{
+			extSetting.FontSize = atoi(req.get_param_value("fontsize").data());
+		}
 #ifdef UNICODE
 		SPDLOG_DEBUG(L"handle a set key:{}", sendValue);
 #else
 		SPDLOG_DEBUG("handle a set key:{}", sendValue);
 #endif
 		std::string htmlContent = "{";
-		auto createRet = (req.path == "/create_onePGM") ? ledServer.createAProgram2(sendValue) : ledServer.createAProgram(sendValue);
+		auto createRet = (req.path == "/create_onePGM") ? 
+				ledServer.create_onPGM_byCode(sendValue, extSetting)
+				: ledServer.createPGM_withLspj(sendValue, extSetting);
 		
 		htmlContent += fmt::format("\"ret\":{},\"msg\":\"{}\",", std::get<0>(createRet), std::get<1>(createRet));
 		htmlContent += fmt::format("\"sendValue\":\"{}\",", to_byte_string(sendValue));

@@ -113,7 +113,7 @@ std::string LED_Server::getNetWorkIDList()
 	return htmlContent;
 }
 
-std::tuple<int, std::string> LED_Server::createAProgram(std::string& showText)
+std::tuple<int, std::string> LED_Server::createPGM_withLspj(std::string& showText, ExtSeting& extSetting)
 {
 	std::lock_guard<std::mutex> lock(queue_mutex);
 
@@ -128,7 +128,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::string& showText)
 		//auto ret = createAProgram(WnetworkID, showText,ledParam);
 		if (hProgram == nullptr)
 		{
-			hProgram = createAProgram_withLspj(showText);
+			hProgram = createAProgram_withLspj(showText, extSetting);
 		}
 		if (hProgram == nullptr)
 		{
@@ -142,7 +142,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(std::string& showText)
 	return std::make_tuple(0, retHtml);
 }
 
-std::tuple<int, std::string> LED_Server::createAProgram2(std::string& showText)
+std::tuple<int, std::string> LED_Server::create_onPGM_byCode(std::string& showText, ExtSeting& extSetting)
 {
 	std::lock_guard<std::mutex> lock(queue_mutex);
 
@@ -154,7 +154,7 @@ std::tuple<int, std::string> LED_Server::createAProgram2(std::string& showText)
 	HPROGRAM hProgram = nullptr;
 	for (auto WnetworkID : clientNetWorkID)
 	{
-		auto ret = createAProgram(WnetworkID, showText,IConfig.ledParam);
+		auto ret = createAProgram(WnetworkID, showText,extSetting,IConfig.ledParam);
 		
 		retHtml += std::get<1>(ret);
 	}
@@ -193,7 +193,10 @@ std::tuple<int, std::string> LED_Server::sendProgram(NETWORKID WnetworkID, HPROG
 	}
 	return std::make_tuple(0, fmt::format("{} setContent sucess", networkID));
 }
-std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, std::string& showText, const Config::LEDParam& ledParam)
+
+
+
+std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, std::string& showText, ExtSeting& extSetting, const Config::LEDParam& ledParam)
 {
 	std::string networkID = to_byte_string(WnetworkID);
 
@@ -245,7 +248,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, st
 	strcpy(FontProp.FontPath, "./simsun.ttc");
 #endif
 #endif
-	FontProp.FontSize = 12;
+	FontProp.FontSize = extSetting.FontSize;
 	FontProp.FontColor = COLOR_RED;
 
 #ifdef WIN32
@@ -305,7 +308,7 @@ inline std::vector<std::string> split_string(const std::string& s, char delim)
 	return elems;
 }
 
-HPROGRAM LED_Server::createAProgram_withLspj(std::string& showText)
+HPROGRAM LED_Server::createAProgram_withLspj(std::string& showText, ExtSeting& extSetting)
 {
 	int nResult = 0;
 	HPROGRAM hProgram = nullptr;																			 // 节目句柄
@@ -383,7 +386,7 @@ HPROGRAM LED_Server::createAProgram_withLspj(std::string& showText)
 	
 #endif
 
-						FontProp.FontSize = 14;
+						FontProp.FontSize = extSetting.FontSize;
 						FontProp.FontColor =  area.FontColor;
 						auto pShowText = showText.data();
 						if (p.areas.size() > 1 && stringArr.size() == p.areas.size())
