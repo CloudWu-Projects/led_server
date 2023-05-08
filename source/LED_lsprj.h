@@ -1,50 +1,18 @@
 #pragma once
 #include <vector>
 
-#include <mutex>
+#include "ledPgm.h"
 namespace tinyxml2 { class XMLDocument; };
 class LED_lsprj {
 public:
-	bool loadFile(const char* filePath);
+	bool loadFile(const char* filePath,std::vector<LED>&leds);
 
-	bool loadMem(const char* pText);
-	struct Area {
-		int AreaNo = 1;
-		int AreaRect_Left = 0;
-		int AreaRect_Top = 0;
-		int AreaRect_Right = 40;
-		int AreaRect_Bottom = 40;
-		int InSpeed = 0;
-		int InStyle = 0;
-		int  OutStyle = 0;
-		int DelayTime = 0;
-		int FontColor = 0;//BBGGRR
-		int BackColor = 0;//
-	};
-	struct Program {
-		std::vector< Area> areas;
-	};
-	struct LED {
-		std::vector<Program> programs;
-		int   ModuleWidth = 0;
-		int 	ModuleHeight = 0;
-		int WidthModuleNum = 0;
-		int 	HeightModuleNum = 0;
-		int LedWidth = 0;
-		int 	LedHeight = 0;
-		int  LedType = 0;
-		int LedColor = 0;
-		int LedGray = 0;
-
-	};
-
-
-	std::vector<LED> leds;
-
+	bool loadMem(const char* pText,std::vector<LED>&leds);
+	
 private:
-	void parse(tinyxml2::XMLDocument* doc);
+	void parse(tinyxml2::XMLDocument* doc,std::vector<LED>&leds);
 	void clear();
 
-	std::mutex leds_mutex;
+
 
 };

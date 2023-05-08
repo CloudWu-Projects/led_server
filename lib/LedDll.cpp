@@ -1,11 +1,6 @@
 
-#include "LedDll.h"
+#include "xLedDll.h"
 #include <stdio.h>
-#ifndef  _WIN32
-	#include <dlfcn.h>
-#define FreeLibrary  dlclose
-
-#endif
 
 #include <filesystem>
 

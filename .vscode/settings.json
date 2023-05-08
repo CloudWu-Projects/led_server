@@ -79,6 +79,14 @@
         "chrono": "cpp",
         "codecvt": "cpp",
         "forward_list": "cpp",
-        "variant": "cpp"
-    }
+        "variant": "cpp",
+        "bitset": "cpp",
+        "charconv": "cpp",
+        "cstdarg": "cpp",
+        "unordered_set": "cpp"
+    },
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8"
+    },
+    "python.formatting.provider": "none"
 }

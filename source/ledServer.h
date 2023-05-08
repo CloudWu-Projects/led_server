@@ -18,7 +18,7 @@ public:
 	LED_Server();
 	int start(int port );
 	std::string getNetWorkIDList();
-	std::tuple<int,std::string> createPGM_withLspj(std::string& showText, ExtSeting&extSetting);
+	std::tuple<int,std::string> createPGM_withLspj(bool isJson,std::string& showText, ExtSeting&extSetting);
 	std::tuple<int, std::string> create_onPGM_byCode(std::string& showText, ExtSeting& extSetting);
 private:
 
@@ -28,6 +28,7 @@ private:
 	std::tuple<int, std::string> sendProgram(NETWORKID WnetworkID, HPROGRAM hProgram);
 	std::tuple<int, std::string> createAProgram(NETWORKID networkID, std::string& showText, ExtSeting& extSetting, const Config::LEDParam& ledParam);
 
+	HPROGRAM createAProgram_withJson(std::string& showText, ExtSeting& extSetting);
 	HPROGRAM createAProgram_withLspj( std::string& showText, ExtSeting& extSetting);
 
 };

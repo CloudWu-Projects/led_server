@@ -2,7 +2,8 @@
 #include "logLib.h"
 #include "tinyxml2.h"
 #include "cpp-base64/base64.h"
-bool LED_lsprj::loadFile(const char*filePath) {
+#include "ledPgm.h"
+bool LED_lsprj::loadFile(const char*filePath,std::vector<LED>&leds) {
 	tinyxml2::XMLDocument doc;
 	if (auto error = doc.LoadFile(filePath);
 		error != tinyxml2::XMLError::XML_SUCCESS)
@@ -10,11 +11,11 @@ bool LED_lsprj::loadFile(const char*filePath) {
 		SPDLOG_ERROR("LoadFile xml failed. {}", error);
 		return false;
 	}
-	parse(&doc);
+	parse(&doc, leds);
 	return true;
 }
 
-bool LED_lsprj::loadMem(const char* pText) {
+bool LED_lsprj::loadMem(const char* pText,std::vector<LED>&leds) {
 
 	tinyxml2::XMLDocument doc;
 	if (auto error = doc.Parse(pText);
@@ -23,7 +24,7 @@ bool LED_lsprj::loadMem(const char* pText) {
 		SPDLOG_ERROR("loadMem xml failed. {}", error);
 		return false;
 	}
-	parse(&doc);
+	parse(&doc, leds);
 	return true;
 }
 
@@ -57,11 +58,8 @@ int parseFontColor_From_RTF(std::string &RTFtext)
 	//BBGGRR
 	return color;
 }
-void LED_lsprj::parse(tinyxml2::XMLDocument* doc)
+void LED_lsprj::parse(tinyxml2::XMLDocument* doc,std::vector<LED>&leds)
 {
-
-	clear();
-	std::lock_guard<std::mutex> lock(leds_mutex);
 	/*
 	* LEDS>>>LED>>
 	ModuleWidth="80"   ModuleHeight="40"
@@ -120,18 +118,4 @@ void LED_lsprj::parse(tinyxml2::XMLDocument* doc)
 	led.programs.push_back(program);
 	leds.push_back(led);
 
-}
-
-void LED_lsprj::clear() {
-
-	std::lock_guard<std::mutex> lock(leds_mutex);
-	for (auto led : leds)
-	{
-		for (auto p : led.programs)
-		{
-			p.areas.clear();
-		}
-		led.programs.clear();
-	}
-	leds.clear();
 }

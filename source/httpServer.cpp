@@ -1,9 +1,15 @@
 #include "httpServer.h"
 
+#define use_httplib
+#ifdef use_httplib
 #include "httpServerWrapper.h"
+#else
+
+#endif
 #include "ledServer.h"
 #include "stringHelper.h"
 #include "config.h"
+
 
 void HttpServer::startHttpServer(LED_Server& ledServer)
 {
@@ -13,16 +19,22 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 		res.set_header("Access-Control-Allow-Origin", "*");
 		ExtSeting extSetting;
 		std::string sendValue = "test NUll";
+		bool isJson = false;
 		if (req.method == "POST")
 		{
 			if (req.get_header_value("Content-Type") != "application/json")
 			{
-				res.status = 500;
-				res.reason = "post with json.";
-				return;
+			//	res.status = 500;
+			//	res.reason = "post with json.";
+			//	return;
 			}
 
-			auto a = req.body;
+			/*
+			{
+			}
+			*/
+			sendValue = req.body;
+			isJson = true;
 		}
 		else
 		{
@@ -44,7 +56,7 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 		std::string htmlContent = "{";
 		auto createRet = (req.path == "/create_onePGM") ? 
 				ledServer.create_onPGM_byCode(sendValue, extSetting)
-				: ledServer.createPGM_withLspj(sendValue, extSetting);
+				: ledServer.createPGM_withLspj(isJson,sendValue, extSetting);
 		
 		htmlContent += fmt::format("\"ret\":{},\"msg\":\"{}\",", std::get<0>(createRet), std::get<1>(createRet));
 		htmlContent += fmt::format("\"sendValue\":\"{}\",", to_byte_string(sendValue));
@@ -59,6 +71,8 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 	htmlContent = fmt::format("\"sendValue\":\"{}\",", "aaa");
 	// HTTP
 	httplib::HttpServerWrapper svr;
+	
+	svr.set_mount_point("/b", "./webPage/");
 	svr
 		.Get("/list", [&ledServer](const httplib::Request& req, httplib::Response& res)
 			{
@@ -77,10 +91,9 @@ void HttpServer::startHttpServer(LED_Server& ledServer)
 				htmlContent += "}";
 				res.set_content(htmlContent, "application/json");
 			})
-		.Get("/b", [&ledServer](const httplib::Request& req, httplib::Response& res)
-			{
-						
-				//res.set_content(htmlContent, "application/json");
-			})
+		
 		.listen("0.0.0.0", IConfig.httpPort);
+
+	
+
 }

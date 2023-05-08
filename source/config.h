@@ -3,6 +3,7 @@
 #define MAX_PATH 256
 #include "logLib.h"
 #include "LED_lsprj.h"
+#include "ledPgm.h"
 #include <filesystem>
 #include <functional>
 namespace fs = std::filesystem;
@@ -53,8 +54,8 @@ public:
 		struct tm lastRunTime;
 		std::vector<std::string> m_IPs;
 		bool isNeedRun(struct tm& local) {
-			//       ¾«È·µ½·ÖÖÓ
-			//ÅÐ¶Ï stime<µ±Ç°Ê±¼ä
+			//       ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			//ï¿½Ð¶ï¿½ stime<ï¿½ï¿½Ç°Ê±ï¿½ï¿½
 			//      lastRunTime
 			auto isEqual = [&](MyTM& a) {
 				if (local.tm_hour != a.tm_hour)return false;
@@ -95,26 +96,40 @@ public:
 	bool ReloadPGM()
 	{
 		std::lock_guard<std::mutex> lock(led_lsprj_mutex);
-		if (led_lsprj.loadFile(pgmFIlePath.data()))
+
+		for (auto led : leds)
 		{
-			ledParam.ledType = led_lsprj.leds[0].LedType;
-			ledParam.ledWidth = led_lsprj.leds[0].LedWidth;
-			ledParam.ledHeight = led_lsprj.leds[0].LedHeight;
-			ledParam.ledColor = led_lsprj.leds[0].LedColor;
-			ledParam.ledGraylevel = led_lsprj.leds[0].LedGray;
-			return true;
+			for (auto p : led.programs)
+			{
+				p.areas.clear();
+			}
+			led.programs.clear();
+		}
+		leds.clear();
+
+		if (pgmFIlePath.extension() == ".lsprj")
+		{
+			if (led_lsprj.loadFile(pgmFIlePath.string().data(), leds))
+			{
+				ledParam.ledType = leds[0].LedType;
+				ledParam.ledWidth = leds[0].LedWidth;
+				ledParam.ledHeight = leds[0].LedHeight;
+				ledParam.ledColor = leds[0].LedColor;
+				ledParam.ledGraylevel = leds[0].LedGray;
+				return true;
+			}
 		}
 		return false;
 	}
-	void foreach_PGM(std::function<void(LED_lsprj& _led_lsprj)>&& func) {
+	void foreach_PGM(std::function<void(std::vector<LED>& leds)>&& func) {
 
 		std::lock_guard<std::mutex> lock(led_lsprj_mutex);
-		func(led_lsprj);
+		func(leds);
 	}
 private:
-
 	LED_lsprj led_lsprj;
-	std::string pgmFIlePath = "20230427170156.lsprj";
+	std::vector<LED> leds;
+	fs::path pgmFIlePath=("./20230427170156.lsprj");
 	int getConfigInt(const char* szApp, const char* szKey, int defalut = 0)
 	{
 #ifdef WIN32
@@ -167,7 +182,7 @@ private:
 
 		if (getConfigString("LED", "lsprj_path", szBuf1, R"(20230427170156.lsprj)") && szBuf1[0] != '\0')
 		{
-			pgmFIlePath = szBuf1;
+			pgmFIlePath=szBuf1;
 		}
 		ReloadPGM();
 		bLoaded = true;

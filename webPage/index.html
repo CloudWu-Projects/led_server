@@ -1,29 +1,175 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>JSON Post Example</title>
 </head>
+
 <body>
-    <form id="json-form" method="post" action="http://{your_server_ip}:28080">
+    <form id="json-form" method="post" >
+        <label for="ledWidth">LED Width:</label>
+        <input type="number" name="ledWidth" id="ledWidth">
+        <br>
+        <label for="ledHeight">LED Height:</label>
+        <input type="number" name="ledHeight" id="ledHeight">
+        <br>
+        <label for="ledType">LED Type:</label>
+        <input type="number" name="ledType" id="ledType">
+        <br>
+        <label for="ledColor">LED Color:</label>
+        <input type="number" name="ledColor" id="ledColor">
+        <br>
+        <label for="ledGray">LED Gray:</label>
+        <input type="number" name="ledGray" id="ledGray">
+        <br>
+        <fieldset>
+            <legend>Area:</legend>
+            <div class="area">
+                <label for="areaNo">Area No:</label>
+                <input type="number" name="areaNo[]" class="areaNo">
+                <br>
+                <label for="areaRectLeft">Area Rect Left:</label>
+                <input type="number" name="areaRectLeft[]" class="areaRectLeft">
+                <br>
+                <label for="areaRectTop">Area Rect Top:</label>
+                <input type="number" name="areaRectTop[]" class="areaRectTop">
+                <br>
+                <label for="areaRectRight">Area Rect Right:</label>
+                <input type="number" name="areaRectRight[]" class="areaRectRight">
+                <br>
+                <label for="areaRectBottom">Area Rect Bottom:</label>
+                <input type="number" name="areaRectBottom[]" class="areaRectBottom">
+                <br>
+                <label for="inSpeed">In Speed:</label>
+                <input type="number" name="inSpeed[]" class="inSpeed">
+                <br>
+                <label for="inStyle">In Style:</label>
+                <input type="number" name="inStyle[]" class="inStyle">
+                <br>
+                <label for="outStyle">Out Style:</label>
+                <input type="number" name="outStyle[]" class="outStyle">
+                <br>
+                <label for="delayTime">Delay Time:</label>
+                <input type="number" name="delayTime[]" class="delayTime">
+                <br>
+                <label for="fontColor">Font Color:</label>
+                <input type="number" name="fontColor[]" class="fontColor">
+                <br>
+                <label for="backColor">Back Color:</label>
+                <input type="number" name="backColor[]" class="backColor">
+                <br>
+                <button type="button" class="remove-area" onclick="removeArea(this)">Remove</button>
+            </div>
+            <button type="button" id="add-area">Add Area</button>
+        </fieldset>
         <label for="json-data">JSON Data:</label>
-        <textarea name="json-data" id="json-data" rows="5" cols="50"></textarea>
+        <textarea name="json-data" id="json-data" rows="5" cols="50" style="width: 400px; height: 200px;"></textarea>
         <br>
         <input type="submit" value="Submit">
     </form>
     <script>
-        document.getElementById("json-form").addEventListener("submit", function(event) {
+        function removeArea(element) {
+            if (element.parentNode.parentNode.children.length > 3) {
+                element.parentNode.remove();
+            }
+        }
+        let pageHost = location.host;
+        console.log(pageHost);
+        if (pageHost == "") {
+            pageHost = "127.0.0.1:38080";
+		}
+        function sendREST(cmd,jsonString) {
+			let add = "http://" + pageHost + "/" + cmd;
+
+			//result.value = "Processing";
+            fetch(add, 
+			{ 
+				mode: 'no-cors' , 
+				method: "POST" ,
+                headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+				body : JSON.stringify(jsonString)
+			})
+            .then(response => {
+				console.log(response);
+				//result.value = response.status + ': ' + response.statusText;
+			})
+			.catch(function(res){ 
+				console.log(res);
+				//result.value = "No connection";
+			})
+		}
+        document.getElementById("json-form").addEventListener("submit", function (event) {
             event.preventDefault();
-            // Get the JSON data from the form
-            var jsonData = document.getElementById("json-data").value;
-            // Create a new HTTP request
-            var xhr = new XMLHttpRequest();
-            // Open the request
-            xhr.open("POST", "http://nps.hyman.store:28080/set", true);
-            // Set the content type to JSON
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            // Send the request with the JSON data
-            xhr.send(jsonData);
+            var form = event.target;
+            form.action="http://"+pageHost+"/set";
+            var ledWidth = form.elements["ledWidth"].value;
+            var ledHeight = form.elements["ledHeight"].value;
+            var ledType = form.elements["ledType"].value;
+            var ledColor = form.elements["ledColor"].value;
+            var ledGray = form.elements["ledGray"].value;
+            var areas = [];
+            var areaDivs = form.getElementsByClassName("area");
+            for (var i = 0; i < areaDivs.length; i++) {
+                var areaDiv = areaDivs[i];
+                var areaNo = areaDiv.getElementsByClassName("areaNo")[0].value;
+                var areaRectLeft = areaDiv.getElementsByClassName("areaRectLeft")[0].value;
+                var areaRectTop = areaDiv.getElementsByClassName("areaRectTop")[0].value;
+                var areaRectRight = areaDiv.getElementsByClassName("areaRectRight")[0].value;
+                var areaRectBottom = areaDiv.getElementsByClassName("areaRectBottom")[0].value;
+                var inSpeed = areaDiv.getElementsByClassName("inSpeed")[0].value;
+                var inStyle = areaDiv.getElementsByClassName("inStyle")[0].value;
+                var outStyle = areaDiv.getElementsByClassName("outStyle")[0].value;
+                var delayTime = areaDiv.getElementsByClassName("delayTime")[0].value;
+                var fontColor = areaDiv.getElementsByClassName("fontColor")[0].value;
+                var backColor = areaDiv.getElementsByClassName("backColor")[0].value;
+                var area = {
+                    "areaNo": areaNo,
+                    "areaRect": {
+                        "left": areaRectLeft,
+                        "top": areaRectTop,
+                        "right": areaRectRight,
+                        "bottom": areaRectBottom
+                    },
+                    "inSpeed": inSpeed,
+                    "inStyle": inStyle,
+                    "outStyle": outStyle,
+                    "delayTime": delayTime,
+                    "fontColor": fontColor,
+                    "backColor": backColor
+                };
+                areas.push(area);
+            }
+            var jsonData = {
+                "pgm": {
+                    "ledWidth": ledWidth,
+                    "ledHeight": ledHeight,
+                    "ledType": ledType,
+                    "ledColor": ledColor,
+                    "ledGray": ledGray,
+                    "area": areas
+                }
+            };
+            var jsonString = JSON.stringify(jsonData);
+            form.elements["json-data"].value = jsonString;
+            
+            sendREST('set',jsonString);
+        });
+
+        document.getElementById("add-area").addEventListener("click", function (event) {
+            var addAreaButton = document.getElementById("add-area");
+            var a = addAreaButton.parentNode.children[1].innerHTML;
+            console.log(a);
+            var areaContainer = document.createElement("div");
+
+            areaContainer.innerHTML = a;
+            /* var b = areaContainer.querySelector('.remove-area');
+ 
+             b .addEventListener("click", function (event) {
+                 event.target.parentNode.remove();
+             });*/
+            addAreaButton.parentNode.insertBefore(areaContainer, addAreaButton);
         });
     </script>
-</body>
-</html>
