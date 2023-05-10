@@ -36,11 +36,11 @@ public:
 //	_LV_AddMultiLineTextToImageTextArea		LV_AddMultiLineTextToImageTextArea;
 //	_LV_AddStaticTextToImageTextArea		LV_AddStaticTextToImageTextArea;
 	_LV_QuickAddSingleLineTextArea			LV_QuickAddSingleLineTextArea;
-//	_LV_AddDigitalClockArea					LV_AddDigitalClockArea;
-//	_LV_AddTimeArea							LV_AddTimeArea;
+	_LV_AddDigitalClockArea					LV_AddDigitalClockArea;
+	_LV_AddTimeArea							LV_AddTimeArea;
 //	_LV_AddWaterBorder						LV_AddWaterBorder;	
 //	_LV_AddVoiceArea						LV_AddVoiceArea;
-//	_LV_AddNeiMaArea						LV_AddNeiMaArea;
+	_LV_AddNeiMaArea						LV_AddNeiMaArea;
 	_LV_DeleteProgram						LV_DeleteProgram;
 //	
 	_LV_Send								LV_Send;

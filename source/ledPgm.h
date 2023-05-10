@@ -1,18 +1,42 @@
 #pragma once
+#include "led.h"
 #include <vector>
 struct Area
 {
     int AreaNo = 1;
-    int AreaRect_Left = 0;
-    int AreaRect_Top = 0;
-    int AreaRect_Right = 40;
-    int AreaRect_Bottom = 40;
-    int InSpeed = 0;
-    int InStyle = 0;
-    int OutStyle = 0;
-    int DelayTime = 0;
-    int FontColor = 0; // BBGGRR
-    int BackColor = 0; //
+    AREARECT AreaRect;
+    
+	struct SingleLineArea {
+		int InSpeed = 0;
+		int InStyle = 0;
+		int OutStyle = 0;
+		int DelayTime = 0;
+		int FontColor = 0; // BBGGRR
+		int BackColor = 0; //
+	};
+    SingleLineArea singleLineArea;
+    struct NeiMaArea {
+        int InStyle = 0;
+		int OutStyle = 0;
+		int  PlaySpeed = 3;
+		int  DelayTime = 3;
+		int  FontSize = 0;
+        int  FontColor = 255;
+	};
+    NeiMaArea neiMaArea;
+    enum AreaType
+    {
+        SINGLELINEAREA=0,
+        TIME_AREA,
+        NEIMA_AREA
+    };
+    DIGITALCLOCKAREAINFO clockIfo ;
+    AreaType areaType = SINGLELINEAREA;
+    ~Area()
+    {
+        
+
+    }
 };
 struct Program
 {

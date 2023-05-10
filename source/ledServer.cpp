@@ -123,25 +123,33 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(bool isJson,std::str
 
 	std::string retHtml = "";
 
-	HPROGRAM hProgram = nullptr;
+	m_hProgram = nullptr;
+	m_extSetting = &extSetting;
 	for (auto WnetworkID : clientNetWorkID)
 	{
 		//auto ret = createAProgram(WnetworkID, showText,ledParam);
-		if (hProgram == nullptr)
+		if (m_hProgram == nullptr)
 		{
 
-			hProgram = isJson ?
-				createAProgram_withJson(showText, extSetting)
-				: createAProgram_withLspj(showText, extSetting);
+			m_hProgram = isJson ?
+				createAProgram_withJson(showText)
+				: createAProgram_withLspj(showText);
 		}
-		if (hProgram == nullptr)
+		if (m_hProgram == nullptr)
 		{
 			retHtml = "createAProgram_withLspj failed.";
 			break;
 		}
-		auto ret = sendProgram(WnetworkID, hProgram);
+		auto ret = sendProgram(WnetworkID, m_hProgram);
 		retHtml += std::get<1>(ret);
 	}
+
+#ifdef WIN32
+	g_Dll->LV_DeleteProgram(m_hProgram);					   // 删除节目内存对象，详见函数声明注示
+#else
+	LV_DeleteProgram(hProgram);					   // 删除节目内存对象，详见函数声明注示
+#endif	
+	m_hProgram = nullptr;
 
 	return std::make_tuple(0, retHtml);
 }
@@ -158,7 +166,7 @@ std::tuple<int, std::string> LED_Server::create_onPGM_byCode(std::string& showTe
 	HPROGRAM hProgram = nullptr;
 	for (auto WnetworkID : clientNetWorkID)
 	{
-		auto ret = createAProgram(WnetworkID, showText,extSetting,IConfig.ledParam);
+		auto ret = createAProgram(WnetworkID, showText,IConfig.ledParam);
 		
 		retHtml += std::get<1>(ret);
 	}
@@ -179,12 +187,11 @@ std::tuple<int, std::string> LED_Server::sendProgram(NETWORKID WnetworkID, HPROG
 	_tcscpy(CommunicationInfo.NetworkIdStr, (TCHAR*)WnetworkID.data()); // 指定唯一网络ID
 
 #ifdef WIN32
-	nResult = g_Dll->LV_Send(&CommunicationInfo, hProgram); // 发送，见函数声明注示
-	g_Dll->LV_DeleteProgram(hProgram);					   // 删除节目内存对象，详见函数声明注示
+	nResult = g_Dll->LV_Send(&CommunicationInfo, hProgram); // 发送，见函数声明注示	
 #else
 	nResult = LV_Send(&CommunicationInfo, hProgram); // 发送，见函数声明注示
-	LV_DeleteProgram(hProgram);					   // 删除节目内存对象，详见函数声明注示
 #endif	
+	
 	if (nResult)
 	{
 		TCHAR ErrStr[256];
@@ -200,7 +207,7 @@ std::tuple<int, std::string> LED_Server::sendProgram(NETWORKID WnetworkID, HPROG
 
 
 
-std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, std::string& showText, ExtSeting& extSetting, const Config::LEDParam& ledParam)
+std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, std::string& showText, const Config::LEDParam& ledParam)
 {
 	std::string networkID = to_byte_string(WnetworkID);
 
@@ -252,7 +259,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, st
 	strcpy(FontProp.FontPath, "./simsun.ttc");
 #endif
 #endif
-	FontProp.FontSize = extSetting.FontSize;
+	FontProp.FontSize = m_extSetting->FontSize;
 	FontProp.FontColor = COLOR_RED;
 
 #ifdef WIN32
@@ -338,7 +345,7 @@ int32_t fill(ValType& _val, const char* source,  std::string& errorMsg, rapidjso
 	return -1;
 }
 
-HPROGRAM LED_Server::createAProgram_withJson(std::string& showText, ExtSeting& extSetting)
+HPROGRAM LED_Server::createAProgram_withJson(std::string& showText)
 {
 	int nResult = 0;
 	HPROGRAM hProgram = nullptr;																			 // 节目句柄
@@ -353,7 +360,7 @@ HPROGRAM LED_Server::createAProgram_withJson(std::string& showText, ExtSeting& e
 	return HPROGRAM();
 }
 
-HPROGRAM LED_Server::createAProgram_withLspj(std::string& showText, ExtSeting& extSetting)
+HPROGRAM LED_Server::createAProgram_withLspj(std::string& showText)
 {
 	int nResult = 0;
 	HPROGRAM hProgram = nullptr;																			 // 节目句柄
@@ -397,56 +404,23 @@ HPROGRAM LED_Server::createAProgram_withLspj(std::string& showText, ExtSeting& e
 						}
 						return;
 					}
+					m_hProgram = hProgram;
 					for (auto area : p.areas)
 					{
-						AREARECT AreaRect{
-						.left = area.AreaRect_Left,
-						.top = area.AreaRect_Top,
-						.width = area.AreaRect_Right - area.AreaRect_Left,
-						.height = area.AreaRect_Bottom - area.AreaRect_Top,
-						};
-
-#ifdef WIN32
-						nResult = g_Dll->LV_AddImageTextArea(hProgram, 0, area.AreaNo, &AreaRect, 1);
-#else
-						nResult = LV_AddImageTextArea(hProgram, 0, area.AreaNo, &AreaRect, 1);
-#endif
-
-						PLAYPROP PlayProp;//显示属性
-						PlayProp.DelayTime = area.DelayTime;
-						PlayProp.InStyle = area.InStyle;
-						PlayProp.OutStyle = area.OutStyle;
-						PlayProp.Speed = area.InSpeed;
-
-						FONTPROP FontProp; // 文字属性
-						memset(&FontProp, 0, sizeof(FONTPROP));
-#ifdef UNICODE
-						_tcscpy(FontProp.FontName, L"宋体");
-#else 
-#ifdef WIN32
-						strcpy(FontProp.FontName, "宋体");
-#else
-						strcpy(FontProp.FontPath, "./simsun.ttc");
-#endif
-	
-#endif
-
-						FontProp.FontSize = extSetting.FontSize;
-						FontProp.FontColor =  area.FontColor;
+						
 						auto pShowText = showText.data();
 						if (p.areas.size() > 1 && stringArr.size() == p.areas.size())
 							pShowText = stringArr[area.AreaNo - 1].data();
-#ifdef WIN32
-						nResult = g_Dll->LV_AddSingleLineTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
-#else
-						nResult = LV_AddSingleLineTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
-#endif
-						//nResult = g_Dll->LV_AddStaticTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, area.DelayTime, 0, true);
+						if (area.areaType == Area::SINGLELINEAREA)
+							nResult = createSingleLineArea(area, pShowText);
+						else if(area.areaType == Area::TIME_AREA)
+							nResult = createTimeClockArea(area);
+						else if(area.areaType == Area::NEIMA_AREA)
+							nResult = createNeimaArea(area,pShowText);
+
 						if (nResult)
 						{
 							TCHAR ErrStr[256];
-
-
 #ifdef WIN32
 							g_Dll->LV_GetError(nResult, 256, ErrStr); // 见函数声明注示
 #else
@@ -454,15 +428,14 @@ HPROGRAM LED_Server::createAProgram_withLspj(std::string& showText, ExtSeting& e
 #endif
 							if (hProgram)
 							{
-
 #ifdef WIN32
 								g_Dll->LV_DeleteProgram(hProgram);//删除节目内存对象，详见函数声明注示
 #else
 								LV_DeleteProgram(hProgram);//删除节目内存对象，详见函数声明注示
 #endif
 								hProgram = nullptr;
+								return;
 							}
-							return ;
 						}
 					}
 
@@ -470,8 +443,86 @@ HPROGRAM LED_Server::createAProgram_withLspj(std::string& showText, ExtSeting& e
 				}
 			}
 		});
-	// 此处可自行判断有未创建成功，hProgram返回NULL失败，非NULL成功,一般不会失败
-
-
 	return hProgram;
+}
+int LED_Server::createSingleLineArea(Area&area,char*pShowText)
+{
+	int nResult = 0;
+#ifdef WIN32
+	nResult = g_Dll->LV_AddImageTextArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, 1);
+#else
+	nResult = LV_AddImageTextArea(hProgram, 0, area.AreaNo, &AreaRect, 1);
+#endif
+	if (nResult)return nResult;
+
+	PLAYPROP PlayProp;//显示属性
+	PlayProp.DelayTime = area.singleLineArea.DelayTime;
+	PlayProp.InStyle = area.singleLineArea.InStyle;
+	PlayProp.OutStyle = area.singleLineArea.OutStyle;
+	PlayProp.Speed = area.singleLineArea.InSpeed;
+
+	FONTPROP FontProp; // 文字属性
+	memset(&FontProp, 0, sizeof(FONTPROP));
+#ifdef UNICODE
+	_tcscpy(FontProp.FontName, L"宋体");
+#else 
+#ifdef WIN32
+	strcpy(FontProp.FontName, "宋体");
+#else
+	strcpy(FontProp.FontPath, "./simsun.ttc");
+#endif
+
+#endif
+
+	FontProp.FontSize = m_extSetting->FontSize;
+	FontProp.FontColor = area.singleLineArea.FontColor;
+
+#ifdef WIN32
+	nResult = g_Dll->LV_AddSingleLineTextToImageTextArea(m_hProgram, m_nProgramNo, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
+#else
+	nResult = LV_AddSingleLineTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
+#endif
+	//nResult = g_Dll->LV_AddStaticTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, area.DelayTime, 0, true);
+	
+	return nResult;
+}
+
+int LED_Server::createTimeClockArea( Area& area)
+{
+	//添加一个数字时钟区域 
+
+	
+
+#ifdef WIN32
+	strcpy(area.clockIfo.ShowStrFont.FontName, "宋体");
+#else
+	strcpy(area.clockIfo.ShowStrFont.FontPath, "./font/simsun.ttc");
+#endif
+
+	area.clockIfo.ShowStrFont.FontSize = m_extSetting->FontSize;
+	area.clockIfo.ShowStrFont.FontColor = COLOR_RED;
+	int nResult = 0;
+#ifdef WIN32
+	nResult = g_Dll->LV_AddDigitalClockArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, &area.clockIfo);
+#else
+	nResult = LV_AddDigitalClockArea(hProgram, nProgramNo, 1, &AreaRect, &clockIfo);
+#endif
+	return nResult;
+}
+
+int LED_Server::createNeimaArea(  Area& area, char* pShowText)
+{
+	PLAYPROP PlayProp;//显示属性
+	PlayProp.DelayTime = area.neiMaArea.DelayTime;
+	PlayProp.InStyle = area.neiMaArea.InStyle;
+	PlayProp.OutStyle = area.neiMaArea.OutStyle;
+	PlayProp.Speed = area.neiMaArea.PlaySpeed;
+	int fontSize = area.neiMaArea.FontSize;
+	if (fontSize == 0)
+		fontSize = m_extSetting->FontSize;
+#ifdef WIN32
+	return g_Dll->LV_AddNeiMaArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, pShowText, fontSize, area.neiMaArea.FontColor, &PlayProp);
+#else
+	return LV_AddNeiMaArea(m_hProgram, m_nProgramNo, area.AreaNo, &AreaRect, pShowText, fontSize, area.neiMaArea.FontColor, &PlayProp);
+#endif
 }

@@ -31,10 +31,7 @@ static int makeNeiMa(char* pDestbuffer, std::vector<std::string> pDataVt)
 		InterCodeHeader[5] = 0x30 + codeAreaIdx;
 		memcpy(destPos, InterCodeHeader, sizeof(InterCodeHeader));
 		destPos += sizeof(InterCodeHeader);
-
 		memcpy(destPos, str.c_str(), str.length());
-
-
 		return destPos + str.length();
 	};
 	char* pPos = pDestbuffer;
@@ -122,6 +119,7 @@ inline int HV_serverImp::CreatePGM_Handler(HttpRequest* req, HttpResponse* res)
 	htmlContent += "}";
 	/**/
 	SPDLOG_DEBUG(htmlContent);
+	return res->String(htmlContent);
 	return res->Json(htmlContent);
 }
 

@@ -8,7 +8,7 @@ v=1234
 while True:
     # Parameters to send with the request
     params = {'key': str(v)}
-
+    print(params)
     # Send the GET request
     response = requests.get(url, params=params)
 

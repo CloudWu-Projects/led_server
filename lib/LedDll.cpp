@@ -69,11 +69,11 @@ BOOL CLedDll::InitDll()
 	//	LV_AddMultiLineTextToImageTextArea=(_LV_AddMultiLineTextToImageTextArea)GetProcAddress(m_hDll,"LV_AddMultiLineTextToImageTextArea");
 	//	LV_AddStaticTextToImageTextArea=(_LV_AddStaticTextToImageTextArea)GetProcAddress(m_hDll,"LV_AddStaticTextToImageTextArea");
 	LV_QuickAddSingleLineTextArea = (_LV_QuickAddSingleLineTextArea)GetProcAddress(m_hDll, "LV_QuickAddSingleLineTextArea");
-	//	LV_AddDigitalClockArea=(_LV_AddDigitalClockArea)GetProcAddress(m_hDll,"LV_AddDigitalClockArea");
+		LV_AddDigitalClockArea=(_LV_AddDigitalClockArea)GetProcAddress(m_hDll,"LV_AddDigitalClockArea");
 	//	LV_AddWaterBorder=(_LV_AddWaterBorder)GetProcAddress(m_hDll,"LV_AddWaterBorder");
-	//	LV_AddTimeArea=(_LV_AddTimeArea)GetProcAddress(m_hDll,"LV_AddTimeArea");
+		LV_AddTimeArea=(_LV_AddTimeArea)GetProcAddress(m_hDll,"LV_AddTimeArea");
 	//	LV_AddVoiceArea=(_LV_AddVoiceArea)GetProcAddress(m_hDll,"LV_AddVoiceArea");
-	//	LV_AddNeiMaArea=(_LV_AddNeiMaArea)GetProcAddress(m_hDll,"LV_AddNeiMaArea");
+		LV_AddNeiMaArea=(_LV_AddNeiMaArea)GetProcAddress(m_hDll,"LV_AddNeiMaArea");
 	LV_DeleteProgram = (_LV_DeleteProgram)GetProcAddress(m_hDll, "LV_DeleteProgram");
 
 	LV_Send = (_LV_Send)GetProcAddress(m_hDll, "LV_Send");
