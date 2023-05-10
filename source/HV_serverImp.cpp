@@ -5,7 +5,7 @@
 #include <iostream>
 #include "ledServer.h"
 
-
+#include "stringHelper.h"
 
 int HV_server::start(int httpPort, int ledPort, LED_Server* ledServer)
 {
@@ -17,7 +17,7 @@ int HV_server::start(int httpPort, int ledPort, LED_Server* ledServer)
 
 #define TEST_TLS        0
 static const	char updateAEnd[4] = { 0x00, 0x00, 0x0D, 0x0A };
-static int makeNeiMa(char* pDestbuffer, std::map<int, std::string> pDataVt)
+static int makeNeiMa(char* pDestbuffer, std::vector<std::string> pDataVt)
 {
 	char updateAHeader[] = { 0x55, 0xAA, 0x00, 0x00, 0x01, 0x01, 0x00, 0xD9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
@@ -40,9 +40,9 @@ static int makeNeiMa(char* pDestbuffer, std::map<int, std::string> pDataVt)
 	char* pPos = pDestbuffer;
 	memcpy(pPos, updateAHeader, sizeof(updateAHeader));
 	pPos += sizeof(updateAHeader);
-	for (auto dataV : pDataVt)
+	for (int i=0;i<pDataVt.size();i++)
 	{
-		pPos = pgetInterCode(pPos, dataV.first,dataV.second);
+		pPos = pgetInterCode(pPos, i,pDataVt[i]);
 	}
 	memcpy(pPos, updateAEnd, sizeof(updateAEnd));
 	pPos += sizeof(updateAEnd);
@@ -176,9 +176,8 @@ inline int HV_serverImp::http_server(int httpPort)
 		if (auto key = req->GetParam("key"); key != hv::empty_string)
 		{
 			std::lock_guard<std::mutex> lock(led_neima_mutex);
-			std::map<int, std::string> g_DataVt;
-			g_DataVt[0] = key;
-			int nlen = makeNeiMa(neima, g_DataVt);
+			auto v = split_string(key);
+			int nlen = makeNeiMa(neima, v);
 			m_tcpSrv.foreachChannel([&](const SocketChannelPtr& channel) {
 				channel->write(neima, nlen);
 				});

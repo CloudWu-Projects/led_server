@@ -298,19 +298,6 @@ std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, st
 	return std::make_tuple(0, fmt::format("{} setContent sucess", networkID));
 }
 
-inline std::vector<std::string> split_string(const std::string& s, char delim)
-{
-	if (s.empty())
-		return {};
-
-	std::vector<std::string> elems;
-	std::stringstream ss;
-	ss.str(s);
-	std::string item;
-	while (std::getline(ss, item, delim))
-		elems.push_back(item);
-	return elems;
-}
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
