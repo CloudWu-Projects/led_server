@@ -1,6 +1,6 @@
 #include "LedPGM_json.h"
 
-int LedPgm_json::load(std::string&json,std::vector<LED>&leds)
+bool LedPgm_json::loadFile(const char *filePath, std::vector<LED> &leds)
 {
-    return 0;   
+    return false;
 }

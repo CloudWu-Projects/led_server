@@ -14,12 +14,14 @@
 
 
 #include "LED_lsprj.h"
-#include "httpServer.h"
 #include <iostream>
 #include "logLib.h"
 #include <thread>
+
+#include "hv_server.h"
 int main(int argc, char* argv[])
 {
+
 	initLogger(nullptr);
 	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaa");
 	SPDLOG_INFO("a httpPort={:6d}   a", IConfig.httpPort);
@@ -39,11 +41,12 @@ int main(int argc, char* argv[])
 	ledServer.start(IConfig.ledPort);
 	std::thread httpThread = std::thread([&]()
 		{
-			HttpServer hs;
-			hs.startHttpServer( ledServer);
+			HV_server hvSever;
+			hvSever.start(IConfig.httpPort + 100, IConfig.ledPort, &ledServer);
 		});
 
 
+	
 
 	uint64_t loopCnt = 0;
 	while (httpThread.joinable())

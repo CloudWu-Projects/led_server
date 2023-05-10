@@ -26,7 +26,7 @@ std::set<std::string> clientNetWorkID;
 
 int LedServerCallback(int Msg, int wParam, void* lParam)
 {
-	SPDLOG_DEBUG("LedServerCallback msg:%d \n", Msg);
+	SPDLOG_DEBUG("LedServerCallback msg:{} ", Msg);
 	switch (Msg)
 	{
 	case LV_MSG_CARD_ONLINE:
