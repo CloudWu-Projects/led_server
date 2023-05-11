@@ -1,3 +1,4 @@
+#pragma  once
 #ifndef LEDPLAYER7_H
 #define LEDPLAYER7_H
 
@@ -6,17 +7,16 @@ typedef LPVOID				HPROGRAM;	//节目句柄类型
 typedef unsigned long       DWORD;
 typedef DWORD   COLORREF;
 typedef char TCHAR;
-typedef bool BOOL;
 typedef unsigned int        UINT;
 #define FALSE   0
 #define TRUE    1
 #define LPCTSTR const char *
 #define LPTSTR  char *
-#define MAX_PATH          260
 #ifndef OUT
 #define OUT
 #endif
 
+#define MY_MAX_PATH  256
 #define COLOR_RED			0xff		//红色
 #define COLOR_GREEN			0xff00		//绿色
 #define COLOR_YELLOW		0Xffff		//黄色
@@ -53,7 +53,7 @@ typedef struct COMMUNICATIONINFO
     int		Commport;				//串口号，只有通讯方式为2时才需赋值，其它通讯方式无需赋值
     int		Baud;					//波特率，只有通讯方式为2时才需赋值，其它通讯方式无需赋值,   0.9600   1.57600   2.115200  直接赋值 9600，19200，38400，57600，115200亦可
     int		LedNumber;				//LED的屏号，只有通讯方式为2时，且用485通讯时才需赋值，其它通讯方式无需赋值
-    TCHAR	OutputDir[MAX_PATH];	//磁盘保存的目录，只有通讯方式为3时才需赋值，其它通讯方式无需赋值
+    TCHAR	OutputDir[MY_MAX_PATH];	//磁盘保存的目录，只有通讯方式为3时才需赋值，其它通讯方式无需赋值
     TCHAR	NetworkIdStr[19];	//网络ID,只有通讯方式为4时才需赋值，其它通讯方式无需赋值
 }*LPCOMMUNICATIONINFO;
 //***********************************************************************
@@ -71,12 +71,12 @@ typedef struct AREARECT
 //***字体属性结构对**********************************************************
 struct FONTPROP
 {
-    char		FontPath[MAX_PATH];		//字体路径
+    char		FontPath[MY_MAX_PATH];		//字体路径
     int			FontSize;			//字号(单位像素)
     COLORREF	FontColor;			//字体颜色
-    BOOL		FontBold;			//是否加粗
-    BOOL		FontItalic;			//是否斜体
-    BOOL		FontUnderLine;		//时否下划线
+    bool		FontBold;			//是否加粗
+    bool		FontItalic;			//是否斜体
+    bool		FontUnderLine;		//时否下划线
 };
 //****************************************************************************
 
@@ -96,17 +96,17 @@ typedef struct DIGITALCLOCKAREAINFO
     int TimeFormat;
     COLORREF TimeColor;
 
-    BOOL IsShowYear;
-    BOOL IsShowWeek;
-    BOOL IsShowMonth;
-    BOOL IsShowDay;
-    BOOL IsShowHour;
-    BOOL IsShowMinute;
-    BOOL IsShowSecond;
+    bool IsShowYear;
+    bool IsShowWeek;
+    bool IsShowMonth;
+    bool IsShowDay;
+    bool IsShowHour;
+    bool IsShowMinute;
+    bool IsShowSecond;
 
     //int HourType;
     //int YearType;
-    BOOL IsMutleLineShow;
+    bool IsMutleLineShow;
 
 }*LPDIGITALCLOCKAREAINFO;
 //**页面显示的属性结构体****************************************************
@@ -129,11 +129,11 @@ typedef struct TIMEAREAINFO
     int         nHour;                  //结束时
     int         nMinute;                //结束分
     int         nSecond;                //结束秒
-    BOOL        IsShowDay;              //是否显示天
-    BOOL        IsShowHour;             //是否显示时
-    BOOL        IsShowMinute;           //是否显示分
-    BOOL        IsShowSecond;           //是否显示秒
-    BOOL        IsMutleLineShow;        //是否多行显示，指的是自定义文字与计时文字是否分行显示
+    bool        IsShowDay;              //是否显示天
+    bool        IsShowHour;             //是否显示时
+    bool        IsShowMinute;           //是否显示分
+    bool        IsShowSecond;           //是否显示秒
+    bool        IsMutleLineShow;        //是否多行显示，指的是自定义文字与计时文字是否分行显示
     TCHAR       ShowStr[128];           //自定义文字字符串
     COLORREF    TimeStrColor;           //计时文字的颜色
     FONTPROP    ShowFont;               //自定义文字及计时文字颜色，其中FontColor只对文定义文字有效，计时文字颜色为TimeStrColor
@@ -206,7 +206,7 @@ int LV_AddProgram(HPROGRAM hProgram,int ProgramNo,int ProgramTime,int LoopCount)
 *				0					成功
 *				非0					失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_AddImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,BOOL IsBackgroundArea);
+int LV_AddImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,bool IsBackgroundArea);
 /*********************************************************************************************
 *	LV_AddFileToImageTextArea			添加一个文件到图文区
 *
@@ -254,7 +254,7 @@ int LV_AddSingleLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int Area
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int	LV_AddMultiLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp,int nAlignment,BOOL IsVCenter);
+int	LV_AddMultiLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp,int nAlignment,bool IsVCenter);
 /*********************************************************************************************
  *	LV_AddStaticTextToImageTextArea		添加一个静止文本到图文区
  *	
@@ -272,7 +272,7 @@ int	LV_AddMultiLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaN
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-int	LV_AddStaticTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int DelayTime,int nAlignment,BOOL IsVCenter);
+int	LV_AddStaticTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int DelayTime,int nAlignment,bool IsVCenter);
 /*********************************************************************************************
 *	LV_QuickAddSingleLineTextArea		快速添加一个左移单行文本区域
 *

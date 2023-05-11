@@ -9,7 +9,6 @@ typedef void*				HPROGRAM;
 #else
 #define NETWORKID std::string
 #endif
-typedef struct  AREARECT;
 struct ExtSeting {
 	int FontSize = 14;
 };

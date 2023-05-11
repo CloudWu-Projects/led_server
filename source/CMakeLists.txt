@@ -29,7 +29,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     spdlog::spdlog_header_only
     rapidjson
-    hv
+    hv_static
     tinyxml2::tinyxml2)
 
 if(UNIX)
@@ -49,3 +49,8 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${PROJECT_SOURCE_DIR}/webPage/"
     "$<TARGET_FILE_DIR:${PROJECT_NAME}>/webPage/")
+
+
+
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin)

@@ -147,7 +147,7 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(bool isJson,std::str
 #ifdef WIN32
 	g_Dll->LV_DeleteProgram(m_hProgram);					   // 删除节目内存对象，详见函数声明注示
 #else
-	LV_DeleteProgram(hProgram);					   // 删除节目内存对象，详见函数声明注示
+	LV_DeleteProgram(m_hProgram);					   // 删除节目内存对象，详见函数声明注示
 #endif	
 	m_hProgram = nullptr;
 
@@ -451,7 +451,7 @@ int LED_Server::createSingleLineArea(Area&area,char*pShowText)
 #ifdef WIN32
 	nResult = g_Dll->LV_AddImageTextArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, 1);
 #else
-	nResult = LV_AddImageTextArea(hProgram, 0, area.AreaNo, &AreaRect, 1);
+	nResult = LV_AddImageTextArea(m_hProgram, 0, area.AreaNo, &area.AreaRect, 1);
 #endif
 	if (nResult)return nResult;
 
@@ -480,7 +480,7 @@ int LED_Server::createSingleLineArea(Area&area,char*pShowText)
 #ifdef WIN32
 	nResult = g_Dll->LV_AddSingleLineTextToImageTextArea(m_hProgram, m_nProgramNo, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
 #else
-	nResult = LV_AddSingleLineTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
+	nResult = LV_AddSingleLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
 #endif
 	//nResult = g_Dll->LV_AddStaticTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, area.DelayTime, 0, true);
 	
@@ -505,7 +505,7 @@ int LED_Server::createTimeClockArea( Area& area)
 #ifdef WIN32
 	nResult = g_Dll->LV_AddDigitalClockArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, &area.clockIfo);
 #else
-	nResult = LV_AddDigitalClockArea(hProgram, nProgramNo, 1, &AreaRect, &clockIfo);
+	nResult = LV_AddDigitalClockArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, &area.clockIfo);
 #endif
 	return nResult;
 }
@@ -523,6 +523,6 @@ int LED_Server::createNeimaArea(  Area& area, char* pShowText)
 #ifdef WIN32
 	return g_Dll->LV_AddNeiMaArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, pShowText, fontSize, area.neiMaArea.FontColor, &PlayProp);
 #else
-	return LV_AddNeiMaArea(m_hProgram, m_nProgramNo, area.AreaNo, &AreaRect, pShowText, fontSize, area.neiMaArea.FontColor, &PlayProp);
+	return LV_AddNeiMaArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, pShowText, fontSize, area.neiMaArea.FontColor, &PlayProp);
 #endif
 }
