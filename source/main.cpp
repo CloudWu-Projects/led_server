@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 	std::thread httpThread = std::thread([&]()
 		{
 			HV_server hvSever;
-			hvSever.start(IConfig.httpPort , IConfig.ledPort, &ledServer);
+			hvSever.start(IConfig.httpPort , IConfig.ledSDKPort, IConfig.ledNeiMaPort, &ledServer);
 		});
 
 
