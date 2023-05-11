@@ -23,10 +23,11 @@ int main(int argc, char* argv[])
 {
 
 	initLogger(nullptr);
-	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaa");
-	SPDLOG_INFO("a httpPort={:6d}   a", IConfig.httpPort);
-	SPDLOG_INFO("a ledPort ={:6d}   a", IConfig.ledPort);
-	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaa");
+	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaaaaaaa");
+	SPDLOG_INFO("a httpPort     ={:6d}   a", IConfig.httpPort);
+	SPDLOG_INFO("a ledSDKPort   ={:6d}   a", IConfig.ledSDKPort);
+	SPDLOG_INFO("a ledNeiMaPort ={:6d}   a", IConfig.ledNeiMaPort);
+	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaaaaaaa");
 
 	auto a = std::filesystem::path(argv[0]);
 	auto b = a.remove_filename();
@@ -38,11 +39,11 @@ int main(int argc, char* argv[])
 
 	LED_Server ledServer;
 
-	ledServer.start(IConfig.ledPort);
+	ledServer.start(IConfig.ledSDKPort);
 	std::thread httpThread = std::thread([&]()
 		{
 			HV_server hvSever;
-			hvSever.start(IConfig.httpPort + 100, IConfig.ledPort, &ledServer);
+			hvSever.start(IConfig.httpPort , IConfig.ledPort, &ledServer);
 		});
 
 

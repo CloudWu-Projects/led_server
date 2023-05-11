@@ -86,7 +86,8 @@ public:
 	
 
 	int httpPort = 8080;
-	int ledPort = 10008;
+	int ledSDKPort = 10008;
+	int ledNeiMaPort=10009;
 	LEDParam ledParam;
 	bool bWriteIni ;
 	std::string m_ConfigPathA = ".\\config.ini";
@@ -170,8 +171,9 @@ private:
 		char szBuf1[MAX_PATH];
 		int nret = 0;
 
-		httpPort = getConfigInt("main", "httpport", 38080);
-		ledPort = getConfigInt("main", "ledPort", 10008);
+		httpPort = getConfigInt("main", "httpport", httpPort);
+		ledSDKPort = getConfigInt("main", "ledSDKPort", ledSDKPort);
+		ledNeiMaPort = getConfigInt("main", "ledNeiMaPort", ledNeiMaPort);
 
 
 		ledParam.ledType = getConfigInt("LED", "ledType", ledParam.ledType);

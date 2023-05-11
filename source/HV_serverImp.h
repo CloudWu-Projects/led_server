@@ -11,7 +11,7 @@ using namespace hv;
 class LED_Server;
 class HV_serverImp {
 public:
-	int start(int httpPort, int ledPort, LED_Server* ledServer);
+	int start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Server* ledServer);
 private:
 	HttpServer httpServer;
 	int list_Handler(HttpRequest* req, HttpResponse* resp);;

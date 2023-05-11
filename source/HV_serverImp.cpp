@@ -7,11 +7,11 @@
 
 #include "stringHelper.h"
 
-int HV_server::start(int httpPort, int ledPort, LED_Server* ledServer)
+int HV_server::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Server* ledServer)
 {
 	Imp = new HV_serverImp();
 
-	return Imp->start(httpPort, ledPort, ledServer);
+	return Imp->start(httpPort, ledSDKport,ledNeimaPort, ledServer);
 
 }
 
@@ -23,7 +23,7 @@ static int makeNeiMa(char* pDestbuffer, std::vector<std::string> pDataVt)
 
 	int send_len = 0;
 	int recv_len = 0;
-	//¶¨Òå·¢ËÍ»º³åÇøºÍ½ÓÊÜ»º³åÇø
+	//ï¿½ï¿½ï¿½å·¢ï¿½Í»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í½ï¿½ï¿½Ü»ï¿½ï¿½ï¿½ï¿½ï¿½
 	//char send_buf[1024];
 	auto pgetInterCode = [](char* destPos, int codeAreaIdx, std::string str)
 	{
@@ -49,10 +49,10 @@ static int makeNeiMa(char* pDestbuffer, std::vector<std::string> pDataVt)
 }
 
 
-int HV_serverImp::start(int httpPort, int ledPort, LED_Server* ledServer)
+int HV_serverImp::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Server* ledServer)
 {
 	m_ledSever = ledServer;
-	tcp_server(ledPort + 10000, ledPort);
+	tcp_server(ledNeimaPort, ledSDKport);
 
 	http_server(httpPort);
 	return 0;
