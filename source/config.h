@@ -6,6 +6,7 @@
 #include "ledPgm.h"
 #include <filesystem>
 #include <functional>
+#include "hv/iniparser.h"
 namespace fs = std::filesystem;
 class Config
 {
@@ -85,9 +86,9 @@ public:
 	};
 	
 
-	int httpPort = 8080;
-	int ledSDKPort = 10008;
-	int ledNeiMaPort=10009;
+	int httpPort = 11007;
+	int ledSDKPort = 11008;
+	int ledNeiMaPort= 11009;
 	LEDParam ledParam;
 	bool bWriteIni ;
 	std::string m_ConfigPathA = ".\\config.ini";
@@ -131,26 +132,27 @@ private:
 	LED_lsprj led_lsprj;
 	std::vector<LED> leds;
 	fs::path pgmFIlePath=("./20230427170156.lsprj");
-	int getConfigInt(const char* szApp, const char* szKey, int defalut = 0)
+	IniParser iniParser;
+	std::string GetValue(const std::string& key, const std::string& section = "")
 	{
-#ifdef WIN32
 		if (bWriteIni)
-			WritePrivateProfileStringA(szApp, szKey, "", m_ConfigPathA.data());
-		return GetPrivateProfileIntA(szApp, szKey, defalut, m_ConfigPathA.data());
-#else
-		return defalut;
-#endif
+			iniParser.SetValue(key,"", section);
+
+		return iniParser.GetValue(key, section);
 	}
-	int getConfigString(const char* szApp, const char* szKey, char* retVal, const char* defaultV)
+	
+	// T = [bool, int, float]
+	template<typename T>
+	T Get(const std::string& key, const std::string& section = "", T defvalue = 0)
 	{
-#ifdef WIN32
 		if (bWriteIni)
-			WritePrivateProfileStringA(szApp, szKey, defaultV, m_ConfigPathA.data());
-		return GetPrivateProfileStringA(szApp, szKey, defaultV, retVal, MAX_PATH, m_ConfigPathA.data());
-#else
-		return 0;
-#endif
+			iniParser.Set(key, defvalue, section);
+
+		return iniParser.Get(key, section, defvalue);
 	}
+
+
+
 	bool bLoaded = false;
 	bool load()
 	{
@@ -161,33 +163,33 @@ private:
 		//strcat(szBuf1, "\\config.ini");
 		curpath.append("config.ini");
 		m_ConfigPathA = curpath.string();
-
-		std::error_code error;
-		if (!std::filesystem::exists(m_ConfigPathA, error)) //already have a file with the same name?
+		if (0 != iniParser.LoadFromFile(m_ConfigPathA.data()))
 		{
 			bWriteIni = true;
 		}
-
-		char szBuf1[MAX_PATH];
 		int nret = 0;
 
-		httpPort = getConfigInt("main", "httpport", httpPort);
-		ledSDKPort = getConfigInt("main", "ledSDKPort", ledSDKPort);
-		ledNeiMaPort = getConfigInt("main", "ledNeiMaPort", ledNeiMaPort);
+		httpPort = Get("httpport", "main", httpPort);
+		ledSDKPort = Get("ledSDKPort", "main", ledSDKPort);
+		ledNeiMaPort = Get("ledNeiMaPort", "main", ledNeiMaPort);
 
 
-		ledParam.ledType = getConfigInt("LED", "ledType", ledParam.ledType);
-		ledParam.ledWidth = getConfigInt("LED", "ledWidth", ledParam.ledWidth);
-		ledParam.ledHeight = getConfigInt("LED", "ledHeight", ledParam.ledHeight);
-		ledParam.ledColor = getConfigInt("LED", "ledColor", ledParam.ledColor);
-		ledParam.ledGraylevel = getConfigInt("LED", "ledType", ledParam.ledGraylevel);
+		ledParam.ledType = Get("ledType", "LED", ledParam.ledType);
+		ledParam.ledWidth = Get("ledWidth", "LED", ledParam.ledWidth);
+		ledParam.ledHeight = Get("ledHeight", "LED", ledParam.ledHeight);
+		ledParam.ledColor = Get("ledColor", "LED", ledParam.ledColor);
+		ledParam.ledGraylevel = Get("ledType", "LED", ledParam.ledGraylevel);
+		auto lsprj_path = GetValue("lsprj_path");
+		if (lsprj_path.empty())
+			lsprj_path = R"(./20230427170156.lsprj)";
+		pgmFIlePath = lsprj_path;
 
-		if (getConfigString("LED", "lsprj_path", szBuf1, R"(20230427170156.lsprj)") && szBuf1[0] != '\0')
-		{
-			pgmFIlePath=szBuf1;
-		}
 		ReloadPGM();
 		bLoaded = true;
+
+		if (bWriteIni)
+			iniParser.Save();
+		
 		return true;
 	}
 };
