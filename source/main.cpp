@@ -21,16 +21,17 @@
 #include "hv_server.h"
 int main(int argc, char* argv[])
 {
+	auto a = std::filesystem::path(argv[0]);
+	auto b = a.remove_filename();
 
-	initLogger(nullptr);
+	initLogger(b.string().data());
 	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaaaaaaa");
 	SPDLOG_INFO("a httpPort     ={:6d}   a", IConfig.httpPort);
 	SPDLOG_INFO("a ledSDKPort   ={:6d}   a", IConfig.ledSDKPort);
 	SPDLOG_INFO("a ledNeiMaPort ={:6d}   a", IConfig.ledNeiMaPort);
 	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaaaaaaa");
 
-	auto a = std::filesystem::path(argv[0]);
-	auto b = a.remove_filename();
+	
 	std::cout << "Current path is " << fs::current_path() << '\n';
 	fs::current_path(b);
 	std::cout << "Current path is " << fs::current_path() << '\n';
