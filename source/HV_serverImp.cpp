@@ -176,12 +176,16 @@ inline int HV_serverImp::http_server(int httpPort)
 			std::lock_guard<std::mutex> lock(led_neima_mutex);
 			auto v = split_string(key);
 			int nlen = makeNeiMa(neima, v);
-			m_tcpSrv.foreachChannel([&](const SocketChannelPtr& channel) {
-				channel->write(neima, nlen);
+			int a = 0;
+			
+			int count=m_tcpSrv.foreachChannel([&](const SocketChannelPtr& channel) {
+				a= channel->write(neima, nlen);
 				});
-			return res->String("ok");
+			std::string htmlJson;
+			htmlJson =fmt::format("{{\"ret\":{} ,\"ledCount\":{} ,\"msg\":\"{}\"}}",a,count,"ok");
+			return res->Json(htmlJson);
 		}
-		return res->String("miss key");
+		return res->Json(fmt::format("{{\"ret\":-1 ,\"ledCount\":0 ,\"msg\":\"miss key\"}}"));
 		});
 
 
