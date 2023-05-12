@@ -1,6 +1,9 @@
 #include "HV_serverImp.h"
 #include "hv_server.h"
 
+#include "hv/hloop.h"
+#include "hv/hlog.h"
+#include "hv/herr.h"
 
 #include <iostream>
 #include "ledServer.h"
@@ -177,10 +180,7 @@ inline int HV_serverImp::http_server(int httpPort)
 			auto v = split_string(key);
 			int nlen = makeNeiMa(neima, v);
 			int a = 0;
-			
-			int count=m_tcpSrv.foreachChannel([&](const SocketChannelPtr& channel) {
-				a= channel->write(neima, nlen);
-				});
+			int count = m_tcpSrv.broadcast(neima, nlen);
 			std::string htmlJson;
 			htmlJson =fmt::format("{{\"ret\":{} ,\"ledCount\":{} ,\"msg\":\"{}\"}}",a,count,"ok");
 			return res->Json(htmlJson);
