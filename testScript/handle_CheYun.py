@@ -37,6 +37,9 @@ class MyServer(BaseHTTPRequestHandler):
         if self.path!= "/out_park" and self.path!="/in_park":
             return
         
+        global last_update_response
+        global current_empty_plot
+        
         content_length= self.headers.get('content-length')
 
         length = int(content_length) if content_length else 0
