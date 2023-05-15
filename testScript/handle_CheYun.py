@@ -9,15 +9,18 @@ hostName = "0.0.0.0"
 serverPort  = 18080
 led_server="http://nps.hyman.store:11007/neima?key="
 
+last_update_response =""
+current_empty_plot =0
 
 class MyServer(BaseHTTPRequestHandler):
     
-    last_update_response =""
-    current_empty_plot =0
     
     def do_GET(self):
+        global last_update_response
+        global current_empty_plot
+
         if self.path=="/test":
-            self.current_empty_plot=int(time.time())
+            current_empty_plot=int(time.time())
             
         self.send_response(200)
         self.send_header("Content-type", "text/html")
@@ -25,8 +28,8 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes("<html><head><title>CheYun->ledServer</title></head>", "utf-8"))
         self.wfile.write(bytes("<p>Request: %s</p>" % self.path, "utf-8"))
         self.wfile.write(bytes("<body>", "utf-8"))
-        self.wfile.write(bytes(f"<p>last_update_response: {self.last_update_response}</p>", "utf-8"))
-        self.wfile.write(bytes(f"<p>Current empty plot: {self.current_empty_plot}</p>", "utf-8"))
+        self.wfile.write(bytes(f"<p>last_update_response: {last_update_response}</p>", "utf-8"))
+        self.wfile.write(bytes(f"<p>Current empty plot: {current_empty_plot}</p>", "utf-8"))
         self.wfile.write(bytes("</body></html>", "utf-8"))
     
     def do_POST(self):
@@ -42,13 +45,13 @@ class MyServer(BaseHTTPRequestHandler):
     
         try:
             json_body = json.loads(body.decode('utf-8'))
-            self.current_empty_plot= json_body['data']['empty_plot']
+            current_empty_plot= json_body['data']['empty_plot']
     
-            url = led_server+str(self.current_empty_plot)
+            url = led_server+str(current_empty_plot)
 
             response = requests.get(url)
             print(response.text)
-            self.last_update_response = response.text
+            last_update_response = response.text
             
 
         except Exception as e:
