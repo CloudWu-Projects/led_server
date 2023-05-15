@@ -48,7 +48,7 @@ class MyServer(BaseHTTPRequestHandler):
             current_empty_plot= json_body['data']['empty_plot']
     
             url = led_server+str(current_empty_plot)
-
+            print(url)
             response = requests.get(url)
             print(response.text)
             last_update_response = response.text
