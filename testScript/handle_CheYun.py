@@ -5,7 +5,7 @@ import json
 import requests
 
 
-hostName = "localhost"
+hostName = "0.0.0.0"
 serverPort  = 18080
 led_server="http://nps.hyman.store:11007/neima?key="
 
