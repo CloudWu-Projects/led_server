@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Fetch JSON Example</title>
+  </head>
+  <body>
+    <button onclick="fetchJSON()">Fetch JSON</button>
+    <table id="json-table">
+      <thead>
+        <tr>
+          <th>LED ID</th>
+          <th>Park ID</th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+    <script>
+      function fetchJSON() {
+        fetch('/leds/list')
+          .then(response => response.json())
+          .then(data => {
+            const tableBody = document.querySelector('#json-table tbody');
+            tableBody.innerHTML = '';
+            data.forEach(item => {
+              const row = document.createElement('tr');
+              const ledIdCell = document.createElement('td');
+              ledIdCell.textContent = item.led_id;
+              row.appendChild(ledIdCell);
+              const parkIdCell = document.createElement('td');
+              parkIdCell.textContent = item.park_id;
+              row.appendChild(parkIdCell);
+              const commentCell = document.createElement('td');
+              commentCell.textContent = item.comment;
+              row.appendChild(commentCell);
+              tableBody.appendChild(row);
+            });
+          })
+          .catch(error => console.error(error));
+      }
+    </script>
+  </body>
+</html>

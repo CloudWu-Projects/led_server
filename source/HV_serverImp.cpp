@@ -125,10 +125,21 @@ inline int HV_serverImp::CreatePGM_Handler(HttpRequest* req, HttpResponse* res)
 
 inline int HV_serverImp::http_server(int httpPort)
 {
+	router.Static("/","./webPage");
+
+	router.POST("/leds/add", [this](HttpRequest* req, HttpResponse* resp) {
+		std::string htmlContent;
+			htmlContent = "{";
+			htmlContent += true ? "sucess" : "failed";
+			htmlContent += "}";
+			return resp->Json(htmlContent);
+	});
+	router.GET("/leds/list", [this](HttpRequest* req, HttpResponse* resp) {
+		return list_Handler(req, resp);
+		});
 	router.GET("/list", [this](HttpRequest* req, HttpResponse* resp) {
 		return list_Handler(req, resp);
 		});
-
 
 	router.GET("/paths", [this](HttpRequest* req, HttpResponse* resp) {
 		return resp->Json(router.Paths());
@@ -163,9 +174,13 @@ inline int HV_serverImp::http_server(int httpPort)
 
 	router.GET("/reloadpgm", [this](HttpRequest* req, HttpResponse* res)
 		{
+			
+			auto 	sendValue = req->GetParam("key");
+			
+
 			std::string htmlContent;
 			htmlContent = "{";
-			htmlContent += (IConfig.ReloadPGM() ? "sucess" : "failed");
+			htmlContent += (IConfig.ReloadPGM(sendValue) ? "sucess" : "failed");
 			htmlContent += "}";
 			return res->Json(htmlContent);
 		});

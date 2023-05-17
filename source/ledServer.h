@@ -37,5 +37,5 @@ private:
 
 	HPROGRAM m_hProgram=nullptr;
 	int m_nProgramNo=0;
-	ExtSeting *m_extSetting;
+	ExtSeting *m_extSetting=nullptr;
 };

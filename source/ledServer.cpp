@@ -142,6 +142,7 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(bool isJson,std::str
 		}
 		auto ret = sendProgram(WnetworkID, m_hProgram);
 		retHtml += std::get<1>(ret);
+		retHtml += "\n";
 	}
 
 #ifdef WIN32
@@ -163,6 +164,7 @@ std::tuple<int, std::string> LED_Server::create_onPGM_byCode(std::string& showTe
 
 	std::string retHtml = "";
 
+	m_extSetting = &extSetting;
 	HPROGRAM hProgram = nullptr;
 	for (auto WnetworkID : clientNetWorkID)
 	{
@@ -240,7 +242,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, st
 		LV_GetError(nResult, 256, ErrStr); // 见函数声明注示
 #endif
 
-		return std::make_tuple(nResult, fmt::format("{}>>LV_AddProgram ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
+		return std::make_tuple(nResult, fmt::format("{}>>LV_AddProgram ErrStr :{}\n", networkID, to_byte_string(ErrStr)));
 	}
 	AREARECT AreaRect; // 区域坐标属性结构体变量
 	AreaRect.left = 0;
@@ -280,7 +282,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, st
 #endif
 
 
-		return std::make_tuple(nResult, fmt::format("{}>>LV_QuickAddSingleLineTextArea ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
+		return std::make_tuple(nResult, fmt::format("{}>>LV_QuickAddSingleLineTextArea ErrStr :{}\n", networkID, to_byte_string(ErrStr)));
 	}
 #ifdef WIN32
 	nResult = g_Dll->LV_Send(&CommunicationInfo, hProgram); // 发送，见函数声明注示
@@ -300,7 +302,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, st
 		LV_GetError(nResult, 256, ErrStr); // 见函数声明注示
 #endif
 
-		return std::make_tuple(nResult, fmt::format("{}>>LV_Send ErrStr :%s\n", networkID, to_byte_string(ErrStr)));
+		return std::make_tuple(nResult, fmt::format("{}>>LV_Send ErrStr :{}\n", networkID, to_byte_string(ErrStr)));
 	}
 	return std::make_tuple(0, fmt::format("{} setContent sucess", networkID));
 }

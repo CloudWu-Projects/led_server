@@ -95,7 +95,7 @@ public:
 
 
 	std::mutex led_lsprj_mutex;
-	bool ReloadPGM()
+	bool ReloadPGM(const std::string &pgmPath)
 	{
 		std::lock_guard<std::mutex> lock(led_lsprj_mutex);
 
@@ -108,7 +108,8 @@ public:
 			led.programs.clear();
 		}
 		leds.clear();
-
+		if(!pgmPath.empty())
+			pgmFIlePath = pgmPath;
 		if (pgmFIlePath.extension() == ".lsprj")
 		{
 			if (led_lsprj.loadFile(pgmFIlePath.string().data(), leds))
@@ -131,7 +132,7 @@ public:
 private:
 	LED_lsprj led_lsprj;
 	std::vector<LED> leds;
-	fs::path pgmFIlePath=("./20230427170156.lsprj");
+	fs::path pgmFIlePath=("./single_area.lsprj");
 	IniParser iniParser;
 	std::string GetValue(const std::string& key, const std::string& section = "")
 	{
@@ -181,10 +182,8 @@ private:
 		ledParam.ledGraylevel = Get("ledType", "LED", ledParam.ledGraylevel);
 		auto lsprj_path = GetValue("lsprj_path");
 		if (lsprj_path.empty())
-			lsprj_path = R"(./20230427170156.lsprj)";
-		pgmFIlePath = lsprj_path;
-
-		ReloadPGM();
+			lsprj_path = R"(./single_area.lsprj)";
+		ReloadPGM(lsprj_path);
 		bLoaded = true;
 
 		if (bWriteIni)
