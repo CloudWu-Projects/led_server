@@ -52,37 +52,32 @@ static int makeNeiMa(char* pDestbuffer, std::vector<std::string> pDataVt)
 int HV_serverImp::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Server* ledServer)
 {
 	m_ledSever = ledServer;
-	std::thread a = std::thread([&]() 
-		{
-			tcp_server(ledNeimaPort, ledSDKport);
-		});
-	start_http_server(httpPort);
-	a.join();
+	tcp_server(ledNeimaPort, ledSDKport);
+
+	http_server(httpPort);
 	return 0;
 }
 
-inline int HV_serverImp::list_Handler(HttpRequest& req, HttpResponse& res) {
+inline int HV_serverImp::list_Handler(HttpRequest* req, HttpResponse* resp) {
 	auto s = m_ledSever->getNetWorkIDList();
-	//m_tcpSrv.foreachChannel([&](auto channel) {
-	//	if (channel->isConnected()) {
-	//		std::string peeraddr = channel->peeraddr();
-	//		s += fmt::format(">> {}", channel->peeraddr());
-	//		}
-	//	});
-
-	res.set_status_and_content(status_type::ok, "s");
-	return 0;
+	m_tcpSrv.foreachChannel([&](auto channel) {
+		if (channel->isConnected()) {
+			std::string peeraddr = channel->peeraddr();
+			s += fmt::format(">> {}", channel->peeraddr());
+			}
+		});
+	return resp->String(s);
 }
 
-inline int HV_serverImp::CreatePGM_Handler(HttpRequest& req, HttpResponse& res)
+inline int HV_serverImp::CreatePGM_Handler(HttpRequest* req, HttpResponse* res)
 {
-	
+	res->SetHeader("Access-Control-Allow-Origin", "*");
 	ExtSeting extSetting;
 	std::string sendValue = "test NUll";
 	bool isJson = false;
-	if (req.get_method() == "POST")
+	if (req->Method() == "POST")
 	{
-		if (req.get_header_value("Content-Type") != "application/json")
+		if (req->GetHeader("Content-Type") != "application/json")
 		{
 			//	res.status = 500;
 			//	res.reason = "post with json.";
@@ -93,7 +88,7 @@ inline int HV_serverImp::CreatePGM_Handler(HttpRequest& req, HttpResponse& res)
 		{
 		}
 		*/
-		//sendValue = req.get_();
+		sendValue = req->Body();
 		isJson = true;
 	}
 	else
@@ -101,12 +96,10 @@ inline int HV_serverImp::CreatePGM_Handler(HttpRequest& req, HttpResponse& res)
 	}
 
 	{
-		sendValue = req.get_query_value("content");
-		if (sendValue.empty())
-			sendValue = "content is null";
+		sendValue = req->GetParam("content");
 	}
-	auto fontSize = req.get_query_value("fontsize");
-	if (!fontSize .empty())
+	auto fontSize = req->GetParam("fontsize", "-1");
+	if (fontSize != "-1")
 	{
 		extSetting.FontSize = atoi(fontSize.data());
 	}
@@ -115,9 +108,8 @@ inline int HV_serverImp::CreatePGM_Handler(HttpRequest& req, HttpResponse& res)
 #else
 	SPDLOG_DEBUG("handle a set key:{}", sendValue);
 #endif
-	auto url = req.get_url();
 	std::string htmlContent = "{";
-	auto createRet = (req.get_url() == "/create_onePGM") ?
+	auto createRet = (req->Path() == "/create_onePGM") ?
 		m_ledSever->create_onPGM_byCode(sendValue, extSetting)
 		: m_ledSever->createPGM_withLspj(isJson, sendValue, extSetting);
 
@@ -127,88 +119,122 @@ inline int HV_serverImp::CreatePGM_Handler(HttpRequest& req, HttpResponse& res)
 	htmlContent += "}";
 	/**/
 	SPDLOG_DEBUG(htmlContent);
-	
-	//req_content_type::string
-	res.set_status_and_content(status_type::ok, std::move(htmlContent),req_content_type::json);
-	return 0;
-	
+	return res->String(htmlContent);
+	return res->Json(htmlContent);
 }
 
-inline int HV_serverImp::start_http_server(int httpPort)
+inline int HV_serverImp::http_server(int httpPort)
 {
-	//httpServer->Static("/","./webPage");
-	httpServer = new http_server(std::thread::hardware_concurrency());
-	auto fport = fmt::format("{}", httpPort);
-	httpServer->listen("0.0.0.0",fport);
+	router.Static("/","./webPage");
 
-	httpServer->set_http_handler<POST>("/leds/add", [this](HttpRequest& req, HttpResponse&  res) {
+	router.POST("/leds/add", [this](HttpRequest* req, HttpResponse* resp) {
 		std::string htmlContent;
 			htmlContent = "{";
 			htmlContent += true ? "sucess" : "failed";
 			htmlContent += "}";
-			res.set_status_and_content(status_type::ok, std::move(htmlContent), req_content_type::json);
+			return resp->Json(htmlContent);
 	});
-	httpServer->set_http_handler<GET>("/leds/list", [this](HttpRequest& req, HttpResponse&  res) {
-		 list_Handler(req, res);
+	router.GET("/leds/list", [this](HttpRequest* req, HttpResponse* resp) {
+		return list_Handler(req, resp);
 		});
-	httpServer->set_http_handler<GET>("/list", [this](HttpRequest& req, HttpResponse&  res) {
-		 list_Handler(req, res);
-		});
-
-	httpServer->set_http_handler<GET>("/paths", [this](HttpRequest& req, HttpResponse&  res) {
-		//return res.Json(httpServer->Paths());
-
-		res.set_status_and_content(status_type::ok, "");
+	router.GET("/list", [this](HttpRequest* req, HttpResponse* resp) {
+		return list_Handler(req, resp);
 		});
 
-	httpServer->set_http_handler<POST>("/set", [this](HttpRequest& req, HttpResponse&  res) {
-		 CreatePGM_Handler(req, res);
+	router.GET("/paths", [this](HttpRequest* req, HttpResponse* resp) {
+		return resp->Json(router.Paths());
+		});
+
+	router.GET("/get", [](HttpRequest* req, HttpResponse* resp) {
+		resp->json["origin"] = req->client_addr.ip;
+		resp->json["url"] = req->url;
+		resp->json["args"] = req->query_params;
+		resp->json["headers"] = req->headers;
+		return 200;
+		});
+
+	router.POST("/echo", [](const HttpContextPtr& ctx) {
+		return ctx->send(ctx->body(), ctx->type());
+		});
+
+
+
+
+	router.POST("/set", [this](HttpRequest* req, HttpResponse* resp) {
+		return CreatePGM_Handler(req, resp);
 		}); ;
 
-	httpServer->set_http_handler<GET>("/create_onePGM", [this](HttpRequest& req, HttpResponse&  res) {
-		 CreatePGM_Handler(req, res);
+	router.GET("/create_onePGM", [this](HttpRequest* req, HttpResponse* resp) {
+		return CreatePGM_Handler(req, resp);
 		});
 
-	httpServer->set_http_handler<GET>("/create_withPGM", [this](HttpRequest& req, HttpResponse&  res) {
-		 CreatePGM_Handler(req, res);
+	router.GET("/create_withPGM", [this](HttpRequest* req, HttpResponse* resp) {
+		return CreatePGM_Handler(req, resp);
 		});
 
-	httpServer->set_http_handler<GET>("/reloadpgm", [this](HttpRequest& req, HttpResponse&  res)
+	router.GET("/reloadpgm", [this](HttpRequest* req, HttpResponse* res)
 		{
 			
-			std::string 	sendValue = (std::string)req.get_query_value("key");
+			auto 	sendValue = req->GetParam("key");
+			
+
 			std::string htmlContent;
 			htmlContent = "{";
-			htmlContent += (IConfig.ReloadPGM(std::move(sendValue)) ? "sucess" : "failed");
+			htmlContent += (IConfig.ReloadPGM(sendValue) ? "sucess" : "failed");
 			htmlContent += "}";
-			res.set_status_and_content(status_type::ok, std::move(htmlContent), req_content_type::json);
+			return res->Json(htmlContent);
 		});
 
-	httpServer->set_http_handler<GET>("/neima", [this](HttpRequest& req, HttpResponse&  res) {
-		if (auto key = req.get_query_value("key"); !key.empty())
+	router.GET("/neima", [this](HttpRequest* req, HttpResponse* res) {
+		if (auto key = req->GetParam("key"); key != hv::empty_string)
 		{
 			std::lock_guard<std::mutex> lock(led_neima_mutex);
 			auto v = split_string(key);
 			int nlen = makeNeiMa(neima, v);
 			int a = 0;
-			int count = tcpServer.boardCast(neima, nlen);
+			int count = m_tcpSrv.broadcast(neima, nlen);
 			std::string htmlJson;
 			htmlJson =fmt::format("{{\"ret\":{} ,\"ledCount\":{} ,\"msg\":\"{}\"}}",a,count,"ok");
-
-			res.set_status_and_content(status_type::ok, std::move(htmlJson), req_content_type::json);
+			return res->Json(htmlJson);
 		}
-		res.set_status_and_content(status_type::ok, fmt::format("{{\"ret\":-1 ,\"ledCount\":0 ,\"msg\":\"miss key\"}}"), req_content_type::json);
+		return res->Json(fmt::format("{{\"ret\":-1 ,\"ledCount\":0 ,\"msg\":\"miss key\"}}"));
 		});
 
 
 	printf("http:%d\n", httpPort);
-	httpServer->run();
+	httpServer.registerHttpService(&router);
+	httpServer.setPort(httpPort);
+	httpServer.setThreadNum(4);
+	httpServer.run();
 	return 0;
 }
 
 inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
-	
-	tcpServer.start(fmt::format("{}",_proxy_port).data(),
-		fmt::format("{}", _backend_port).data());
+	hlog_set_level(LOG_LEVEL_DEBUG);
+	int listenfd = m_tcpSrv.createsocket(_proxy_port);
+	if (listenfd < 0) {
+		return -20;
+	}
+	backend_port = _backend_port;
+	printf("server listen on port %d, listenfd=%d ...\n", _proxy_port, listenfd);
+	m_tcpSrv.onConnection = [this](const SocketChannelPtr& channel) {
+		std::string peeraddr = channel->peeraddr();
+		if (channel->isConnected()) {
+			printf("%s connected! connfd=%d id=%d tid=%ld\n", peeraddr.c_str(), channel->fd(), channel->id(), currentThreadEventLoop->tid());
+
+			hio_setup_tcp_upstream(channel->io(), "127.0.0.1", backend_port, false);
+		}
+		else {
+			printf("%s disconnected! connfd=%d id=%d tid=%ld\n", peeraddr.c_str(), channel->fd(), channel->id(), currentThreadEventLoop->tid());
+		}
+	};
+	m_tcpSrv.onMessage = [](const SocketChannelPtr& channel, Buffer* buf) {
+		// echo
+		printf("< %.*s\n", (int)buf->size(), (char*)buf->data());
+		channel->write(buf);
+	};
+	m_tcpSrv.setThreadNum(4);
+	m_tcpSrv.setLoadBalance(LB_LeastConnections);
+	m_tcpSrv.start();
 	return 0;
 }

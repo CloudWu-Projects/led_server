@@ -7,6 +7,6 @@
     "tinyxml2",
     "cpp-base64",
     "rapidjson",
-    "asio"
+    "libhv"
   ]
 }

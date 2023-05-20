@@ -28,14 +28,14 @@ inline std::string to_byte_string(const std::wstring& input)
 #endif
 
 
-inline std::vector<std::string> split_string( std::string_view s, char delim=',')
+inline std::vector<std::string> split_string(const std::string& s, char delim=',')
 {
 	if (s.empty())
 		return {};
 
 	std::vector<std::string> elems;
 	std::stringstream ss;
-	ss.str(std::string(s));
+	ss.str(s);
 	std::string item;
 	while (std::getline(ss, item, delim))
 		elems.push_back(item);
