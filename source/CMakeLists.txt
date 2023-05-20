@@ -4,7 +4,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(tinyxml2 CONFIG REQUIRED)
 find_path(CPP_BASE64_INCLUDE_DIRS "cpp-base64/base64.cpp")
 find_package(RapidJSON CONFIG REQUIRED)
-find_package(libhv CONFIG REQUIRED)
+find_package(asio CONFIG REQUIRED)
 
 file(GLOB_RECURSE source_cpp "./*.cpp")
 
@@ -25,17 +25,18 @@ set_target_properties(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/lib
+    ${CMAKE_SOURCE_DIR}/lib/cinatra/include/
+    ${CMAKE_SOURCE_DIR}/lib/cinatra/thirdparty/asio/
+    ${CMAKE_SOURCE_DIR}/lib/cinatra/thirdparty/async_simple/
     ${CPP_BASE64_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     spdlog::spdlog_header_only
     rapidjson
-    
+    asio::asio
     tinyxml2::tinyxml2)
 
 if(UNIX)
-    TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/lib/dll/libledplayer7.so" hv_static)
-    else()
-    target_link_libraries(${PROJECT_NAME} PUBLIC  hv)
+    TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/lib/dll/libledplayer7.so")
 endif()
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/bin)
