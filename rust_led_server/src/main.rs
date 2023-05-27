@@ -1,4 +1,3 @@
-
 mod tcp_server;
 use std::{thread, time};
 
@@ -9,20 +8,19 @@ use crate::tcp_server::TcpServer;
 async fn main() {
     let local_port = 10008;
     let remote_port = 10009;
-  // let ab = TcpServer::start_server(10008,10009);
-  let mut tcpS = TcpServer::new(local_port, remote_port);
+    let mut tcpS = TcpServer::new(local_port, remote_port);
 
-  let a = tcpS  .start_tcp_server();
+    let a = tcpS.start_tcp_server();
 
-let loopthread=thread::spawn(move||{
-    let mut acount=0;   
-    loop{
-        thread::sleep(time::Duration::from_secs(1));
-        println!("{:?}",acount);
-    
-        acount=acount+1;
-    }    
-});
+    let loopthread = thread::spawn(move || {
+        let mut acount = 0;
+        loop {
+            thread::sleep(time::Duration::from_secs(1));
+            println!("{:?}", acount);
+
+            acount = acount + 1;
+        }
+    });
 
     join!(a);
     println!("over !!!!!!!!!!!")
