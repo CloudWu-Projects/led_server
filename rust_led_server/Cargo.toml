@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1.16.0", features = ["full"] }
-rocket = "=0.5.0-rc.3"
+tiny_http = "0.11"
