@@ -3,10 +3,20 @@
 use std::thread;
 mod tcp_server;
 use crate::tcp_server::std_tcp_server::StdTcpServer;
-fn main(){
+
+#[macro_use] extern crate rocket;
+
+#[get("/")]
+fn index() -> &'static str {
+    "Hello, world!"
+}
+
+#[rocket::main]
+async fn main() {
     let mut a = StdTcpServer::New(8080, 10008);
     let mut a_clone = a.clone();
     thread::spawn(move || {
+        a_clone.start_server();
         let mut input = String::new();
         loop {
             std::io::stdin().read_line(&mut input).unwrap();
@@ -21,7 +31,10 @@ fn main(){
             input.clear();
         }
     });
-
-    a.start_server();
+    let rocket=  rocket::build().mount("/", routes![index]);
+    rocket.launch().await;
+     println!("Hello, world!");
+ 
+     
 
 }

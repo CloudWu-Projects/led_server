@@ -98,5 +98,8 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.autopep8"
     },
-    "python.formatting.provider": "none"
+    "python.formatting.provider": "none",
+    "rust-analyzer.linkedProjects": [
+        ".\\rust_led_server\\Cargo.toml"
+    ]
 }
