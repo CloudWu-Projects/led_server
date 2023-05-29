@@ -51,8 +51,10 @@ impl TcpServer {
             let db = self.clients.clone();
             {
                 let mut db = db.lock().unwrap();
+                println!("##################insert  {}", client_addr);
                 db.insert(client_addr);
                 display_clients(&db);
+                println!("###########################################")
             }
             println!("New connection from {}", client_addr);
             let target_addr = g_remote_addr.clone();
@@ -62,9 +64,11 @@ impl TcpServer {
 
                 {
                     let mut db = db.lock().unwrap();
-                    println!("after removed  {}", client_addr);
+                    
+                    println!("##################after removed  {}", client_addr);
                     db.remove(&client_addr);
                     display_clients(&db);
+                    println!("###########################################")
                 }
             });
         }
