@@ -10,6 +10,37 @@ use crate::tcp_server::std_tcp_server::StdTcpServer;
 fn index() -> &'static str {
     "Hello, world!"
 }
+use rocket::{Request, Data};
+use rocket::route::{Handler, Route, Outcome};
+use rocket::http::Method;
+#[derive(Copy, Clone)]
+enum Kind {
+    Simple,
+    Intermediate,
+    Complex,
+}
+
+#[derive(Clone)]
+struct CustomHandler(Kind);
+
+
+#[rocket::async_trait]
+impl Handler for CustomHandler {
+    async fn handle<'r>(&self, req: &'r Request<'_>, data: Data<'r>) -> Outcome<'r> {
+        match self.0 {
+            Kind::Simple => Outcome::from(req, "simple"),
+            Kind::Intermediate => Outcome::from(req, "intermediate"),
+            Kind::Complex => Outcome::from(req, "complex"),
+        }
+    }
+}
+
+impl Into<Vec<Route>> for CustomHandler {
+    fn into(self) -> Vec<Route> {
+        vec![Route::new(Method::Get, "/", self)]
+    }
+}
+
 
 #[rocket::main]
 async fn main() {
@@ -31,10 +62,10 @@ async fn main() {
             input.clear();
         }
     });
-    let rocket=  rocket::build().mount("/", routes![index]);
+    //let rocket=  rocket::build().mount("/", routes![index]);
+    let rocket =  rocket::build().mount("/", CustomHandler(Kind::Simple))
+    .mount("/a", CustomHandler(Kind::Intermediate))
+    .mount("/b", CustomHandler(Kind::Complex));
     rocket.launch().await;
      println!("Hello, world!");
- 
-     
-
 }
