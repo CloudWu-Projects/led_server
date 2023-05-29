@@ -1,14 +1,16 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::net::SocketAddr;
+use std::sync::RwLock;
 use std::sync::{Arc, Mutex};
 use tokio::io::{self, AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
+
+#[derive(Clone, Debug)]
 pub struct TcpServer {
     local_port: u16,
     remote_port: u16,
-    clients2: Arc<Mutex<HashMap<SocketAddr, TcpStream>>>,
-    clients: Arc<Mutex<HashSet<SocketAddr>>>,
+    connections: Arc<RwLock<HashMap<SocketAddr, TcpStream>>>,
 }
 
 fn display_clients2(db: &HashMap<SocketAddr, TcpStream>) {
@@ -27,15 +29,12 @@ impl TcpServer {
         Self {
             local_port,
             remote_port,
-            clients: Arc::new(Mutex::new(HashSet::new())),
-            clients2: Arc::new(Mutex::new(HashMap::new())),
+            connections: Arc::new(RwLock::new(HashMap::new())),
         }
     }
     pub fn sendMessage(&mut self, message: String) {
         println!("{}", message);
-        {
-           
-        }
+        {}
     }
     pub async fn start_tcp_server(&mut self) {
         let listener = TcpListener::bind(("0.0.0.0", self.local_port))
@@ -47,29 +46,12 @@ impl TcpServer {
 
         loop {
             let (client_stream, client_addr) = listener.accept().await.unwrap();
-
-            let db = self.clients.clone();
-            {
-                let mut db = db.lock().unwrap();
-                println!("##################insert  {}", client_addr);
-                db.insert(client_addr);
-                display_clients(&db);
-                println!("###########################################")
-            }
             println!("New connection from {}", client_addr);
             let target_addr = g_remote_addr.clone();
+            let mut self_clone = self.clone();
 
             tokio::spawn(async move {
-                proxy(client_stream, client_addr, target_addr).await;
-
-                {
-                    let mut db = db.lock().unwrap();
-                    
-                    println!("##################after removed  {}", client_addr);
-                    db.remove(&client_addr);
-                    display_clients(&db);
-                    println!("###########################################")
-                }
+                    self_clone.proxy(client_stream, client_addr, target_addr).await;                
             });
         }
     }
@@ -79,35 +61,52 @@ impl TcpServer {
             .start_tcp_server()
             .await;
     }
-}
 
-async fn proxy(client_stream: TcpStream, client_addr: SocketAddr, target_addr: String) {
-    let server_stream = TcpStream::connect(target_addr).await.unwrap();
+    async fn proxy(&mut self, client_stream: TcpStream, client_addr: SocketAddr, target_addr: String) {
+        let server_stream = TcpStream::connect(target_addr).await.unwrap();
 
-    let (mut client_reader, mut client_writer): (
-        io::ReadHalf<TcpStream>,
-        io::WriteHalf<TcpStream>,
-    ) = io::split(client_stream);
-    let (mut server_reader, mut server_writer) = io::split(server_stream);
+        let (mut client_reader, mut client_writer): (
+            io::ReadHalf<TcpStream>,
+            io::WriteHalf<TcpStream>,
+        ) = io::split(client_stream);
+        let (mut server_reader, mut server_writer) = io::split(server_stream);
 
-    let client_to_server = tokio::spawn(async move {
-        io::copy(&mut client_reader, &mut server_writer)
-            .await
-            .unwrap();
-    });
+        client_writer.write(b"aa").await.unwrap();
+        
+        let client_to_server = tokio::spawn(async move {
+            io::copy(&mut client_reader, &mut server_writer)
+                .await
+                .unwrap();
+        });
 
-    let server_to_client = tokio::spawn(async move {
-        io::copy(&mut server_reader, &mut client_writer)
-            .await
-            .unwrap();
-    });
+        let server_to_client = tokio::spawn(async move {
+            io::copy(&mut server_reader, &mut client_writer)
+                .await
+                .unwrap();
+        });
+        // {
+        //     println!("##################insert  {}", client_addr);
+        //     self.connections
+        //         .write()
+        //         .unwrap()
+        //         .insert(client_addr, client_stream);
 
-    tokio::select! {
-        _ = client_to_server => {
-            println!("Client -> Server transfer complete");
+        //     println!("###########################################")
+        // }
+        
+        tokio::select! {
+            _ = client_to_server => {
+                println!("Client -> Server transfer complete");
+            }
+            _ = server_to_client => {
+                println!("Server -> Client transfer complete");
+            }
         }
-        _ = server_to_client => {
-            println!("Server -> Client transfer complete");
+
+        {
+            println!("##################after removed  {}", client_addr);
+            self.connections.write().unwrap().remove(&client_addr);
+            println!("###########################################")
         }
     }
 }
