@@ -232,21 +232,22 @@ inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 	m_tcpSrv.onConnection = [this](const SocketChannelPtr& channel) {
 		std::string peeraddr = channel->peeraddr();
 		if (channel->isConnected()) {
+			channel->onread = [this,peeraddr](Buffer* buf) {
+				printf("%s read %d bytes\n", peeraddr.c_str(), buf->size());
+			};
+			channel->onwrite = [this,peeraddr](Buffer* buf) {				
+				printf("%s write %d bytes\n", peeraddr.c_str(), buf->size());
+			};
 			printf("%s connected! connfd=%d id=%d tid=%ld\n", peeraddr.c_str(), channel->fd(), channel->id(), currentThreadEventLoop->tid());
 
-			hio_t * up1= hio_setup_tcp_upstream(channel->io(), "127.0.0.1", backend_port, false);
-			hio_t * upstream = hio_get_upstream(channel->io());
+			//hio_t * up1= hio_setup_tcp_upstream(channel->io(), "127.0.0.1", backend_port, false);
+			//hio_t * upstream = hio_get_upstream(channel->io());
 			
-			printf("upstream  %x %x\n",up1,upstream);
-			printf("CUR %x %s[%s] connected! \n", channel->io(),
-			PEERADDR(channel->io()).c_str(), 
-			localaddr(channel->io()).c_str()
-			);/**/
+			//printf("upstream  %x %x\n",up1,upstream);
+			//printf("CUR %x %s[%s] connected! \n", channel->io(),			PEERADDR(channel->io()).c_str(), 			localaddr(channel->io()).c_str()			);/**/
 
-			printf("UP %x %s[%s] connected! \n", upstream,
-			PEERADDR(upstream).c_str(), 
-			localaddr(upstream).c_str()
-			);/**/
+			//printf("UP %x %s[%s] connected! \n", upstream,			PEERADDR(upstream).c_str(), 			localaddr(upstream).c_str()			);/**/
+
 
 		}
 		else {
