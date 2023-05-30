@@ -8,4 +8,4 @@ project ("led_server")
 
 add_subdirectory(source)
 
-#add_subdirectory(testA)
+add_subdirectory(cppled)

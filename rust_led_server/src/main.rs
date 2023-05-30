@@ -8,8 +8,12 @@ extern crate rouille;
 
 use rouille::Request;
 use rouille::Response;
-
 fn main() {
+    println!("[ Auto FFI bindgins call demo ]\n");
+
+}
+fn startAllServer(){
+
     let mut a = StdTcpServer::New(10008, 10009);
     let mut a_clone = a.clone();
     thread::spawn(move || {

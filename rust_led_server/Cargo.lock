@@ -527,6 +527,7 @@ dependencies = [
 name = "rust_led_server"
 version = "0.1.0"
 dependencies = [
+ "libc",
  "rouille",
 ]
 

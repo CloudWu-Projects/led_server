@@ -132,3 +132,4 @@ node_modules/
 /.vs
 /CMakeUserPresets.json
 rust_led_server/target/
+rust_led_server/testffi/target/
