@@ -237,12 +237,12 @@ inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 			hio_setup_tcp_upstream(channel->io(), "127.0.0.1", backend_port, false);
 			hio_t * upstream = hio_get_upstream(channel->io());
 			
-			printf("CUR %s[%s] connected! \n", 
+			printf("CUR %x %s[%s] connected! \n", channel->io(),
 			PEERADDR(channel->io()).c_str(), 
 			localaddr(channel->io()).c_str()
 			);/**/
 
-			printf("UP %s[%s] connected! \n", 
+			printf("UP %x %s[%s] connected! \n", upstream,
 			PEERADDR(upstream).c_str(), 
 			localaddr(upstream).c_str()
 			);/**/
