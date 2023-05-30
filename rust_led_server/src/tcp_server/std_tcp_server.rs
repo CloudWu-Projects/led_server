@@ -52,6 +52,14 @@ impl StdTcpServer {
             println!("discont>>>{:?}", client);
         })
     }
+    pub fn getAllClients(&self)->String {
+        let mut result ="".to_string();
+        self.clients.lock().unwrap().iter().for_each(|client| {            
+            let s2 =  client.peer_addr().unwrap().to_string();
+            result+=format!("{}\n",s2).as_str();
+        });
+        result
+    }
     pub fn displayClients(&self) {
         self.clients.lock().unwrap().iter().for_each(|client| {
             println!("{:?}", client);
@@ -66,6 +74,7 @@ impl StdTcpServer {
     pub fn start_server(&mut self) -> std::io::Result<()> {
 
         let listener = TcpListener::bind(("0.0.0.0", self.local_port))?;
+        println!("Listening on port {}", self.local_port);
         for stream in listener.incoming() {
             let stream = stream.unwrap();
             let addr = stream.peer_addr().unwrap();

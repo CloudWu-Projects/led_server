@@ -1,10 +1,16 @@
 use std::thread;
 mod tcp_server;
 use crate::tcp_server::std_tcp_server::StdTcpServer;
-use tiny_http::{Response, Server};
+//use tiny_http::{Response, Server};
+
+#[macro_use]
+extern crate rouille;
+
+use rouille::Request;
+use rouille::Response;
 
 fn main() {
-    let mut a = StdTcpServer::New(8080, 10008);
+    let mut a = StdTcpServer::New(10008, 10009);
     let mut a_clone = a.clone();
     thread::spawn(move || {
         a_clone.start_server();
@@ -23,20 +29,34 @@ fn main() {
     });
     //let rocket=  rocket::build().mount("/", routes![index]);
 
-    let server = Server::http("0.0.0.0:8000").unwrap();
-
-    for request in server.incoming_requests() {
-        println!(
-            "received request! method: {:?}, url: {:?}, headers: {:?}",
-            request.method(),
-            request.url(),
-            request.headers()
-        );
-        let response = Response::from_string("hello world");
-        request.respond(response);
-    }
-
+    rouille::start_server("0.0.0.0:8000", move |request| {
+        let response = note_routes(request, &a);
+        response
+    });
+    
     println!("Hello, world!");
     //maybe useful
     //https://github.com/tomaka/rouille/blob/master/examples/database.rs  
+}
+
+fn note_routes(request:&Request ,tcpServer:&StdTcpServer) -> Response {
+    router!(request, 
+        (GET) (/) => {           
+            let _rtext = tcpServer.getAllClients().to_string();
+            let mut ab = String::from("hello world");
+            ab.push_str(_rtext.as_str());
+            Response::text(ab)
+        },    
+        (GET) (/setparknum) => {
+            let key = request.get_param("key");
+            println!("key {:?}",key);
+
+            let _rtext = tcpServer.getAllClients().to_string();
+            let mut ab = String::from("hello world");
+            ab.push_str(_rtext.as_str());
+            Response::text(ab)
+        },    
+        
+        _ => Response::empty_404()
+    )
 }
