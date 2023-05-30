@@ -252,7 +252,7 @@ inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 			target->onConnection=[this,localChannel=channel,_backend_port](const SocketChannelPtr& targetchannel) {
 				std::string peeraddr = targetchannel->peeraddr();
 				if (targetchannel->isConnected()) {
-					printf("%s connect to ledServer(%d)! connfd=%d id=%d tid=%ld\n",_backend_port, peeraddr.c_str(), targetchannel->fd(), targetchannel->id(), currentThreadEventLoop->tid());
+					printf("%s connect to ledServer(%d)! connfd=%d id=%d tid=%ld\n", peeraddr.c_str(),_backend_port, targetchannel->fd(), targetchannel->id(), currentThreadEventLoop->tid());
 						
 						localChannel->onread = [this,targetchannel](Buffer* buf) {
 							//printf("%s read %d bytes\n", peeraddr.c_str(), buf->size());
@@ -275,6 +275,7 @@ inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 
 			
 			
+			
 			//hio_t * up1= hio_setup_tcp_upstream(channel->io(), "127.0.0.1", backend_port, false);
 			//hio_t * upstream = hio_get_upstream(channel->io());
 			
@@ -289,11 +290,7 @@ inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 			printf("%s disconnected! connfd=%d id=%d tid=%ld\n", peeraddr.c_str(), channel->fd(), channel->id(), currentThreadEventLoop->tid());
 		}
 	};
-	m_tcpSrv.onMessage = [](const SocketChannelPtr& channel, Buffer* buf) {
-		// echo
-		printf("< %.*s\n", (int)buf->size(), (char*)buf->data());
-		channel->write(buf);
-	};
+	
 	m_tcpSrv.setThreadNum(4);
 	m_tcpSrv.setLoadBalance(LB_LeastConnections);
 	m_tcpSrv.start();
