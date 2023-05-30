@@ -208,7 +208,19 @@ inline int HV_serverImp::http_server(int httpPort)
 	httpServer.run();
 	return 0;
 }
+    std::string localaddr(hio_t* io_) {
+        if (io_ == NULL) return "";
+        struct sockaddr* addr = hio_localaddr(io_);
+        char buf[SOCKADDR_STRLEN] = {0};
+        return SOCKADDR_STR(addr, buf);
+    }
 
+    std::string PEERADDR(hio_t* io_) {
+        if (io_ == NULL) return "";
+        struct sockaddr* addr = hio_peeraddr(io_);
+        char buf[SOCKADDR_STRLEN] = {0};
+        return SOCKADDR_STR(addr, buf);
+    }
 inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 	hlog_set_level(LOG_LEVEL_DEBUG);
 	int listenfd = m_tcpSrv.createsocket(_proxy_port);
@@ -223,13 +235,13 @@ inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 			printf("%s connected! connfd=%d id=%d tid=%ld\n", peeraddr.c_str(), channel->fd(), channel->id(), currentThreadEventLoop->tid());
 
 			hio_setup_tcp_upstream(channel->io(), "127.0.0.1", backend_port, false);
-			/*hio_t * upstream = hio_get_upstream(channel->io());
-			SocketChannel sc(upstream);
+			hio_t * upstream = hio_get_upstream(channel->io());
+			
 
-			printf("UP %s[%s] connected! connfd=%d id=%d tid=%ld\n", 
-			sc.peeraddr().c_str(), 
-			sc.localaddr().c_str(),
-			sc.fd(), sc.id(), currentThreadEventLoop->tid());/**/
+			printf("UP %s[%s] connected! \n", 
+			PEERADDR(upstream).c_str(), 
+			localaddr(upstream).c_str()
+			);/**/
 
 		}
 		else {
