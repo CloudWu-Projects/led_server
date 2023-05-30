@@ -15,8 +15,13 @@ fn main() {
     
     let lib=unsafe{ Library::new(lib_path).unwrap()};
 
+    let funcName=match std::env::consts::OS {
+        "windows" => "LV_LedInitServer\0",
+        _ => "_Z13LV_InitServeri\0",
+    };
+    println!("Loading funcName {}", funcName);
     // Get the function pointer
-    let init_server_fn: Symbol<LV_InitServerFn> = unsafe { lib.get(b"LV_LedInitServer\0").unwrap() };
+    let init_server_fn: Symbol<LV_InitServerFn> = unsafe { lib.get(funcName.as_bytes()).unwrap() };
 
     // Call the function
     let port = 1234;
