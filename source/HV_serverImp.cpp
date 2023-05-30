@@ -1,6 +1,7 @@
 #include "HV_serverImp.h"
 #include "hv_server.h"
 
+#include "hv/TcpClient.h"
 
 #include <iostream>
 #include "ledServer.h"
@@ -221,6 +222,13 @@ inline int HV_serverImp::http_server(int httpPort)
         char buf[SOCKADDR_STRLEN] = {0};
         return SOCKADDR_STR(addr, buf);
     }
+
+	typedef std::shared_ptr<TcpClient>  TcpClientPtr;
+
+	void handle_Client(const SocketChannelPtr& channel,int _backend_port) {
+		
+
+	}
 inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 	hlog_set_level(LOG_LEVEL_DEBUG);
 	int listenfd = m_tcpSrv.createsocket(_proxy_port);
@@ -229,15 +237,38 @@ inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 	}
 	backend_port = _backend_port;
 	printf("server listen on port %d, listenfd=%d ...\n", _proxy_port, listenfd);
-	m_tcpSrv.onConnection = [this](const SocketChannelPtr& channel) {
+	m_tcpSrv.onConnection = [this, _backend_port](const SocketChannelPtr& channel) {
 		std::string peeraddr = channel->peeraddr();
 		if (channel->isConnected()) {
-			channel->onread = [this,peeraddr](Buffer* buf) {
-				printf("%s read %d bytes\n", peeraddr.c_str(), buf->size());
+			TcpClientPtr target = std::make_shared<TcpClient>();
+			int connfd = target->createsocket(_backend_port);
+			if (connfd < 0) {
+				return ;
+			}
+			target->onConnection=[this,localChannel=channel](const SocketChannelPtr& targetchannel) {
+				std::string peeraddr = targetchannel->peeraddr();
+				if (targetchannel->isConnected()) {
+					printf("%s connected! connfd=%d id=%d tid=%ld\n", peeraddr.c_str(), targetchannel->fd(), targetchannel->id(), currentThreadEventLoop->tid());
+						localChannel->onread = [this,targetchannel](Buffer* buf) {
+							//printf("%s read %d bytes\n", peeraddr.c_str(), buf->size());
+							targetchannel->write(buf->data(), buf->size());
+						};
+						localChannel->onwrite = [this,targetchannel](Buffer* buf) {				
+							//printf("%s write %d bytes\n", peeraddr.c_str(), buf->size());
+
+						};
+
+						targetchannel->onread=[this,localChannel](Buffer* buf) {
+							localChannel->write(buf->data(), buf->size());
+						};
+				}
+				else{
+					printf("disconnected to %s! connfd=%d\n", peeraddr.c_str(), targetchannel->fd());
+				}
 			};
-			channel->onwrite = [this,peeraddr](Buffer* buf) {				
-				printf("%s write %d bytes\n", peeraddr.c_str(), buf->size());
-			};
+
+			
+			
 			printf("%s connected! connfd=%d id=%d tid=%ld\n", peeraddr.c_str(), channel->fd(), channel->id(), currentThreadEventLoop->tid());
 
 			//hio_t * up1= hio_setup_tcp_upstream(channel->io(), "127.0.0.1", backend_port, false);
