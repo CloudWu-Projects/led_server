@@ -271,6 +271,7 @@ inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 					printf("disconnected to %s! connfd=%d\n", peeraddr.c_str(), targetchannel->fd());
 				}
 			};
+			target->start();
 
 			
 			
