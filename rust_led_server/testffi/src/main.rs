@@ -17,6 +17,7 @@ type LPAREARECT=*const u8;
 type HPROGRAM=*const u8;
 
 type    LedServerCallback=unsafe extern "C"  fn(Msg:c_int, wParam:c_int, lParam:*const u8)->c_int;
+type    LedServerRegisterCallback=unsafe extern "C"  fn(call_back:* mut LedServerCallback)->c_int;
 type    LV_InitServerFn =unsafe extern "C" fn(port: c_int) -> c_int;
 type   LV_CreateProgramEx=unsafe extern "C" fn(LedWidth:c_int,LedHeight:c_int,ColorType:c_int,GrayLevel:c_int,SaveType:c_int)->HPROGRAM;
 type  LV_AddProgram=unsafe extern "C" fn(hProgram:HPROGRAM,ProgramNo:c_int, ProgramTime:c_int, LoopCount:c_int)->c_int;
@@ -26,7 +27,7 @@ type LV_DeleteProgram=unsafe extern "C" fn(hProgram:HPROGRAM );
 struct LedWrapper{
     lib: Library,
     init_server_fn: RawSymbol<LV_InitServerFn> ,
-    callback: RawSymbol<LedServerCallback>, 
+    register_callback: RawSymbol<LedServerRegisterCallback>, 
     create_program_ex: RawSymbol<LV_CreateProgramEx>,
     add_program: RawSymbol<LV_AddProgram>,
     add_image_text_area: RawSymbol<LV_AddImageTextArea>,
@@ -56,8 +57,8 @@ impl LedWrapper{
         let init_server_fnx: Symbol<LV_InitServerFn> = unsafe { lib.get(funcName_LV_LedInitServer.as_bytes()).unwrap() };
         let init_server_fnx =  unsafe { init_server_fnx.into_raw()};
 
-        let callback_fun: Symbol<LedServerCallback> = unsafe { lib.get(b"_Z25LV_RegisterServerCallbackPFiiiPvE").unwrap() };
-        let callback_fun=  unsafe { callback_fun.into_raw()};
+        let register_callback_fun: Symbol<LedServerRegisterCallback> = unsafe { lib.get(b"_Z25LV_RegisterServerCallbackPFiiiPvE").unwrap() };
+        let register_callback_fun=  unsafe { register_callback_fun.into_raw()};
 
         let create_program_ex: Symbol<LV_CreateProgramEx> = unsafe { lib.get(b"_Z18LV_CreateProgramExiiiii\0").unwrap() };
         let create_program_ex=  unsafe { create_program_ex.into_raw()};
@@ -74,7 +75,7 @@ impl LedWrapper{
         LedWrapper{
             lib: lib,
             init_server_fn: init_server_fnx,
-            callback: callback_fun,
+            register_callback: register_callback_fun,
             create_program_ex: create_program_ex,
             add_program: add_program,
             add_image_text_area: add_image_text_area,
@@ -86,6 +87,17 @@ impl LedWrapper{
             (self.init_server_fn)(port)
         }
     }
+    // pub fn setCallback(&self, callback: LedServerCallback)->c_int {
+    //     unsafe {
+    //         (self.register_callback)(Some(g_callback))
+    //     }
+    // }
+}
+
+unsafe extern "C" fn g_callback(Msg:c_int, wParam:c_int, lParam:std::ffi::c_void)->c_int
+{
+    println!("callback {} {}", Msg, wParam);
+    return 0;
 }
 fn main() {
     // Load the shared library
