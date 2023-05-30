@@ -7,7 +7,7 @@ fn main() {
     let lib_path = match (std::env::consts::OS,std::env::consts::ARCH) {        
         ("windows", "x86_64") =>"lv_led_64.dll",
         ("windows", "x86") =>"lv_led_32.dll",
-        ("linux","x86_64") => "libledplayer7.so",
+        ("linux","x86_64") => "/home/admin/libledplayer7.so",
         _ => panic!("Unsupported operating system"),
     };
 
