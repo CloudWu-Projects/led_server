@@ -56,11 +56,15 @@ int HV_serverImp::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Serv
 		{
 			tcp_server(ledNeimaPort, ledSDKport);
 		});
+		
+#ifdef use_cinatra
 	start_http_server(httpPort);
+#endif
 	a.join();
 	return 0;
 }
 
+#ifdef use_cinatra
 inline int HV_serverImp::list_Handler(HttpRequest& req, HttpResponse& res) {
 	auto s = m_ledSever->getNetWorkIDList();
 	//m_tcpSrv.foreachChannel([&](auto channel) {
@@ -136,6 +140,7 @@ inline int HV_serverImp::CreatePGM_Handler(HttpRequest& req, HttpResponse& res)
 
 inline int HV_serverImp::start_http_server(int httpPort)
 {
+	
 	//httpServer->Static("/","./webPage");
 	httpServer = new http_server(std::thread::hardware_concurrency());
 	auto fport = fmt::format("{}", httpPort);
@@ -206,6 +211,7 @@ inline int HV_serverImp::start_http_server(int httpPort)
 	return 0;
 }
 
+	#endif
 inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 	
 	tcpServer.start(fmt::format("{}",_proxy_port).data(),
