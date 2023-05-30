@@ -100,6 +100,8 @@
     },
     "python.formatting.provider": "none",
     "rust-analyzer.linkedProjects": [
-        ".\\rust_led_server\\Cargo.toml"
+        ".\\rust_led_server\\Cargo.toml",
+        ".\\rust_led_server\\testffi\\Cargo.toml",
+        ".\\rust_led_server\\testffi\\Cargo.toml"
     ]
 }

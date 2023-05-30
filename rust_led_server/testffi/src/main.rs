@@ -1,37 +1,31 @@
-use libc::size_t;
-
-extern crate libloading;
-
-use std::env;
 use libloading::{Library, Symbol};
 
-
-type     LV_InitServer=extern "stdcall" fn(port :i32)->i32;
-
-#[link(name="ledplayer7")]
-extern "stdcall" {
-    fn LV_InitServer(port :i32)->i32;
-}
+type LV_InitServerFn = unsafe extern "C" fn(port: i32) -> i32;
 
 fn main() {
-    println!("Hello, world!");
-    {
-        LV_InitServer(8089);
+    // Load the shared library
+    let lib_path = match (std::env::consts::OS,std::env::consts::ARCH) {        
+        ("windows", "x86_64") =>"lv_led_64.dll",
+        ("windows", "x86") =>"lv_led_32.dll",
+        ("linux","x86_64") => "libledplayer7.so",
+        _ => panic!("Unsupported operating system"),
+    };
+
+    println!("Loading {}", lib_path);
+    
+    let lib=unsafe{ Library::new(lib_path).unwrap()};
+
+    // Get the function pointer
+    let init_server_fn: Symbol<LV_InitServerFn> = unsafe { lib.get(b"LV_LedInitServer\0").unwrap() };
+
+    // Call the function
+    let port = 1234;
+    let result = unsafe { init_server_fn(port) };
+    if result != 0 {
+        panic!("Failed to initialize server: {}", result);
     }
-    let library_path0 = "/home/admin/libledplayer7.so";
-    let library_path1 = "F:\\Codes\\Cloud_wu\\led\\led_server\\lib\\dll\\lv_led_32.dll";
-    let library_path2 = "F:\\Codes\\Cloud_wu\\led\\led_server\\lib\\dll\\lv_led_64.dll";
-    let library_path3 = "F:\\Codes\\Cloud_wu\\led\\led_server\\lib\\dll\\lv_led_MBCS_32.dll";
-    let library_path4 = "F:\\Codes\\Cloud_wu\\led\\led_server\\lib\\dll\\lv_led_MBCS_64.dll";
-    let a=vec![library_path0,library_path1,library_path2,library_path3,library_path4];
-    a.iter().for_each(|library_path|{
-        println!("library_path {}",library_path);
-        unsafe {
-            let lib = Library::new(library_path);
-            println!("lib {:?}",lib);
-            let lib = lib.unwrap();
-            let init_server: Symbol<LV_InitServer> = lib.get(b"LV_InitServer").unwrap();
-            init_server(8089);
-        }
-    });
+    println!("Server initialized on port {}", port);
+    loop {
+        std::thread::sleep(std::time::Duration::from_secs(100));
+    }
 }
