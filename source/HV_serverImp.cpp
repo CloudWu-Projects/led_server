@@ -226,7 +226,10 @@ inline int HV_serverImp::tcp_server(int _proxy_port, int _backend_port) {
 			hio_t * upstream = hio_get_upstream(channel->io());
 			SocketChannel sc(upstream);
 
-			printf("UP %s connected! connfd=%d id=%d tid=%ld\n", sc.peeraddr().c_str(), sc.fd(), sc.id(), currentThreadEventLoop->tid());
+			printf("UP %s[%s] connected! connfd=%d id=%d tid=%ld\n", 
+			sc.peeraddr().c_str(), 
+			sc.localaddr().c_str(),
+			sc.fd(), sc.id(), currentThreadEventLoop->tid());
 
 		}
 		else {
