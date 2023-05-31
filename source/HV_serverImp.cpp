@@ -53,8 +53,7 @@ static int makeNeiMa(char* pDestbuffer, std::vector<std::string> pDataVt)
 int HV_serverImp::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Server* ledServer)
 {
 	m_ledSever = ledServer;
-	tcp_server(ledNeimaPort, ledSDKport);
-
+	//tcp_server(ledNeimaPort, ledSDKport);
 	http_server(httpPort);
 	return 0;
 }
