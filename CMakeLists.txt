@@ -7,5 +7,3 @@ cmake_minimum_required (VERSION 3.8)
 project ("led_server")
 
 add_subdirectory(source)
-
-add_subdirectory(cppled)

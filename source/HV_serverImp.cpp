@@ -170,9 +170,32 @@ inline int HV_serverImp::http_server(int httpPort)
 		});
 
 	router.GET("/create_withPGM", [this](HttpRequest* req, HttpResponse* resp) {
+		
 		return CreatePGM_Handler(req, resp);
 		});
+		
+	router.GET("/empty_plot", [this](HttpRequest* req, HttpResponse* resp) {
+		//url = f'{led_server_empty_plot}?ledids={ledids}&empty_plot={empty_plot}&pgmfilepath={pgmfilepath}'
+		
+		auto 	ledids = req->GetParam("ledids");
+		auto 	empty_plot = req->GetParam("empty_plot");
+		auto 	pgmfilepath = req->GetParam("pgmfilepath");
+		ExtSeting extSetting;
 
+		std::string htmlContent = "{";
+		auto createRet= m_ledSever->createPGM_withLspj(ledids,empty_plot,pgmfilepath,extSetting);
+
+		htmlContent += fmt::format("\"ret\":{},\"msg\":\"{}\",", std::get<0>(createRet), std::get<1>(createRet));
+		htmlContent += fmt::format("\"ledids\":\"{}\",", (ledids));
+		htmlContent += fmt::format("\"empty_plot\":\"{}\",", (empty_plot));
+		htmlContent += fmt::format("\"pgmfilepath\":\"{}\",", (pgmfilepath));
+		htmlContent += m_ledSever->getNetWorkIDList();
+		htmlContent += "}";
+		/**/
+		SPDLOG_DEBUG(htmlContent);
+		return resp->String(htmlContent);
+
+	});
 	router.GET("/reloadpgm", [this](HttpRequest* req, HttpResponse* res)
 		{		
 			auto 	sendValue = req->GetParam("key");
