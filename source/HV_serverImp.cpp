@@ -174,11 +174,8 @@ inline int HV_serverImp::http_server(int httpPort)
 		});
 
 	router.GET("/reloadpgm", [this](HttpRequest* req, HttpResponse* res)
-		{
-			
+		{		
 			auto 	sendValue = req->GetParam("key");
-			
-
 			std::string htmlContent;
 			htmlContent = "{";
 			htmlContent += (IConfig.ReloadPGM(sendValue) ? "sucess" : "failed");
