@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <functional>
 #include "hv/iniparser.h"
+#define NO_NEED_TCPSERVER_FOR_NEIMA 1
 namespace fs = std::filesystem;
 class Config
 {
@@ -55,9 +56,6 @@ public:
 		struct tm lastRunTime;
 		std::vector<std::string> m_IPs;
 		bool isNeedRun(struct tm& local) {
-			//       ��ȷ������
-			//�ж� stime<��ǰʱ��
-			//      lastRunTime
 			auto isEqual = [&](MyTM& a) {
 				if (local.tm_hour != a.tm_hour)return false;
 				if (local.tm_min != a.tm_min)return false;
@@ -173,7 +171,9 @@ private:
 		httpPort = Get("httpport", "main", httpPort);
 		ledSDKPort = Get("ledSDKPort", "main", ledSDKPort);
 		ledNeiMaPort = Get("ledNeiMaPort", "main", ledNeiMaPort);
-
+#ifdef NO_NEED_TCPSERVER_FOR_NEIMA
+		ledSDKPort = ledNeiMaPort;
+#endif
 
 		ledParam.ledType = Get("ledType", "LED", ledParam.ledType);
 		ledParam.ledWidth = Get("ledWidth", "LED", ledParam.ledWidth);

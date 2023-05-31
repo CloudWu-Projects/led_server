@@ -24,7 +24,6 @@ static int makeNeiMa(char* pDestbuffer, std::vector<std::string> pDataVt)
 
 	int send_len = 0;
 	int recv_len = 0;
-	//���巢�ͻ������ͽ��ܻ�����
 	//char send_buf[1024];
 	auto pgetInterCode = [](char* destPos, int codeAreaIdx, std::string str)
 	{
@@ -53,7 +52,9 @@ static int makeNeiMa(char* pDestbuffer, std::vector<std::string> pDataVt)
 int HV_serverImp::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Server* ledServer)
 {
 	m_ledSever = ledServer;
-	//tcp_server(ledNeimaPort, ledSDKport);
+#ifdef NO_NEED_TCPSERVER_FOR_NEIMA
+	tcp_server(ledNeimaPort, ledSDKport);
+#endif
 	http_server(httpPort);
 	return 0;
 }
