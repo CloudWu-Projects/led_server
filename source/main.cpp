@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaaaaaaa");
 	SPDLOG_INFO("a httpPort     ={:6d}   a", IConfig.httpPort);
 	SPDLOG_INFO("a ledSDKPort   ={:6d}   a", IConfig.ledSDKPort);
-#ifdef NO_NEED_TCPSERVER_FOR_NEIMA
+#ifdef NEED_TCPSERVER_FOR_NEIMA
 	SPDLOG_INFO("a ledNeiMaPort ={:6d}   a", IConfig.ledNeiMaPort);
 #endif
 	SPDLOG_INFO("aaaaaaaaaaaaaaaaaaaaaaaaa");

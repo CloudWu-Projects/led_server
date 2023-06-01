@@ -129,11 +129,15 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(const std::string &l
 	m_hProgram = nullptr;
 	
 	auto vecLedids = split_string(ledids, ',');
+	std::string noinItem="";
+	std::string sucessItem="";
 	for (auto ledid : vecLedids)
 	{
 		if (!clientNetWorkID.contains(ledid))
 		{
-			retHtml += fmt::format("[{}] not in clientNetWorkID\n", ledid);
+			if(noinItem.length()>0)
+				noinItem+=",";
+			noinItem += "\"" + ledid + "\"";
 			continue;
 		}
 		if (m_hProgram == nullptr)
@@ -151,9 +155,17 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(const std::string &l
 			break;
 		}
 		auto ret = sendProgram(ledid, m_hProgram);
-		retHtml += std::get<1>(ret);
-		retHtml += "\n";
+		if(sucessItem.length()>0)
+			sucessItem+=",";
+		sucessItem += "\"" + std::get<1>(ret);
+		sucessItem += "\"";
+		
 	}
+	std::string noInHtml="\"noin\":["+noinItem+"]";
+	
+	std::string sucessHtml="\"sucess\":["+sucessItem+"]";
+	
+	retHtml = noInHtml+","+sucessHtml;
 
 #ifdef WIN32
 	g_Dll->LV_DeleteProgram(m_hProgram);					   // 删除节目内存对象，详见函数声明注示

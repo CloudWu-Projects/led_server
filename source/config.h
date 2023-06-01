@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <functional>
 #include "hv/iniparser.h"
-#define NO_NEED_TCPSERVER_FOR_NEIMA 1
+//#define NEED_TCPSERVER_FOR_NEIMA 
 namespace fs = std::filesystem;
 class Config
 {
@@ -171,7 +171,7 @@ private:
 		httpPort = Get("httpport", "main", httpPort);
 		ledSDKPort = Get("ledSDKPort", "main", ledSDKPort);
 		ledNeiMaPort = Get("ledNeiMaPort", "main", ledNeiMaPort);
-#ifdef NO_NEED_TCPSERVER_FOR_NEIMA
+#ifndef NEED_TCPSERVER_FOR_NEIMA
 		ledSDKPort = ledNeiMaPort;
 #endif
 

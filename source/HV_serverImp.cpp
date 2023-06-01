@@ -52,7 +52,7 @@ static int makeNeiMa(char* pDestbuffer, std::vector<std::string> pDataVt)
 int HV_serverImp::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Server* ledServer)
 {
 	m_ledSever = ledServer;
-#ifdef NO_NEED_TCPSERVER_FOR_NEIMA
+#ifdef NEED_TCPSERVER_FOR_NEIMA
 	tcp_server(ledNeimaPort, ledSDKport);
 #endif
 	http_server(httpPort);
@@ -173,10 +173,14 @@ inline int HV_serverImp::http_server(int httpPort)
 		
 		return CreatePGM_Handler(req, resp);
 		});
-		
+
 	router.GET("/empty_plot", [this](HttpRequest* req, HttpResponse* resp) {
 		//url = f'{led_server_empty_plot}?ledids={ledids}&empty_plot={empty_plot}&pgmfilepath={pgmfilepath}'
-		
+		 std::unique_lock<std::mutex> lock(led_neima_mutex, std::defer_lock);
+		 if(!lock.try_lock())
+		 {
+			return resp->String("led_neima_mutex locked");
+		 }
 		auto 	ledids = req->GetParam("ledids");
 		auto 	empty_plot = req->GetParam("empty_plot");
 		auto 	pgmfilepath = req->GetParam("pgmfilepath");
@@ -185,7 +189,7 @@ inline int HV_serverImp::http_server(int httpPort)
 		std::string htmlContent = "{";
 		auto createRet= m_ledSever->createPGM_withLspj(ledids,empty_plot,pgmfilepath,extSetting);
 
-		htmlContent += fmt::format("\"ret\":{},\"msg\":\"{}\",", std::get<0>(createRet), std::get<1>(createRet));
+		htmlContent += fmt::format("\"ret\":{},\"msg\":{{ {} }},", std::get<0>(createRet), std::get<1>(createRet));
 		htmlContent += fmt::format("\"ledids\":\"{}\",", (ledids));
 		htmlContent += fmt::format("\"empty_plot\":\"{}\",", (empty_plot));
 		htmlContent += fmt::format("\"pgmfilepath\":\"{}\",", (pgmfilepath));
