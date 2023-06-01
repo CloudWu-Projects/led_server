@@ -21,6 +21,7 @@ public:
 	std::tuple<int,std::string> createPGM_withLspj(bool isJson,std::string& showText, ExtSeting&extSetting);
 	std::tuple<int,std::string> createPGM_withLspj(const std::string& ledids,const std::string& empty_plot,const std::string& pgmfilepath,ExtSeting&extSetting);
 	std::tuple<int, std::string> create_onPGM_byCode(std::string& showText, ExtSeting& extSetting);
+	void test();
 private:
 
 #ifdef WIN32
@@ -38,4 +39,6 @@ private:
 
 	HPROGRAM m_hProgram=nullptr;
 	int m_nProgramNo=0;
+
+	
 };

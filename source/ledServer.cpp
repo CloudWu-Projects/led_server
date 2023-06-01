@@ -15,9 +15,9 @@
 #include "logLib.h"
 std::mutex queue_mutex;
 #ifdef UNICODE
-std::set<std::wstring> clientNetWorkID;
+	std::set<std::wstring> clientNetWorkID;
 #else
-std::set<std::string> clientNetWorkID;
+	std::set<std::string> clientNetWorkID;
 #endif
 
 #ifndef WIN32
@@ -36,13 +36,15 @@ int LedServerCallback(int Msg, int wParam, void* lParam)
 #ifdef UNICODE
 		SPDLOG_DEBUG(L"LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
 #else
-		SPDLOG_DEBUG("LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+		SPDLOG_DEBUG("1111111111 NONUnicde->LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
 #endif
 
 		{
 			std::lock_guard<std::mutex> lock(queue_mutex);
 			clientNetWorkID.emplace(pCardInfo->networkIdStr);
 		}
+		SPDLOG_DEBUG("2222222222 NONUnicde->LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+
 	}
 	break;
 	case LV_MSG_CARD_OFFLINE:
@@ -52,12 +54,14 @@ int LedServerCallback(int Msg, int wParam, void* lParam)
 #ifdef UNICODE
 		SPDLOG_DEBUG(L"LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
 #else
-		SPDLOG_DEBUG("LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+		SPDLOG_DEBUG("11111 LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
 #endif
 		{
 			std::lock_guard<std::mutex> lock(queue_mutex);
 			clientNetWorkID.erase(pCardInfo->networkIdStr);
 		}
+		SPDLOG_DEBUG("22222 LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+
 		//((CDemoDlg *)AfxGetApp()->m_pMainWnd)->ComboboxAddString(FALSE,pCardInfo->networkIdStr);
 	}
 	break;
@@ -228,6 +232,8 @@ std::tuple<int, std::string> LED_Server::create_onPGM_byCode(std::string& showTe
 	HPROGRAM hProgram = nullptr;
 	for (auto WnetworkID : clientNetWorkID)
 	{
+		if(WnetworkID=="860302250008951")continue;
+		printf("WnetworkID: %s\n",WnetworkID.c_str());
 		auto ret = createAProgram(WnetworkID, showText,IConfig.ledParam,&extSetting);
 		
 		retHtml += std::get<1>(ret);
@@ -558,7 +564,7 @@ int LED_Server::createTimeClockArea( Area& area,ExtSeting *m_extSetting)
 #ifdef WIN32
 	strcpy(area.clockIfo.ShowStrFont.FontName, "宋体");
 #else
-	strcpy(area.clockIfo.ShowStrFont.FontPath, "./font/simsun.ttc");
+	strcpy(area.clockIfo.ShowStrFont.FontPath, "./simsun.ttc");
 #endif
 
 	area.clockIfo.ShowStrFont.FontSize = m_extSetting->FontSize;
@@ -587,4 +593,95 @@ int LED_Server::createNeimaArea(  Area& area,const char* pShowText,ExtSeting *m_
 #else
 	return LV_AddNeiMaArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, pShowText, fontSize, area.neiMaArea.FontColor, &PlayProp);
 #endif
+}
+
+
+
+// 一个节目下只有一个连接左移的单行文
+void demofunction_2(char* pIp, int ledType, int ledWidth, int ledHeight, int colorType, int grayLevel)
+{
+	printf("一个节目下只有一个连接左移的单行文\n");
+	int nResult;
+	COMMUNICATIONINFO CommunicationInfo;
+	memset(&CommunicationInfo, 0, sizeof(COMMUNICATIONINFO));
+	CommunicationInfo.LEDType = ledType;
+	// TCP通讯********************************************************************************
+	CommunicationInfo.SendType = 0;       // 设为固定IP通讯模式，即TCP通讯
+	strcpy(CommunicationInfo.IpStr, pIp); // 给IpStr赋值LED控制卡的IP
+	CommunicationInfo.LedNumber = 1;
+	// 广播通讯********************************************************************************
+	// CommunicationInfo.SendType=1;//设为单机直连，即广播通讯无需设LED控制器的IP地址
+	// 广域网通讯
+	CommunicationInfo.SendType = 4;//设为广域网通讯模式
+	strcpy(CommunicationInfo.NetworkIdStr, pIp);//指定唯一网络ID
+
+	/***第一步创建节目句柄***开始***/
+	HPROGRAM hProgram;                                                           // 节目句柄
+	hProgram = LV_CreateProgramEx(ledWidth, ledHeight, colorType, grayLevel, 0); // 根据传的参数创建节目句柄，注意此处屏宽高及颜色参数必需与设置屏参的屏宽高及颜色一致，否则发送时会提示错误
+	/***第一步创建节目句柄***结束***/
+
+	/***第二步添加一个节目***开始***/
+	int nProgramNo = 0;
+	nResult = LV_AddProgram(hProgram, nProgramNo, 0, 1);
+	if (nResult)
+	{
+		char ErrStr[256];
+		LV_GetError(nResult, 256, ErrStr);
+		printf("%s\n", ErrStr);
+		return;
+	}
+	/***第二步添加一个节目***结束***/
+
+	/***第三步快速添加单行文本区域（默认连续左移）到节目号为nProgramNo***开始***/
+	AREARECT AreaRect; // 区域坐标属性结构体变量
+	AreaRect.left = 0;
+	AreaRect.top = 0;
+	AreaRect.width = ledWidth;
+	AreaRect.height = ledHeight;
+
+	FONTPROP FontProp; // 文字属性s
+	memset(&FontProp, 0, sizeof(FONTPROP));
+	strcpy(FontProp.FontPath, "./simsun.ttc");
+	FontProp.FontSize = 14;
+	FontProp.FontColor = COLOR_RED;
+
+	nResult = LV_QuickAddSingleLineTextArea(hProgram, nProgramNo, 1, &AreaRect, ADDTYPE_STRING, "上海灵信视觉技术股份有限公司", &FontProp, 20); // 快速通过字符添加一个单行文本区域
+	// nResult=LV_QuickAddSingleLineTextArea(hProgram,nProgramNo,1,&AreaRect,ADDTYPE_FILE,"test.txt",&FontProp,4);//快速通过txt文件添加一个单行文本区域
+
+	if (nResult)
+	{
+		char ErrStr[256];
+		LV_GetError(nResult, 256, ErrStr);
+		printf("%s\n", ErrStr);
+		return;
+	}
+	/***第三步快速添加单行文本区域（默认连续左移）***结束***/
+
+	/***第四步发送节目以及删除节目内存对象***开始***/
+	nResult = LV_Send(&CommunicationInfo, hProgram); // 发送，见函数声明注示
+	LV_DeleteProgram(hProgram);                      // 删除节目内存对象，详见函数声明注示
+	if (nResult)
+	{
+		char ErrStr[256];
+		LV_GetError(nResult, 256, ErrStr);
+		printf("%s\n", ErrStr);
+		return;
+	}
+	else
+	{
+		printf("发送成功\n");
+	}
+	/***第四步发送节目以及删除节目内存对象***结束***/
+}
+
+
+void LED_Server::test()
+{
+	std::lock_guard<std::mutex> lock(queue_mutex);
+	for (auto a :clientNetWorkID)
+	{
+		printf("test--->%s\n", a.data());
+		demofunction_2(a.data(), 3, 80, 40, 3, 1);
+	}
+	
 }
