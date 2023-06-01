@@ -64,33 +64,6 @@ def try_openDB():
         create_database()
     
 
-
-@app.route('/listdb', methods=['GET'])    
-def handle_listdb(): 
-    park_id=request.args.get("park_id")
-    try:
-        conn = sqlite3.connect(f'{dbfilePath}?mode=ro',uri=True)
-        c = conn.cursor()
-        #sql = f'select ledid,a.park_id,b.park_name ,b.pgmfilepath from leds a,parkinfo b where a.park_id=b.park_id '
-        sql = 'select ledid ,park_id from leds '
-        if park_id is not None and park_id!="":
-            sql += f'and park_id={park_id}'
-        c.execute(sql)
-        response=f'{park_id}<br>'
-        for row in c.fetchall():
-            response +=str(row)+'--->'
-            sql2='select park_id ,park_name,pgmfilepath from parkinfo where park_id='+str(row[1])
-            c.execute(sql2)
-            for row2 in c.fetchall():
-                response +=str(row2)
-                break
-            response+='<br>'
-        conn.close()
-        return response
-    except Exception as e:
-        print(e)
-        return str(e)
-
 @app.route('/test', methods=['GET'])
 @app.route('/', methods=['GET'])
 def handle_root():
@@ -121,7 +94,7 @@ def handle_park(park_id,empty_plot):
         ledids=""
         
         for row in c.fetchall():
-            print(row)           
+            print(row.decode('utf-8'))           
             ledids += str(row[0])+","
             pgmfilepath = str(row[3])
         conn.close()
@@ -130,10 +103,7 @@ def handle_park(park_id,empty_plot):
         response = requests.get(url)
         print(response.text)
         ajson = json.loads(response.text)
-        print(ajson)
-        print(ajson['idlist'])
         for a in ajson['idlist']:
-            print(a)
             if a in ledids:
                 continue
             print(f"{a} no in {ledids}")
@@ -326,7 +296,16 @@ class ParkInfo(Resource):
             print(e)
             return str(e)
     def delete(self,park_id):
-        pass
+        try:            
+            conn = sqlite3.connect(f'{dbfilePath}',uri=True)
+            c = conn.cursor()
+            c.execute(f'''delete from parkinfo where park_id={park_id};''')
+            conn.commit()
+            conn.close()
+            return "ok"
+        except Exception as e:
+            print(e)
+            return str(e)
 
 
 api = Api(app)
@@ -335,7 +314,8 @@ api.add_resource(ParkInfo, '/api/parkinfo/<int:park_id>')
 
 if __name__ == "__main__":        
     try_openDB()
-    app.run(host=hostName, port=serverPort)    
     print("Server started http://%s:%s" % (hostName, serverPort))
+    app.run(host=hostName, port=serverPort)    
+    
     
     print("Server stopped.")
