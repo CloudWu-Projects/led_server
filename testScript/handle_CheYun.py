@@ -152,7 +152,7 @@ def handle_park(park_id,empty_plot):
 @app.route('/in_park', methods=['POST']) 
 def out_in_park():    
     json_body = request.json
-    print(json_body)
+    
     try:
        # json_body = json.loads(body.decode('utf-8'))
         current_empty_plot= json_body['data']['empty_plot']    
