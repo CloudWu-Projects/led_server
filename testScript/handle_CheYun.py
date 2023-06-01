@@ -245,6 +245,18 @@ class LedInfo(Resource):
             print(e)
             return str(e)
     
+    def put(self,led_id):
+        try:            
+            conn = sqlite3.connect(f'{dbfilePath}',uri=True)
+            c = conn.cursor()
+            c.execute(f'''update leds set park_id={request.values['park_id']} where ledid={led_id};''')
+            conn.commit()
+            conn.close()
+            return 'ok'
+        except Exception as e:
+            print(e)
+            return str(e)
+        
     def post(self,led_id):
         try:
             park_id = request.values['park_id']            
@@ -252,8 +264,6 @@ class LedInfo(Resource):
             conn = sqlite3.connect(f'{dbfilePath}',uri=True)
             c = conn.cursor()
             c.execute(f'''insert into leds(park_id , ledid) values({park_id},{led_id});''')
-        
-           
             conn.commit()
             conn.close()
             return 'ok'
@@ -289,7 +299,18 @@ class ParkInfo(Resource):
         except Exception as e:
             print(e)
             return str(e)
-        
+    
+    def put(self,park_id):
+        try:            
+            conn = sqlite3.connect(f'{dbfilePath}',uri=True)
+            c = conn.cursor()
+            c.execute(f'''update parkinfo set park_name={request.values['park_name']} where park_id={park_id};''')
+            conn.commit()
+            conn.close()
+            return 'ok'
+        except Exception as e:
+            print(e)
+            return str(e)
 
     def post(self,park_id):
         try:
