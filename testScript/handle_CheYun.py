@@ -93,13 +93,12 @@ def handle_park(park_id,empty_plot):
         pgmfilepath=""
         ledids=""
         
-        for row in c.fetchall():
-            print(row.decode('utf-8'))           
+        for row in c.fetchall():                       
             ledids += str(row[0])+","
             pgmfilepath = str(row[3])
         conn.close()
         url = f'{led_server_empty_plot}?ledids={ledids}&empty_plot={empty_plot}&pgmfilepath={pgmfilepath}&park_id={park_id}'
-        print(url)
+        print(url.encode('utf-8'))
         response = requests.get(url)
         print(response.text)
         ajson = json.loads(response.text)
