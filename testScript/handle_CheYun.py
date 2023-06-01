@@ -100,7 +100,7 @@ def handle_park(park_id,empty_plot):
         url = f'{led_server_empty_plot}?ledids={ledids}&empty_plot={empty_plot}&pgmfilepath={pgmfilepath}&park_id={park_id}'
         print(url.encode('utf-8'))
         response = requests.get(url)
-        print(response.text)
+        print(response.text.encode('utf-8'))
         ajson = json.loads(response.text)
         for a in ajson['idlist']:
             if a in ledids:
