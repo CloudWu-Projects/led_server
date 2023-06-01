@@ -106,7 +106,7 @@ def handle_park(park_id,empty_plot):
             if a in ledids:
                 continue
             print(f"{a} no in {ledids}")
-            requests.post(f'http://127.0.0.1:{serverPort}/newled',json={'ledid':a,'park_id':-1})
+            requests.post(f'http://127.0.0.1:{serverPort}/api/ledinfo/{a}',params={'ledid':a,'park_id':-1})
         last_update_response = response.text            
         
 
@@ -166,19 +166,32 @@ def handle_led_infos():
         <script>
         function setLedAction(form){
             form.action = "/api/ledinfo/"+form.ledid.value;
-            return true;
+            fetch(form.action, {method:'post', body: new FormData(form)})
+            .then(() =>{
+            window.location.reload();
+            } );
+            return false;
         }
          function setparkAction(form){
                 form.action = "/api/parkinfo/"+form.park_id.value;
-                return true;
+                fetch(form.action, {method:'post', body: new FormData(form)})
+            .then(() =>{
+            window.location.reload();
+            } );
+            return false;
             }       
         function deleteLed(ledid){
             let deleteurl = "/api/ledinfo/"+ledid;
-            fetch(deleteurl, {method: "DELETE"});
+            fetch(deleteurl, {method: "DELETE"}) .then(() =>{
+            window.location.reload();
+            } );
         }
         function deletepark(parkid){
             let deleteurl = "/api/parkinfo/"+parkid;
-            fetch(deleteurl, {method: "DELETE"});
+            fetch(deleteurl, {method: "DELETE"})
+            .then(() =>{
+            window.location.reload();
+            } );
         }
 
         </script>
@@ -233,15 +246,17 @@ class LedInfo(Resource):
             return str(e)
     
     def post(self,led_id):
-        try:            
+        try:
+            park_id = request.values['park_id']            
+
             conn = sqlite3.connect(f'{dbfilePath}',uri=True)
             c = conn.cursor()
-            c.execute(f'''insert into leds(park_id , ledid) values({request.form['park_id']},{led_id});''')
+            c.execute(f'''insert into leds(park_id , ledid) values({park_id},{led_id});''')
         
            
             conn.commit()
             conn.close()
-            return "ok"
+            return 'ok'
         except Exception as e:
             print(e)
             return str(e)
@@ -253,7 +268,7 @@ class LedInfo(Resource):
             c.execute(f'''delete from leds where ledid={led_id};''')
             conn.commit()
             conn.close()
-            return "ok"
+            return 'ok'
         except Exception as e:
             print(e)
             return str(e)
@@ -290,7 +305,7 @@ class ParkInfo(Resource):
             c.execute('''insert into parkinfo(park_id,pgmfilepath,park_name) values(?,?,?)''',(park_id,lsprjfile,park_name))
             conn.commit()
             conn.close()
-            return "ok"
+            return 'ok'
         except Exception as e:
             print(e)
             return str(e)
@@ -301,7 +316,7 @@ class ParkInfo(Resource):
             c.execute(f'''delete from parkinfo where park_id={park_id};''')
             conn.commit()
             conn.close()
-            return "ok"
+            return 'ok'
         except Exception as e:
             print(e)
             return str(e)
@@ -315,6 +330,4 @@ if __name__ == "__main__":
     try_openDB()
     print("Server started http://%s:%s" % (hostName, serverPort))
     app.run(host=hostName, port=serverPort)    
-    
-    
     print("Server stopped.")
