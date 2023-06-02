@@ -123,7 +123,7 @@ def handle_park(park_id,empty_plot):
         app.logger.debug(dat)
 
         response = requests.get(led_server_empty_plot,params=dat)
-        app.logger.debug(response.text)
+        app.logger.debug(response.text.encode('utf-8'))
         ajson = json.loads(response.text)
         for a in ajson['idlist']:
             if a in ledids:
@@ -149,7 +149,7 @@ def out_in_park():
        # json_body = json.loads(body.decode('utf-8'))
         current_empty_plot= json_body['data']['empty_plot']    
         park_id=json_body['park_id']
-        app.logger.debug(json_body)
+        app.logger.debug(json_body.encode('utf-8'))
 
         handle_park(park_id,current_empty_plot)   
         reuslt={
