@@ -29,7 +29,7 @@ bool LED_lsprj::loadMem(const char* pText,std::vector<LED>&leds) {
 	return true;
 }
 
-int parseFontColor_From_RTF(std::string &RTFtext)
+void parseFontColor_size_From_RTF(std::string &RTFtext,int &color,int &size)
 {
 	/*
 	TODO: RTFtext is
@@ -39,25 +39,43 @@ int parseFontColor_From_RTF(std::string &RTFtext)
 \pard\ltrpar\cf1\f0\fs32\lang2052\'d7\'d6\'c4\'bb1\cf2\fs24\par
 }
 	parser RTFtext to get color
+	\fs32  is  fontsize
 			*/
 
-	size_t redStart = RTFtext.find("\\red");
-	size_t greenStart = RTFtext.find("\\green");
-	size_t blueStart = RTFtext.find("\\blue");
-	if (redStart == std::string::npos || greenStart == std::string::npos || blueStart == std::string::npos)
+	do
+	{
+		size_t redStart = RTFtext.find("\\red");
+		size_t greenStart = RTFtext.find("\\green");
+		size_t blueStart = RTFtext.find("\\blue");
+		if (redStart == std::string::npos || greenStart == std::string::npos || blueStart == std::string::npos)
+		{
+			// Malformed color table
+			break;
+		}
+		redStart += 4;
+		greenStart += 6;
+		blueStart += 5;
+		int red = std::stoi(RTFtext.substr(redStart, greenStart - redStart - 1));
+		int green = std::stoi(RTFtext.substr(greenStart, blueStart - greenStart - 1));
+		int blue = std::stoi(RTFtext.substr(blueStart));
+		color = (blue << 16) | (green << 8) | red;
+		// BBGGRR
+	} while (0);
+	size_t fontsizeEnd = RTFtext.find("\\lang");
+	if (fontsizeEnd == std::string::npos)
 	{
 		// Malformed color table
-		return -1;
+		return;
 	}
-	redStart += 4;
-	greenStart += 6;
-	blueStart += 5;
-	int red = std::stoi(RTFtext.substr(redStart, greenStart - redStart - 1));
-	int green = std::stoi(RTFtext.substr(greenStart, blueStart - greenStart - 1));
-	int blue = std::stoi(RTFtext.substr(blueStart));
-	int color = (blue << 16) | (green << 8) | red;
-	//BBGGRR
-	return color;
+	size_t fontsizeStart = RTFtext.rfind("\\fs",fontsizeEnd);
+	if (fontsizeStart == std::string::npos)
+	{
+		// Malformed color table
+		return;
+	}
+	fontsizeStart += 3;
+	printf("fontsizeStart %s\n",RTFtext.substr(fontsizeStart,fontsizeEnd-fontsizeStart).data());
+	size = std::stoi(RTFtext.substr(fontsizeStart,fontsizeEnd-fontsizeStart));
 }
 void LED_lsprj::parse(tinyxml2::XMLDocument* doc,std::vector<LED>&leds)
 {
@@ -115,8 +133,7 @@ void LED_lsprj::parse(tinyxml2::XMLDocument* doc,std::vector<LED>&leds)
 			pSingleLineArea->FindAttribute("DelayTime")->QueryIntValue(&area.singleLineArea.DelayTime);
 			auto pV = pSingleLineArea->GetText();
 			std::string decoded = base64_decode(std::string(pV));
-			
-			area.singleLineArea.FontColor = parseFontColor_From_RTF(decoded);
+			parseFontColor_size_From_RTF(decoded,area.singleLineArea.FontColor,area.singleLineArea.FontSize);
 		
 			area.areaType=Area::SINGLELINEAREA ;
 		}
@@ -126,7 +143,7 @@ void LED_lsprj::parse(tinyxml2::XMLDocument* doc,std::vector<LED>&leds)
 			if (pDigitalClockArea)
 			{
 				/*<DigitalClockArea ShowStr = ""
-					ShowStrFont_FontName = "ËÎÌå" 
+					ShowStrFont_FontName = "ï¿½ï¿½ï¿½ï¿½" 
 					ShowStrFont_FontSize = "12" 
 					ShowStrFont_FontColor = "255" 
 					ShowStrFont_FontBold = "0" 

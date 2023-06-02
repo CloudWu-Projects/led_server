@@ -17,7 +17,7 @@ current_empty_plot =0
 dbfilePath="file:cheyun.db"
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = './'
+app.config['UPLOAD_FOLDER'] = os.path.dirname(__file__) 
 
 def create_database():
     # Connect to database (creates a new database if it doesn't exist)
@@ -97,9 +97,20 @@ def handle_park(park_id,empty_plot):
             ledids += str(row[0])+","
             pgmfilepath = str(row[3])
         conn.close()
-        url = f'{led_server_empty_plot}?ledids={ledids}&empty_plot={empty_plot}&pgmfilepath={pgmfilepath}&park_id={park_id}'
-        print(url.encode('utf-8'))
-        response = requests.get(url)
+        color = 0xff00 # Green
+        if empty_plot<=10:
+            color= 0xff # Red
+        dat={
+            "ledids":ledids,
+            "empty_plot":empty_plot,
+            "pgmfilepath":pgmfilepath,
+            "park_id":park_id,
+            "fontcolor":color
+        }
+        
+        print("url:",led_server_empty_plot)
+        print(dat)
+        response = requests.get(led_server_empty_plot,params=dat)
         print(response.text.encode('utf-8'))
         ajson = json.loads(response.text)
         for a in ajson['idlist']:

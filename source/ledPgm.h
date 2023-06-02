@@ -13,6 +13,7 @@ struct Area
 		int DelayTime = 0;
 		int FontColor = 0; // BBGGRR
 		int BackColor = 0; //
+        int FontSize = 0;
 	};
     SingleLineArea singleLineArea;
     struct NeiMaArea {

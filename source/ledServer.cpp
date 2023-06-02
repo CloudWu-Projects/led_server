@@ -36,14 +36,13 @@ int LedServerCallback(int Msg, int wParam, void* lParam)
 #ifdef UNICODE
 		SPDLOG_DEBUG(L"LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
 #else
-		SPDLOG_DEBUG("1111111111 NONUnicde->LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+		SPDLOG_DEBUG("LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
 #endif
 
 		{
 			std::lock_guard<std::mutex> lock(queue_mutex);
 			clientNetWorkID.emplace(pCardInfo->networkIdStr);
 		}
-		SPDLOG_DEBUG("2222222222 NONUnicde->LV_MSG_CARD_ONLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
 
 	}
 	break;
@@ -54,15 +53,12 @@ int LedServerCallback(int Msg, int wParam, void* lParam)
 #ifdef UNICODE
 		SPDLOG_DEBUG(L"LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
 #else
-		SPDLOG_DEBUG("11111 LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
+		SPDLOG_DEBUG("LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
 #endif
 		{
 			std::lock_guard<std::mutex> lock(queue_mutex);
 			clientNetWorkID.erase(pCardInfo->networkIdStr);
 		}
-		SPDLOG_DEBUG("22222 LV_MSG_CARD_OFFLINE port:{} ip:{} networkId:{}\n", pCardInfo->port, pCardInfo->ipStr, pCardInfo->networkIdStr);
-
-		//((CDemoDlg *)AfxGetApp()->m_pMainWnd)->ComboboxAddString(FALSE,pCardInfo->networkIdStr);
 	}
 	break;
 	}
@@ -487,9 +483,14 @@ int LED_Server::createSingleLineArea(Area&area,const char*pShowText,ExtSeting *m
 
 #endif
 
-	FontProp.FontSize = m_extSetting->FontSize;
+	FontProp.FontSize = area.singleLineArea.FontSize;
+	if(m_extSetting->FontSize!=-1)
+		FontProp.FontSize = m_extSetting->FontSize;
+		
 	FontProp.FontColor = area.singleLineArea.FontColor;
-
+	if(m_extSetting->FontColor!=-1)
+		FontProp.FontColor = m_extSetting->FontColor;
+	//BBGGRR（如：红色 0xff 绿色 0xff00 黄色 0xffff）
 #ifdef WIN32
 	nResult = g_Dll->LV_AddSingleLineTextToImageTextArea(m_hProgram, m_nProgramNo, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
 #else

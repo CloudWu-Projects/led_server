@@ -10,7 +10,8 @@ typedef void*				HPROGRAM;
 #define NETWORKID std::string
 #endif
 struct ExtSeting {
-	int FontSize = 14;
+	int FontSize = -1;
+	int FontColor = -1;//BBGGRR（如：红色 0xff 绿色 0xff00 黄色 0xffff）
 };
 class LED_Server
 {
