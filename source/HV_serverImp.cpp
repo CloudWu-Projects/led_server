@@ -112,7 +112,7 @@ inline int HV_serverImp::CreatePGM_Handler(HttpRequest* req, HttpResponse* res)
 	std::string htmlContent = "{";
 	auto createRet = (req->Path() == "/create_onePGM") ?
 		m_ledSever->create_onPGM_byCode(sendValue, extSetting)
-		: m_ledSever->createPGM_withLspj(isJson, sendValue, extSetting);
+		: m_ledSever->createPGM_withLspj(sendValue, extSetting);
 
 	htmlContent += fmt::format("\"ret\":{},\"msg\":\"{}\",", std::get<0>(createRet), std::get<1>(createRet));
 	htmlContent += fmt::format("\"sendValue\":\"{}\",", (sendValue));

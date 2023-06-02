@@ -7,16 +7,17 @@ typedef LPVOID				HPROGRAM;	//节目句柄类型
 typedef unsigned long       DWORD;
 typedef DWORD   COLORREF;
 typedef char TCHAR;
+
 typedef unsigned int        UINT;
 #define FALSE   0
 #define TRUE    1
 #define LPCTSTR const char *
 #define LPTSTR  char *
+#define MAX_PATH          260
 #ifndef OUT
 #define OUT
 #endif
 
-#define MY_MAX_PATH  256
 #define COLOR_RED			0xff		//红色
 #define COLOR_GREEN			0xff00		//绿色
 #define COLOR_YELLOW		0Xffff		//黄色
@@ -53,7 +54,7 @@ typedef struct COMMUNICATIONINFO
     int		Commport;				//串口号，只有通讯方式为2时才需赋值，其它通讯方式无需赋值
     int		Baud;					//波特率，只有通讯方式为2时才需赋值，其它通讯方式无需赋值,   0.9600   1.57600   2.115200  直接赋值 9600，19200，38400，57600，115200亦可
     int		LedNumber;				//LED的屏号，只有通讯方式为2时，且用485通讯时才需赋值，其它通讯方式无需赋值
-    TCHAR	OutputDir[MY_MAX_PATH];	//磁盘保存的目录，只有通讯方式为3时才需赋值，其它通讯方式无需赋值
+    TCHAR	OutputDir[MAX_PATH];	//磁盘保存的目录，只有通讯方式为3时才需赋值，其它通讯方式无需赋值
     TCHAR	NetworkIdStr[19];	//网络ID,只有通讯方式为4时才需赋值，其它通讯方式无需赋值
 }*LPCOMMUNICATIONINFO;
 //***********************************************************************
@@ -71,7 +72,7 @@ typedef struct AREARECT
 //***字体属性结构对**********************************************************
 struct FONTPROP
 {
-    char		FontPath[MY_MAX_PATH];		//字体路径
+    char		FontPath[MAX_PATH];		//字体路径
     int			FontSize;			//字号(单位像素)
     COLORREF	FontColor;			//字体颜色
     bool		FontBold;			//是否加粗

@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.8)
 find_package(spdlog CONFIG REQUIRED)
 find_package(tinyxml2 CONFIG REQUIRED)
 find_path(CPP_BASE64_INCLUDE_DIRS "cpp-base64/base64.cpp")
-find_package(RapidJSON CONFIG REQUIRED)
 find_package(libhv CONFIG REQUIRED)
 
 file(GLOB_RECURSE source_cpp "./*.cpp")
@@ -27,9 +26,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/lib
     ${CPP_BASE64_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    spdlog::spdlog_header_only
-    rapidjson
-    
+    spdlog::spdlog_header_only    
     tinyxml2::tinyxml2)
 
 if(UNIX)

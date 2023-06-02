@@ -6,8 +6,6 @@
     "spdlog",
     "tinyxml2",
     "cpp-base64",
-    "rapidjson",
-    "libhv",
-    "sqlite3"
+    "libhv"
   ]
 }

@@ -180,7 +180,7 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(const std::string &l
 
 	return std::make_tuple(0, retHtml);
 }
-std::tuple<int, std::string> LED_Server::createPGM_withLspj(bool isJson,std::string& showText, ExtSeting& extSetting)
+std::tuple<int, std::string> LED_Server::createPGM_withLspj(std::string& showText, ExtSeting& extSetting)
 {
 	std::lock_guard<std::mutex> lock(queue_mutex);
 
@@ -196,9 +196,7 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(bool isJson,std::str
 		if (m_hProgram == nullptr)
 		{
 			IConfig.foreach_PGM([&](auto &leds){				
-				m_hProgram = isJson ?
-					createAProgram_withJson(showText,leds,&extSetting)
-					: createAProgram_withLspj(showText,leds,&extSetting);				
+				m_hProgram =createAProgram_withLspj(showText,leds,&extSetting);				
 			});
 		}
 		if (m_hProgram == nullptr)
@@ -232,7 +230,7 @@ std::tuple<int, std::string> LED_Server::create_onPGM_byCode(std::string& showTe
 	HPROGRAM hProgram = nullptr;
 	for (auto WnetworkID : clientNetWorkID)
 	{
-		if(WnetworkID=="860302250008951")continue;
+		
 		printf("WnetworkID: %s\n",WnetworkID.c_str());
 		auto ret = createAProgram(WnetworkID, showText,IConfig.ledParam,&extSetting);
 		
@@ -373,60 +371,7 @@ std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, st
 	return std::make_tuple(0, fmt::format("{} setContent sucess", networkID));
 }
 
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/document.h"
-#include "rapidjson/pointer.h"
 
-template <typename ValType>
-int32_t fill(ValType& _val, const char* source,  std::string& errorMsg, rapidjson::Document& document)
-{
-	rapidjson::Pointer pointer(source);
-
-	if (rapidjson::Value* v1 = rapidjson::GetValueByPointer(document, pointer))
-	{
-		if constexpr (std::is_same_v < ValType, std::string>)
-		{
-			if (v1->IsString())
-			{
-				_val = v1->GetString();
-				return 0;
-			}
-		}
-		else if constexpr (std::is_integral_v<ValType>)
-		{
-			if (v1->IsString())
-				_val = std::stoull(v1->GetString());
-			else
-				_val = v1->GetUint64();
-			return 0;
-		}
-		else if constexpr (std::is_floating_point_v<ValType>)
-		{
-			if (v1->IsString())
-				_val = std::stod(v1->GetString());
-			else
-				_val = v1->GetDouble();
-			return 0;
-		}
-	}
-	errorMsg = fmt::format("parse error, {} not found", source);
-	return -1;
-}
-
-HPROGRAM LED_Server::createAProgram_withJson(const std::string& showText,std::vector<LED> &leds,ExtSeting *m_extSetting)
-{
-	int nResult = 0;
-	HPROGRAM hProgram = nullptr;																			 // 节目句柄
-
-	rapidjson::Document document;
-	document.Parse((showText).c_str());
-	if (document.HasParseError())
-	{	
-		return nullptr;
-	}
-	//auto a = document["pgm"];
-	return HPROGRAM();
-}
 
 HPROGRAM LED_Server::createAProgram_withLspj(const std::string& showText,std::vector<LED> &leds,ExtSeting *m_extSetting)
 {
