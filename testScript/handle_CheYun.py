@@ -14,10 +14,16 @@ led_server_empty_plot="http://nps.hyman.store:11007/empty_plot"
 last_update_response =""
 current_empty_plot =0
 
-dbfilePath="file:cheyun.db"
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = os.path.dirname(__file__) 
+baseConfigPath='/home/admin/cheyun/'
+upload_folder = '/home/admin/cheyun/upload/'
+if not os.path.exists(upload_folder):
+    os.makedirs(upload_folder)
+
+app.config['UPLOAD_FOLDER'] = upload_folder
+
+dbfilePath=f"file:{baseConfigPath}cheyun.db"
 
 def create_database():
     # Connect to database (creates a new database if it doesn't exist)
@@ -43,7 +49,7 @@ def create_database():
     
     conn.execute('''INSERT INTO leds
                     (ledid, park_id)
-                    VALUES('test_abcv12345', 25082);''')
+                    VALUES('860302250008951', 25082);''')
     
     conn.execute('''
                     INSERT INTO parkinfo
