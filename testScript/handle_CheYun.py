@@ -15,11 +15,17 @@ last_update_response =""
 current_empty_plot =0
 
 
-app = Flask(__name__)
+import logging
+
 baseConfigPath='/home/admin/cheyun/'
 upload_folder = '/home/admin/cheyun/upload/'
 if not os.path.exists(upload_folder):
     os.makedirs(upload_folder)
+
+logging.basicConfig(filename=f'{baseConfigPath}py_record.log',
+                level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+
+app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = upload_folder
 
@@ -113,11 +119,11 @@ def handle_park(park_id,empty_plot):
             "park_id":park_id,
             "fontcolor":color
         }
-        
-        print("url:",led_server_empty_plot)
-        print(dat)
+        app.logger.debug("url:",led_server_empty_plot)
+        app.logger.debug(dat)
+
         response = requests.get(led_server_empty_plot,params=dat)
-        print(response.text.encode('utf-8'))
+        app.logger.debug(response.text)
         ajson = json.loads(response.text)
         for a in ajson['idlist']:
             if a in ledids:
@@ -143,6 +149,7 @@ def out_in_park():
        # json_body = json.loads(body.decode('utf-8'))
         current_empty_plot= json_body['data']['empty_plot']    
         park_id=json_body['park_id']
+        app.logger.debug(json_body)
 
         handle_park(park_id,current_empty_plot)   
         reuslt={
@@ -389,7 +396,8 @@ api = Api(app)
 api.add_resource(LedInfo, '/api/ledinfo/<int:led_id>')
 api.add_resource(ParkInfo, '/api/parkinfo/<int:park_id>')
 
-if __name__ == "__main__":        
+if __name__ == "__main__":
+         
     try_openDB()
     print("Server started http://%s:%s" % (hostName, serverPort))
     app.run(host=hostName, port=serverPort)    
