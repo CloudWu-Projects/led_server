@@ -191,6 +191,8 @@ def handle_led_infos():
             } );
             return false;
             }       
+        
+
         function deleteLed(ledid){
             let deleteurl = "/api/ledinfo/"+ledid;
             fetch(deleteurl, {method: "DELETE"}) .then(() =>{
@@ -209,23 +211,45 @@ def handle_led_infos():
         <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css"> 
         <body>
         <section>
-        <section>
-        <div><h1>ADD LEDs </h1>
-        <form  onsubmit = "return setLedAction(this)" method="POST">	
-        <p>ledid: <input type = "text" name = "ledid" />
-        <p>Park id: <input type = "text" name = "park_id" />
-        <p><input type = "submit" value = "Add" />
-        </form>
-        </div>
-        </section>
+            <section>
+                <div><h1>ADD LEDs </h1>
+                <form  onsubmit = "return setLedAction(this)" method="POST">	
+                <p>ledid: <input type = "text" name = "ledid" />
+                <p>Park id: <input type = "text" name = "park_id" />
+                <input type="text" name="actiontype" value="add" hidden>
+                <p><input type = "submit" value = "Add" />
+                </form>
+                </div>
+            </section>
+            <section>
+                <div><h1>update LEDs </h1>
+                <form  onsubmit = "return setLedAction(this)" method="POST">	
+                <p>ledid: <input type = "text" name = "ledid" />
+                <p>Park id: <input type = "text" name = "park_id" />
+                <input type="text" name="actiontype" value="update" hidden>
+                <p><input type = "submit" value = "update" />
+                </form>
+                </div>
+            </section>
         <section><div>" "</div></section>
         <section>
-        <div><h1>ADD Parks </h1>
-        <form enctype = "multipart/form-data" onsubmit = "return setparkAction(this)" method="POST">	
-            <p>Park Name: <input type = "text" name = "park_name" /></p>
-            <p>Park id: <input type = "text" name = "park_id" /></p>
-            <p>pgm File: <input type = "file" name = "file" /></p>	
-            <p><input type = "submit" value = "Add" /></p>
+            <div><h1>ADD Parks </h1>
+            <form enctype = "multipart/form-data" onsubmit = "return setparkAction(this)" method="POST">	
+                <p>Park Name: <input type = "text" name = "park_name" /></p>
+                <p>Park id: <input type = "text" name = "park_id" /></p>
+                <p>pgm File: <input type = "file" name = "file" /></p>
+                <input type="text" name="actiontype" value="add" hidden>	
+                <p><input type = "submit" value = "Add" /></p>
+            </form>
+            </div>
+        </section>
+        <section>
+            <div><h1>update pgmfile </h1>
+            <form enctype = "multipart/form-data" onsubmit = "return setparkAction(this)" method="POST">	
+                <p>Park id: <input type = "text" name = "park_id" /></p>
+                <p>pgm File: <input type = "file" name = "file" /></p>	
+                <input type="text" name="actiontype" value="update" hidden>
+                <p><input type = "submit" value = "update" /></p>
             </form>
             </div>
         </section>
@@ -274,7 +298,10 @@ class LedInfo(Resource):
 
             conn = sqlite3.connect(f'{dbfilePath}',uri=True)
             c = conn.cursor()
-            c.execute(f'''insert into leds(park_id , ledid) values({park_id},{led_id});''')
+            if request.values['actiontype']=='add': 
+                c.execute(f'''insert into leds(park_id , ledid) values({park_id},{led_id});''')
+            else:
+                c.execute(f'''update leds set park_id={park_id} where ledid={led_id};''')
             conn.commit()
             conn.close()
             return 'ok'
@@ -310,33 +337,31 @@ class ParkInfo(Resource):
         except Exception as e:
             print(e)
             return str(e)
-    
-    def put(self,park_id):
-        try:            
-            conn = sqlite3.connect(f'{dbfilePath}',uri=True)
-            c = conn.cursor()
-            c.execute(f'''update parkinfo set park_name={request.values['park_name']} where park_id={park_id};''')
-            conn.commit()
-            conn.close()
-            return 'ok'
-        except Exception as e:
-            print(e)
-            return str(e)
-
+        
     def post(self,park_id):
         try:
             file = request.files['file']
             if not file:
                 return "no file"
             
-            park_name= request.values['park_name']
             lsprjfile = os.path.join(app.config['UPLOAD_FOLDER'], f'{park_id}.lsprj')
-            file.save(lsprjfile)                        
-            conn = sqlite3.connect(f'{dbfilePath}',uri=True)
-            c = conn.cursor()
-            c.execute('''insert into parkinfo(park_id,pgmfilepath,park_name) values(?,?,?)''',(park_id,lsprjfile,park_name))
-            conn.commit()
-            conn.close()
+            file.save(lsprjfile)
+
+            if request.values['actiontype']=='add':  
+                park_name= request.values['park_name']                      
+                conn = sqlite3.connect(f'{dbfilePath}',uri=True)
+                c = conn.cursor()
+                c.execute('''insert into parkinfo(park_id,pgmfilepath,park_name) values(?,?,?)''',(park_id,lsprjfile,park_name))
+                conn.commit()
+                conn.close()
+
+            elif request.values['actiontype']=='update':
+                conn = sqlite3.connect(f'{dbfilePath}',uri=True)
+                c = conn.cursor()
+                c.execute('''update parkinfo set pgmfilepath=? where park_id=?''',(lsprjfile,park_id))
+                conn.commit()
+                conn.close()
+
             return 'ok'
         except Exception as e:
             print(e)
