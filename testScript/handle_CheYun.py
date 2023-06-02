@@ -119,7 +119,7 @@ def handle_park(park_id,empty_plot):
             "park_id":park_id,
             "fontcolor":color
         }
-        app.logger.debug("url:",led_server_empty_plot)
+        app.logger.debug(f'url: {led_server_empty_plot}')
         app.logger.debug(dat)
 
         response = requests.get(led_server_empty_plot,params=dat)
