@@ -21,30 +21,19 @@ case $1 in
         echo "--------------led server start success----------"
 
         ## cheyun.py
-        echo "--------------start cheyun.py----------"
+        echo "--------------start handle_CheYun.py----------"
         nohup python $cheyun_bin >/dev/null 2>&1 &
-        items_pid= `ps -ef | grep cheyun.py | grep -v grep | awk '{print $2}'`
+        items_pid= `ps -ef | grep handle_CheYun.py | grep -v grep | awk '{print $2}'`
         until [ -n "$items_pid" ]
             do
-                items_pid=`ps -ef | grep cheyun.py | grep -v grep | awk '{print $2}'`
+                items_pid=`ps -ef | grep handle_CheYun.py | grep -v grep | awk '{print $2}'`
                 sleep 1
             done
 
-        echo "--------------cheyun.py pid is $items_pid----------"
-        echo "--------------cheyun.py start success----------"
+        echo "--------------handle_CheYun.py pid is $items_pid----------"
+        echo "--------------handle_CheYun.py start success----------"
 
-        ## sqlite_web
-        echo "--------------start sqlite_web----------"
-        ## sqlite_web ./datebase.db -p 12090 -H '0.0.0.0' -P 123456
-        nohup ./sqlite_web $db_path -p $db_port -H '0.0.0.0' >/dev/null 2>&1 &
-        items_pid= `ps -ef | grep sqlite_web | grep -v grep | awk '{print $2}'`
-        until [ -n "$items_pid" ]
-            do
-                items_pid=`ps -ef | grep sqlite_web | grep -v grep | awk '{print $2}'`
-                sleep 1
-            done
-        echo "--------------sqlite_web pid is $items_pid----------"
-        echo "--------------sqlite_web start success----------"
+        
 
         ;;
     stop)
@@ -57,22 +46,15 @@ case $1 in
             echo "====led_server stop success"
         fi
 
-        P_ID= `ps -ef | grep cheyun.py | grep -v grep | awk '{print $2}'`
+        P_ID= `ps -ef | grep handle_CheYun.py | grep -v grep | awk '{print $2}'`
         if [ ""=="$P_ID" ]; then
-            echo "====cheyun.py not exists"
+            echo "====handle_CheYun.py not exists"
         else
             kill -9 $P_ID
-            echo "====cheyun.py stop success"   
+            echo "====handle_CheYun.py stop success"   
         fi
 
-        P_ID= `ps -ef | grep sqlite_web | grep -v grep | awk '{print $2}'`
-        if [ ""=="$P_ID" ]; then
-            echo "====sqlite_web not exists"
-        else
-            kill -9 $P_ID
-            echo "====sqlite_web stop success"  
-        fi
-
+       
         ;;
     *)
         echo "Usage: $0 {start|stop}"
