@@ -12,6 +12,7 @@ led_server="http://nps.hyman.store:11007/neima?key="
 led_server_empty_plot="http://nps.hyman.store:11007/empty_plot"
 
 last_update_response =""
+last_update_time=0
 current_empty_plot =0
 
 
@@ -79,19 +80,23 @@ def try_openDB():
 @app.route('/test', methods=['GET'])
 @app.route('/', methods=['GET'])
 def handle_root():
-        global last_update_response
-        global current_empty_plot
+    global last_update_response
+    global current_empty_plot
+    global last_update_time
 
-        if request.path=="/test":
-            current_empty_plot=int(time.time())
-        
-        a=f"<p>last_update_response: {last_update_response}</p>"
-        a+=f"<p>Current empty plot: {current_empty_plot}</p>"
-        return a
+    if request.path=="/test":
+        current_empty_plot=int(time.time())
+    
+    a=f"<p>last_update_response: {last_update_response}</p>"
+    a+=f"<p> Current empty plot: {current_empty_plot}</p>"
+    a+=f"<p>   last_update_time: {last_update_time}</p>"
+
+    return a
         
 def handle_park(park_id,empty_plot):
     global last_update_response
     global current_empty_plot
+    global last_update_time
     
     current_empty_plot = empty_plot
     try:
@@ -130,7 +135,9 @@ def handle_park(park_id,empty_plot):
                 continue
             print(f"{a} no in {ledids}")
             requests.post(f'http://127.0.0.1:{serverPort}/api/ledinfo/{a}',params={'ledid':a,'park_id':-1})
-        last_update_response = response.text            
+        last_update_response = response.text
+
+        last_update_time = time.time()            
         
 
     except Exception as e:
