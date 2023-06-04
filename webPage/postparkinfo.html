@@ -1,10 +1,87 @@
 <html>
-<body>
-<form enctype = "multipart/form-data" action = "http://127.0.0.1:18080/api/parkinfo/8" method = "post">	
-<p>Park Name: <input type = "text" name = "park_name" /></p>
-<p>Park id: <input type = "text" name = "park_id" /></p>
-<p>Upload File: <input type = "file" name = "pgmfilepath" /></p>	
-<p><input type = "submit" value = "Upload" /></p>
-</form>
-</body>
-</html>
+        <script>
+        function setLedAction(form){
+            form.action = "/api/ledinfo/"+form.ledid.value;
+            fetch(form.action, {method:'post', body: new FormData(form)})
+            .then(() =>{
+            window.location.reload();
+            } );
+            return false;
+        }
+         function setparkAction(form){
+                form.action = "/api/parkinfo/"+form.park_id.value;
+                fetch(form.action, {method:'post', body: new FormData(form)})
+            .then(() =>{
+            window.location.reload();
+            } );
+            return false;
+            }       
+        
+
+        function deleteLed(ledid){
+            let deleteurl = "/api/ledinfo/"+ledid;
+            fetch(deleteurl, {method: "DELETE"}) .then(() =>{
+            window.location.reload();
+            } );
+        }
+        function deletepark(parkid){
+            let deleteurl = "/api/parkinfo/"+parkid;
+            fetch(deleteurl, {method: "DELETE"})
+            .then(() =>{
+            window.location.reload();
+            } );
+        }
+
+        </script>
+        <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css"> 
+        
+        <body>
+        <section>
+            <section>
+                <div><h1>ADD LEDs </h1>
+                <form  onsubmit = "return setLedAction(this)" method="POST">	
+                <p>ledid: <input type = "text" name = "ledid" />
+                <p>Park id: <input type = "text" name = "park_id" />
+                <input type="text" name="actiontype" value="add" hidden>
+                <p><input type = "submit" value = "Add" />
+                </form>
+                </div>
+            </section>
+            <section>
+                <div><h1>update LEDs </h1>
+                <form  onsubmit = "return setLedAction(this)" method="POST">	
+                <p>ledid: <input type = "text" name = "ledid" />
+                <p>Park id: <input type = "text" name = "park_id" />
+                <input type="text" name="actiontype" value="update" hidden>
+                <p><input type = "submit" value = "update" />
+                </form>
+                </div>
+            </section>
+            <section><div>" "</div></section>
+            <section>
+                <div><h1>ADD Parks </h1>
+                <form enctype = "multipart/form-data" onsubmit = "return setparkAction(this)" method="POST">	
+                    <p>Park Name: <input type = "text" name = "park_name" /></p>
+                    <p>Park id: <input type = "text" name = "park_id" /></p>
+                    <p>pgm File: <input type = "file" name = "file" /></p>
+                    <input type="text" name="actiontype" value="add" hidden>	
+                    <p><input type = "submit" value = "Add" /></p>
+                </form>
+                </div>
+            </section>
+            <section>
+                <div><h1>update pgmfile </h1>
+                <form enctype = "multipart/form-data" onsubmit = "return setparkAction(this)" method="POST">	
+                    <p>Park id: <input type = "text" name = "park_id" /></p>
+                    <p>pgm File: <input type = "file" name = "file" /></p>	
+                    <input type="text" name="actiontype" value="update" hidden>
+                    <p><input type = "submit" value = "update" /></p>
+                </form>
+                </div>
+            </section>
+        </section>
+        <a href="/">Home</a>
+        <iframe src="/api/ledinfo/"></iframe>
+        <iframe src="/api/parkinfo/"></iframe>
+
+    </body>            </html>

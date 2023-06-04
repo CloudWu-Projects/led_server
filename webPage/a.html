@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <title>{{ title }}</title>
+        <link rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css"> 
+    </head>
+
+    <body>
+        <ul>
+            {% for text in leds %}
+            <li>{{ text }} </li>
+            {% endfor %}
+       </ul>
+       <br>
+       <ul>
+        {% for text in parkinfos %}
+        <li> {{ text }} </li>
+        {% endfor %}
+   </ul>
+    </body>
+</html>

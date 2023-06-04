@@ -1,20 +1,15 @@
 #!/bin/sh
-export led_server_bin=./build/source/led_server
-export cheyun_bin=./testScript/handle_CheYun.py
-export SQLITE_WEB_PASSWORD=1qazxsw2
-export db_path=./db/led_server.db
-export db_port=12090
 case $1 in
     start)
         echo "start"
         ## led server
         echo "--------------start led server----------"
         echo "--------$led_server_bin--------------"
-        nohup $led_server_bin >/dev/null 2>&1 &
-        items_pid= `ps -ef | grep led_server | grep -v grep | awk '{print $2}'`
+        nohup supervise ./ledserver/ >/dev/null 2>&1 &
+        items_pid= `ps -ef |grep ledserver|grep -v grep|awk '{print $2}'`
         until [ -n "$items_pid" ]
             do
-                items_pid=`ps -ef | grep led_server | grep -v grep | awk '{print $2}'`
+                items_pid=`ps -ef |grep ledserver|grep -v grep|awk '{print $2}'`
                 sleep 1
             done
         echo "--------------led server pid is $items_pid----------"
@@ -22,11 +17,11 @@ case $1 in
 
         ## cheyun.py
         echo "--------------start handle_CheYun.py----------"
-        nohup python $cheyun_bin >/dev/null 2>&1 &
-        items_pid= `ps -ef | grep handle_CheYun.py | grep -v grep | awk '{print $2}'`
+        nohup supervise ./py/ >/dev/null 2>&1 &
+        items_pid= `ps -ef | grep ./py | grep -v grep | awk '{print $2}'`
         until [ -n "$items_pid" ]
             do
-                items_pid=`ps -ef | grep handle_CheYun.py | grep -v grep | awk '{print $2}'`
+                items_pid=`ps -ef | grep ./py | grep -v grep | awk '{print $2}'`
                 sleep 1
             done
 
@@ -38,6 +33,21 @@ case $1 in
         ;;
     stop)
         echo "stop"
+        P_ID= `ps -ef | grep ledserver | grep -v grep | awk '{print $2}'`
+        if [ ""=="$P_ID" ]; then
+            echo "====supervise ledserver not exists"
+        else
+            kill -9 $P_ID
+            echo "====supervise ledserver stop success"
+        fi
+        P_ID= `ps -ef | grep ./py | grep -v grep | awk '{print $2}'`
+        if [ ""=="$P_ID" ]; then
+            echo "====supervise ./py not exists"
+        else
+            kill -9 $P_ID
+            echo "====supervise ./py stop success"
+        fi
+
         P_ID= `ps -ef | grep led_server | grep -v grep | awk '{print $2}'`
         if [ ""=="$P_ID" ]; then
             echo "====led_server not exists"

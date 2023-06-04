@@ -1,81 +1,28 @@
-from flask import Flask, request,Response
+from flask import Flask, request,Response,render_template,g
 from flask_restful import Api,Resource
 import time
 import json
 import requests
 import  sqlite3
 import os
-
-hostName = "0.0.0.0"
-serverPort  = 18080
-led_server="http://nps.hyman.store:11007/neima?key="
-led_server_empty_plot="http://nps.hyman.store:11007/empty_plot"
-
+import logging
+from dbFunc import *;
 last_update_response =""
 last_update_time=0
 current_empty_plot =0
+from config import *;
 
-
-import logging
-
-baseConfigPath='/home/admin/cheyun/'
-upload_folder = '/home/admin/cheyun/upload/'
 if not os.path.exists(upload_folder):
     os.makedirs(upload_folder)
 
-logging.basicConfig(filename=f'{baseConfigPath}py_record.log',
-                level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+if(sysstr=="Linux"):
+    logging.basicConfig(filename=f'{baseConfigPath}py_record.log',
+                    level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder=webPagePath)
 
 app.config['UPLOAD_FOLDER'] = upload_folder
 
-dbfilePath=f"file:{baseConfigPath}cheyun.db"
-
-def create_database():
-    # Connect to database (creates a new database if it doesn't exist)
-    conn = sqlite3.connect(dbfilePath,uri=True)
-
-    # Create the "leds" table with columns "ledid" and "parkid"
-    conn.execute('''CREATE TABLE leds (
-    ledid TEXT PRIMARY KEY NOT NULL,
-    park_id integer NOT NULL    
-);''')
-
-    # Create the "parkinfo" table with columns "parkid", "id", and "pgmfilepath"
-    conn.execute('''CREATE TABLE parkinfo
-                     (park_id integer PRIMARY KEY  NOT NULL,
-                    park_name TEXT NOT NULL,
-                      pgmfilepath TEXT NOT NULL);''')
-
-    # Commit the changes and close the connection
-
-    conn.execute('''INSERT INTO leds
-                    (ledid, park_id)
-                    VALUES('960302311001506', 25082);''')
-    
-    conn.execute('''INSERT INTO leds
-                    (ledid, park_id)
-                    VALUES('860302250008951', 25082);''')
-    
-    conn.execute('''
-                    INSERT INTO parkinfo
-                    (park_id, park_name, pgmfilepath)
-                    VALUES(25082,'test孵化园', 'single_area.lsprj');''')
-    conn.commit()
-    conn.close()
-
-def try_openDB():
-    try:
-        conn = sqlite3.connect(f'{dbfilePath}?mode=ro',uri=True)
-        c= conn.cursor()
-        c.execute('''select park_id,pgmfilepath from parkinfo;''')
-        c.execute('''select ledid,park_id from leds;''')
-        conn.close()
-    except Exception as e:
-        print(e)
-        create_database()
-    
 
 @app.route('/test', methods=['GET'])
 @app.route('/', methods=['GET'])
@@ -95,25 +42,24 @@ def handle_root():
         
 def handle_park(park_id,empty_plot):
     global last_update_response
-    global current_empty_plot
+    global current_empty_plot;
     global last_update_time
     
     current_empty_plot = empty_plot
-    try:
-        conn = sqlite3.connect(f'{dbfilePath}?mode=ro',uri=True)
-        c = conn.cursor()
+    try:        
+        c = get_db().cursor()
         sql = f'select ledid,a.park_id,b.park_name ,b.pgmfilepath from leds a,parkinfo b where a.park_id=b.park_id '
         if park_id!="":
             sql += f'and a.park_id={park_id}'
         print(sql)
         c.execute(sql)
         pgmfilepath=""
-        ledids=""
-        
+        ledids=""        
         for row in c.fetchall():                       
             ledids += str(row[0])+","
             pgmfilepath = str(row[3])
-        conn.close()
+        c.close()
+
         color = 0xff00 # Green
         if empty_plot<=10:
             color= 0xff # Red
@@ -171,27 +117,29 @@ def out_in_park():
         print("Error parsing JSON body: ", e)
         return str(e)
 
+@app.route('/a', methods=['GET'])
+def handle_temple():        
+    leds =query_db('''select ledid,park_id from leds;''') 
+    parkinfos = query_db('''select park_id,park_name,pgmfilepath from parkinfo;''')
+    return render_template('a.html', title='Welcome', leds=leds,parkinfos=parkinfos)
+
 @app.route('/all', methods=['GET'])
 def handle_led_infos():
     try:            
-        conn = sqlite3.connect(f'{dbfilePath}?mode=ro',uri=True)
-        c = conn.cursor()
-        c.execute('''select ledid,park_id from leds;''')        
+        leds =query_db('''select ledid,park_id from leds;''')        
         response=f'<section> <section><div><h1>LEDs</h1><ul>'
-        for row in c.fetchall():
+        for row in leds:
             formHtml=f'''<input type="submit" value="delete" onclick="deleteLed({row[0]})">'''
             response +='<li>'+formHtml+str(row)+'</li>'
         response+='</ul></div></section>'
         response+='<section><div>" " </div></section>'
-        c.execute('''select park_id,park_name,pgmfilepath from parkinfo;''')
+        parkinfos = query_db('''select park_id,park_name,pgmfilepath from parkinfo;''')
         response+='<section><div><h1>Parks</h1><ul>'
-        for row in c.fetchall():  
+        for row in parkinfos:  
             formHtml=f'''<input type="submit" value="delete" onclick="deletepark({row[0]})">'''          
             response +='<li>'+formHtml+str(row)+'</li>'
         response+='</ul></div></section></section>'
 
-        conn.commit()
-        conn.close()
         rHtml='''            
         <html>
         <script>
@@ -286,15 +234,10 @@ def handle_led_infos():
 class LedInfo(Resource):
     def get(self,led_id):
         try:            
-            conn = sqlite3.connect(f'{dbfilePath}?mode=ro',uri=True)
-            c = conn.cursor()
-            c.execute(f'''select ledid,park_id from leds where ledid={led_id};''')
-        
+            sql=f'''select ledid,park_id from leds where ledid={led_id};'''
             response=f''
-            for row in c.fetchall():
+            for row in query_db(sql):
                 response +=str(row)+','
-            conn.commit()
-            conn.close()
             return response
         except Exception as e:
             print(e)
@@ -344,15 +287,12 @@ class LedInfo(Resource):
 class ParkInfo(Resource):
     def get(self,park_id):
         try:            
-            conn = sqlite3.connect(f'{dbfilePath}?mode=ro',uri=True)
-            c = conn.cursor()
-            c.execute(f'''select park_id,pgmfilepath,park_name from parkinfo where park_id={park_id};''')
+            sql = f'''select park_id,pgmfilepath,park_name from parkinfo where park_id={park_id};'''
         
             response=f'{park_id}<br>'
-            for row in c.fetchall():
+
+            for row in query_db(sql):
                 response +=str(row)+'--->'
-            conn.commit()
-            conn.close()
             return response
         except Exception as e:
             print(e)
@@ -403,8 +343,7 @@ api = Api(app)
 api.add_resource(LedInfo, '/api/ledinfo/<int:led_id>')
 api.add_resource(ParkInfo, '/api/parkinfo/<int:park_id>')
 
-if __name__ == "__main__":
-         
+if __name__ == "__main__":         
     try_openDB()
     print("Server started http://%s:%s" % (hostName, serverPort))
     app.run(host=hostName, port=serverPort)    
