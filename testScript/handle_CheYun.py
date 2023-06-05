@@ -45,7 +45,7 @@ def handle_root():
         
 def handle_park(park_id,empty_plot):
     global last_update_response
-    global current_empty_plot;
+    global current_empty_plot
     global last_update_time
     
     current_empty_plot = empty_plot
@@ -101,7 +101,7 @@ def handle_park(park_id,empty_plot):
 @app.route('/in_park', methods=['POST']) 
 def out_in_park():    
     json_body = request.json
-    
+    global last_parkJson    
     try:
        # json_body = json.loads(body.decode('utf-8'))
         last_parkJson=json.dumps(json_body)
