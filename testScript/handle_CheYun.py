@@ -74,6 +74,9 @@ def handle_park(park_id,empty_plot):
         app.logger.debug(dat)
 
         response = requests.get(led_server_empty_plot,params=dat)
+        last_update_response = response.text        
+        last_update_time = time.asctime(time.localtime() )          
+        
         app.logger.debug(response.text.encode('utf-8'))
         ajson = json.loads(response.text)
         for a in ajson['idlist']:
@@ -81,8 +84,7 @@ def handle_park(park_id,empty_plot):
                 continue
             print(f"{a} no in {ledids}")
             requests.post(f'http://127.0.0.1:{serverPort}/api/ledinfo/{a}',params={'ledid':a,'park_id':-1})
-        last_update_response = response.text        
-        last_update_time = time.asctime(time.localtime() )          
+        
         
 
     except Exception as e:
