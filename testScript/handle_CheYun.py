@@ -81,9 +81,8 @@ def handle_park(park_id,empty_plot):
                 continue
             print(f"{a} no in {ledids}")
             requests.post(f'http://127.0.0.1:{serverPort}/api/ledinfo/{a}',params={'ledid':a,'park_id':-1})
-        last_update_response = response.text
-
-        last_update_time = time.time()            
+        last_update_response = response.text        
+        last_update_time = time.asctime(time.localtime() )          
         
 
     except Exception as e:
