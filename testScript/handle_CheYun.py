@@ -8,6 +8,7 @@ import os
 import logging
 from dbFunc import *;
 last_update_response =""
+last_parkJson=""
 last_update_time=0
 current_empty_plot =0
 from config import *;
@@ -30,6 +31,7 @@ def handle_root():
     global last_update_response
     global current_empty_plot
     global last_update_time
+    global last_parkJson
 
     if request.path=="/test":
         current_empty_plot=int(time.time())
@@ -37,12 +39,13 @@ def handle_root():
     a=f"<p>last_update_response: {last_update_response}</p>"
     a+=f"<p> Current empty plot: {current_empty_plot}</p>"
     a+=f"<p>   last_update_time: {last_update_time}</p>"
+    a+=f"<p>      last_parkJson: {last_parkJson}</p>"
 
     return a
         
 def handle_park(park_id,empty_plot):
     global last_update_response
-    global current_empty_plot;
+    global current_empty_plot
     global last_update_time
     
     current_empty_plot = empty_plot
@@ -74,6 +77,9 @@ def handle_park(park_id,empty_plot):
         app.logger.debug(dat)
 
         response = requests.get(led_server_empty_plot,params=dat)
+        last_update_response = response.text        
+        last_update_time = time.asctime(time.localtime() )          
+
         app.logger.debug(response.text.encode('utf-8'))
         ajson = json.loads(response.text)
         for a in ajson['idlist']:
@@ -81,9 +87,7 @@ def handle_park(park_id,empty_plot):
                 continue
             print(f"{a} no in {ledids}")
             requests.post(f'http://127.0.0.1:{serverPort}/api/ledinfo/{a}',params={'ledid':a,'park_id':-1})
-        last_update_response = response.text
-
-        last_update_time = time.time()            
+        
         
 
     except Exception as e:
@@ -97,9 +101,10 @@ def handle_park(park_id,empty_plot):
 @app.route('/in_park', methods=['POST']) 
 def out_in_park():    
     json_body = request.json
-    
+    global last_parkJson    
     try:
        # json_body = json.loads(body.decode('utf-8'))
+        last_parkJson=json.dumps(json_body)
         current_empty_plot= json_body['data']['empty_plot']    
         park_id=json_body['park_id']
         app.logger.debug(json.dumps(json_body).encode('utf-8'))
