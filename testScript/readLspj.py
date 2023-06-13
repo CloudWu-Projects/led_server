@@ -1,11 +1,11 @@
 import xml.etree.ElementTree as ET
 import json
 
-lspjPath = r'D:\Cloud_wu\LED\led_server\lib\dll\mutil_areas.lsprj'
 
 def getinfo_from_RTFEncoded(rtf_base64Encoded):
     import base64
     RTFtext = base64.b64decode(rtf_base64Encoded).decode('utf-8')
+    print(RTFtext)
     redpos= RTFtext.find("\\red")
     greenpos= RTFtext.find("\\green")
     bluepos= RTFtext.find("\\blue")
@@ -75,12 +75,14 @@ def parseLspj(lspjPath):
     return areas
 
 
-areas = parseLspj(lspjPath)
+if __name__ == "__main__":
+    lspjPath = r'D:\Cloud_wu\LED\led_server\lib\dll\mutil_areas.lsprj'
+    areas = parseLspj(lspjPath)
 
-print(json.dumps(areas,indent=4))
+    print(json.dumps(areas,indent=4))
 
-text_c = areas[0]['areaprops']['text']
-print(text_c)
+    text_c = areas[0]['areaprops']['text']
+    print(text_c)
 
-with open('areas.json', 'w') as f:
-    json.dump(areas, f, indent=4)
+    with open('areas.json', 'w') as f:
+        json.dump(areas, f, indent=4)
