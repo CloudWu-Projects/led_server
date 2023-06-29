@@ -113,6 +113,8 @@ void LED_lsprj::parse(tinyxml2::XMLDocument* doc,std::vector<LED>&leds)
 	{
 		Area area;
 		pArea->FindAttribute("AreaNo")->QueryIntValue(&area.AreaNo);
+		area.AreaName=std::string(pArea->FindAttribute("AreaName")->Value());
+		
 		pArea->FindAttribute("AreaRect_Left")->QueryIntValue(&area.AreaRect.left);
 		pArea->FindAttribute("AreaRect_Top")->QueryIntValue(&area.AreaRect.top);
 		pArea->FindAttribute("AreaRect_Right")->QueryIntValue(&area.AreaRect.width);
