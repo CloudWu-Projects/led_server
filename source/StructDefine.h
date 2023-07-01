@@ -12,7 +12,7 @@ public:
 class  LanfengLED {
 public:
 	std::vector<std::string> ledids;
-	bool isip=false;
+	int isip=0;
 	std::string pgmfilepath;
 	std::string park_id;
 	int store_status_1;

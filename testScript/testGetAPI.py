@@ -84,7 +84,7 @@ dat={
     "fontSize": 5,
     "fontColor": 0xff,
      
-    "store_status_1": 1 ,
+    "store_status_1": 3 ,
     "store_status_2": 1 ,
     "store_status_3": 1 ,
     "store_status_4": 3 ,
@@ -98,3 +98,6 @@ dat={
 
 b = requests.get('http://127.0.0.1:11007/updateLedContent_LanfengLED',json=dat)
 print(b.text)
+
+c = b.json()
+print(b.json())

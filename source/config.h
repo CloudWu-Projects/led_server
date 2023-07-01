@@ -89,9 +89,9 @@ public:
 	int ledNeiMaPort= 11009;
 	LEDParam ledParam;
 	bool bWriteIni ;
-	std::string m_ConfigPathA = ".\\config.ini";
+	std::string m_ConfigPathA = ".\\ledServer_config.ini";
 
-
+	std::string mainAppPath = "";
 	std::mutex led_lsprj_mutex;
 	bool ReloadPGM(const std::string &pgmPath)
 	{
@@ -160,7 +160,7 @@ private:
 		auto curpath = fs::current_path();
 		//curpath.
 		//strcat(szBuf1, "\\config.ini");
-		curpath.append("config.ini");
+		curpath.append("ledServer_config.ini");
 		m_ConfigPathA = curpath.string();
 		if (0 != iniParser.LoadFromFile(m_ConfigPathA.data()))
 		{
@@ -180,6 +180,7 @@ private:
 		ledParam.ledHeight = Get("ledHeight", "LED", ledParam.ledHeight);
 		ledParam.ledColor = Get("ledColor", "LED", ledParam.ledColor);
 		ledParam.ledGraylevel = Get("ledType", "LED", ledParam.ledGraylevel);
+		mainAppPath = GetValue("mainAppPath","main");
 		auto lsprj_path = GetValue("lsprj_path");
 		if (lsprj_path.empty())
 			lsprj_path = R"(./single_area.lsprj)";

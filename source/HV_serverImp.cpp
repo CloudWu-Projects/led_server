@@ -8,6 +8,7 @@
 
 #include "stringHelper.h"
 
+#include "StructDefine.h"
 int HV_server::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Server *ledServer)
 {
 	Imp = new HV_serverImp();
@@ -56,7 +57,88 @@ int HV_serverImp::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Serv
 	http_server(httpPort);
 	return 0;
 }
+int HV_serverImp::updateLedContent_LanfengLED(HttpRequest* req, HttpResponse* resp)
+{/*
+			dat={
+	"ledids":[
+		"192.168.123.199"
+	],
+	"isip":True,
+	"pgmfilepath":"D:\\ledpgm\\lanfengled.lsprj",
+	"park_id":park_id,
+	"fontSize": 5,
+	"fontColor": 0xff,
 
+	"store_status_1": 1 ,
+	"store_status_2": 1 ,
+	"store_status_3": 1 ,
+	"store_status_4": 3 ,
+	"store_status_5": 3 ,
+	"store_status_6": 3 ,
+	"store_status_7": 2 ,
+	"store_status_8": 3 ,
+}
+			*/
+	auto jsonD = req->GetJson();
+	auto textA = jsonD.dump();
+	LanfengLED lled;
+	ns::from_json(jsonD, lled);
+	//convert LangFentLED to LedContent
+	LedContent ledContent;
+	ledContent.park_id = lled.park_id;
+	ledContent.ledids = lled.ledids;
+	ledContent.isIP = lled.isip;
+	ledContent.pgmfilepath = lled.pgmfilepath;
+	auto convertStatusFunc = [](int status) {
+		switch (status)
+		{
+		case 0:
+			return "×°³µÖÐ";
+		case 1:
+			return "´ý×°³µ";
+		case 3:
+			return "Í£ ÓÃ";
+		default:
+			return "Î´Öª";
+		}
+	};
+	ledContent.ledid2content.emplace("store_status_1", convertStatusFunc(lled.store_status_1));
+	ledContent.ledid2content.emplace("store_status_2", convertStatusFunc(lled.store_status_2));
+	ledContent.ledid2content.emplace("store_status_3", convertStatusFunc(lled.store_status_3));
+	ledContent.ledid2content.emplace("store_status_4", convertStatusFunc(lled.store_status_4));
+	ledContent.ledid2content.emplace("store_status_5", convertStatusFunc(lled.store_status_5));
+	ledContent.ledid2content.emplace("store_status_6", convertStatusFunc(lled.store_status_6));
+	ledContent.ledid2content.emplace("store_status_7", convertStatusFunc(lled.store_status_7));
+	ledContent.ledid2content.emplace("store_status_8", convertStatusFunc(lled.store_status_8));
+	char title[255];
+	std::string mainAPpConfig = IConfig.mainAppPath;
+	GetPrivateProfileStringA("main", "title", "À¼·áË®ÄàÉ¢Äà¿â×°³µ×´Ì¬",title,255, mainAPpConfig.data());
+
+	ledContent.ledid2content.emplace("title", title);
+	ledContent.ledid2content.emplace("store_1", "1ºÅ¿â");
+	ledContent.ledid2content.emplace("store_2", "2ºÅ¿â");
+	ledContent.ledid2content.emplace("store_3", "3ºÅ¿â");
+	ledContent.ledid2content.emplace("store_4", "4ºÅ¿â");
+	ledContent.ledid2content.emplace("store_5", "5ºÅ¿â");
+	ledContent.ledid2content.emplace("store_6", "6ºÅ¿â");
+	ledContent.ledid2content.emplace("store_7", "7ºÅ¿â");
+	ledContent.ledid2content.emplace("store_8", "8ºÅ¿â");
+
+	ExtSeting extSetting;
+	extSetting.FontColor = lled.fontColor;
+	extSetting.FontSize = lled.fontSize;
+
+	std::string htmlContent = "{";
+	auto createRet = m_ledSever->createPGM_withLspj(ledContent, extSetting);
+
+	htmlContent += fmt::format("\"ret\":{},\"msg\":{{ {} }},", std::get<0>(createRet), std::get<1>(createRet));
+	htmlContent += fmt::format("\"requestJson\":\"{}\",", (jsonD.dump()));
+	htmlContent += m_ledSever->getNetWorkIDList();
+	htmlContent += "}";
+	/**/
+	SPDLOG_DEBUG(htmlContent);
+	return resp->String(htmlContent);
+}
 inline int HV_serverImp::list_Handler(HttpRequest *req, HttpResponse *resp)
 {
 	auto s = m_ledSever->getNetWorkIDList();
@@ -122,7 +204,6 @@ inline int HV_serverImp::CreatePGM_Handler(HttpRequest *req, HttpResponse *res)
 	return res->Json(htmlContent);
 }
 
-#include "StructDefine.h"
 inline int HV_serverImp::http_server(int httpPort)
 {
 	router.Static("/", "./webPage");
@@ -164,81 +245,11 @@ inline int HV_serverImp::http_server(int httpPort)
 			   { return CreatePGM_Handler(req, resp); });
 	router.GET("/updateLedContent_LanfengLED", [this](HttpRequest* req, HttpResponse* resp)
 		{
-			/*
-			dat={
-	"ledids":[
-		"192.168.123.199"
-	],
-	"isip":True,
-	"pgmfilepath":"D:\\ledpgm\\lanfengled.lsprj",
-	"park_id":park_id,
-	"fontSize": 5,
-	"fontColor": 0xff,
-
-	"store_status_1": 1 ,
-	"store_status_2": 1 ,
-	"store_status_3": 1 ,
-	"store_status_4": 3 ,
-	"store_status_5": 3 ,
-	"store_status_6": 3 ,
-	"store_status_7": 2 ,
-	"store_status_8": 3 ,
-}
-			*/
-			auto jsonD = req->GetJson();
-			LanfengLED lled;
-			ns::from_json(jsonD, lled);
-			//convert LangFentLED to LedContent
-			LedContent ledContent;
-			ledContent.park_id = lled.park_id;
-			ledContent.ledids = lled.ledids;
-			ledContent.isIP = lled.isip;
-			ledContent.pgmfilepath = lled.pgmfilepath;
-			auto convertStatusFunc = [](int status) {
-				switch (status)
-				{
-				case 0:
-					return "×°³µÖÐ";
-				case 1:
-					return "´ý×°³µ";
-				case 3:
-					return "Í£ ÓÃ";
-				default:
-					return "Î´Öª";
-				}
-			};
-			ledContent.ledid2content.emplace("store_status_1", convertStatusFunc(lled.store_status_1));
-			ledContent.ledid2content.emplace("store_status_2", convertStatusFunc(lled.store_status_2));
-			ledContent.ledid2content.emplace("store_status_3", convertStatusFunc(lled.store_status_3));
-			ledContent.ledid2content.emplace("store_status_4", convertStatusFunc(lled.store_status_4));
-			ledContent.ledid2content.emplace("store_status_5", convertStatusFunc(lled.store_status_5));
-			ledContent.ledid2content.emplace("store_status_6", convertStatusFunc(lled.store_status_6));
-			ledContent.ledid2content.emplace("store_status_7", convertStatusFunc(lled.store_status_7));
-			ledContent.ledid2content.emplace("store_status_8", convertStatusFunc(lled.store_status_8));
-			ledContent.ledid2content.emplace("title", "À¼·áË®ÄàÉ¢Äà¿â×°³µ×´Ì¬");
-			ledContent.ledid2content.emplace("store_1", "1ºÅ¿â");
-			ledContent.ledid2content.emplace("store_2", "2ºÅ¿â");
-			ledContent.ledid2content.emplace("store_3", "3ºÅ¿â");
-			ledContent.ledid2content.emplace("store_4", "4ºÅ¿â");
-			ledContent.ledid2content.emplace("store_5", "5ºÅ¿â");
-			ledContent.ledid2content.emplace("store_6", "6ºÅ¿â");
-			ledContent.ledid2content.emplace("store_7", "7ºÅ¿â");
-			ledContent.ledid2content.emplace("store_8", "8ºÅ¿â");
-
-			ExtSeting extSetting;
-			extSetting.FontColor = lled.fontColor;
-			extSetting.FontSize = lled.fontSize;
-
-			std::string htmlContent = "{";
-			auto createRet = m_ledSever->createPGM_withLspj(ledContent, extSetting);
-
-			htmlContent += fmt::format("\"ret\":{},\"msg\":{{ {} }},", std::get<0>(createRet), std::get<1>(createRet));
-			htmlContent += fmt::format("\"requestJson\":\"{}\",", (jsonD.dump()));
-			htmlContent += m_ledSever->getNetWorkIDList();
-			htmlContent += "}";
-			/**/
-			SPDLOG_DEBUG(htmlContent);
-			return resp->String(htmlContent);
+			return updateLedContent_LanfengLED(req, resp);
+		});
+	router.POST("/updateLedContent_LanfengLED", [this](HttpRequest* req, HttpResponse* resp)
+		{
+			return updateLedContent_LanfengLED(req, resp);
 		});
 	router.GET("/empty_plot", [this](HttpRequest *req, HttpResponse *resp)
 			   {
