@@ -197,9 +197,9 @@ inline int HV_serverImp::http_server(int httpPort)
 			auto convertStatusFunc = [](int status) {
 				switch (status)
 				{
-				case 1:
+				case 0:
 					return "装车中";
-				case 2:
+				case 1:
 					return "待装车";
 				case 3:
 					return "停 用";
