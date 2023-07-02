@@ -14,13 +14,8 @@ struct ExtSeting {
 	int FontSize = -1;
 	int FontColor = -1;//BBGGRR（如：红色 0xff 绿色 0xff00 黄色 0xffff）
 };
-struct LedContent {
-	std::vector<std::string> ledids;
-	bool isIP;
-	std::string park_id;
-	 std::string pgmfilepath;
-	std::map<std::string, std::string> ledid2content;
-};
+#include "StructDefine.h"
+using LedContent = ns::LanfengLED;
 class LED_Server
 {
 public:

@@ -81,55 +81,19 @@ int HV_serverImp::updateLedContent_LanfengLED(HttpRequest* req, HttpResponse* re
 			*/
 	auto jsonD = req->GetJson();
 	auto textA = jsonD.dump();
-	LanfengLED lled;
+	ns::LanfengLED lled;
 	ns::from_json(jsonD, lled);
 	//convert LangFentLED to LedContent
-	LedContent ledContent;
-	ledContent.park_id = lled.park_id;
-	ledContent.ledids = lled.ledids;
-	ledContent.isIP = lled.isip;
-	ledContent.pgmfilepath = lled.pgmfilepath;
-	auto convertStatusFunc = [](int status) {
-		switch (status)
-		{
-		case 0:
-			return "×°³µÖÐ";
-		case 1:
-			return "´ý×°³µ";
-		case 3:
-			return "Í£ ÓÃ";
-		default:
-			return "Î´Öª";
-		}
-	};
-	ledContent.ledid2content.emplace("store_status_1", convertStatusFunc(lled.store_status_1));
-	ledContent.ledid2content.emplace("store_status_2", convertStatusFunc(lled.store_status_2));
-	ledContent.ledid2content.emplace("store_status_3", convertStatusFunc(lled.store_status_3));
-	ledContent.ledid2content.emplace("store_status_4", convertStatusFunc(lled.store_status_4));
-	ledContent.ledid2content.emplace("store_status_5", convertStatusFunc(lled.store_status_5));
-	ledContent.ledid2content.emplace("store_status_6", convertStatusFunc(lled.store_status_6));
-	ledContent.ledid2content.emplace("store_status_7", convertStatusFunc(lled.store_status_7));
-	ledContent.ledid2content.emplace("store_status_8", convertStatusFunc(lled.store_status_8));
-	char title[255];
-	std::string mainAPpConfig = IConfig.mainAppPath;
-	GetPrivateProfileStringA("main", "title", "À¼·áË®ÄàÉ¢Äà¿â×°³µ×´Ì¬",title,255, mainAPpConfig.data());
-
-	ledContent.ledid2content.emplace("title", title);
-	ledContent.ledid2content.emplace("store_1", "1ºÅ¿â");
-	ledContent.ledid2content.emplace("store_2", "2ºÅ¿â");
-	ledContent.ledid2content.emplace("store_3", "3ºÅ¿â");
-	ledContent.ledid2content.emplace("store_4", "4ºÅ¿â");
-	ledContent.ledid2content.emplace("store_5", "5ºÅ¿â");
-	ledContent.ledid2content.emplace("store_6", "6ºÅ¿â");
-	ledContent.ledid2content.emplace("store_7", "7ºÅ¿â");
-	ledContent.ledid2content.emplace("store_8", "8ºÅ¿â");
+	
+	
+	
 
 	ExtSeting extSetting;
 	extSetting.FontColor = lled.fontColor;
 	extSetting.FontSize = lled.fontSize;
 
 	std::string htmlContent = "{";
-	auto createRet = m_ledSever->createPGM_withLspj(ledContent, extSetting);
+	auto createRet = m_ledSever->createPGM_withLspj(lled, extSetting);
 
 	htmlContent += fmt::format("\"ret\":{},\"msg\":{{ {} }},", std::get<0>(createRet), std::get<1>(createRet));
 	htmlContent += fmt::format("\"requestJson\":\"{}\",", (jsonD.dump()));

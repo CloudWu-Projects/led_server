@@ -311,7 +311,7 @@ std::tuple<int, std::string> LED_Server::sendProgram(NETWORKID WnetworkID, HPROG
 	if (isIP)
 	{//TCP通讯********************************************************************************
 		CommunicationInfo.SendType = 0;//设为固定IP通讯模式，即TCP通讯
-		strcpy(CommunicationInfo.IpStr, (TCHAR*)WnetworkID.data());//给IpStr赋值LED控制卡的IP
+		_tcscpy(CommunicationInfo.IpStr, (TCHAR*)WnetworkID.data());//给IpStr赋值LED控制卡的IP
 	}
 	else {
 		CommunicationInfo.SendType = 4;
@@ -570,9 +570,10 @@ HPROGRAM LED_Server::createAProgram_withLspj(LedContent&ledContent, std::vector<
 			for (auto area : p.areas)
 			{
 				const char* pShowText = area.AreaName.data();
-				if(ledContent.ledid2content.contains(area.AreaName))
-					pShowText= ledContent.ledid2content[area.AreaName].data();
-				;
+				ns::JsonArea jsonArea;
+				if(ledContent.find(area.AreaName, jsonArea))
+					pShowText = jsonArea.value.data();
+				
 				if (area.areaType == Area::SINGLELINEAREA)
 					nResult = createSingleLineArea(area, pShowText, m_extSetting);
 				else if (area.areaType == Area::TIME_AREA)

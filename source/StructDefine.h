@@ -1,57 +1,63 @@
 #pragma  once
 #include <string>
 #include "hv/json.hpp"
-class JsonArea {
-public:
-	std::string name;
-	std::string value;
-
-	int fontSize = -1;
-	int fontColor = -1;
-};
-class  LanfengLED {
-public:
-	std::vector<std::string> ledids;
-	int isip=0;
-	std::string pgmfilepath;
-	std::string park_id;
-	int store_status_1;
-	int store_status_2;
-	int store_status_3;
-	int store_status_4;
-	int store_status_5;
-	int store_status_6;
-	int store_status_7;
-	int store_status_8;
-	std::map<std::string, std::string> content;
-
-	int fontSize=-1;
-	int fontColor=-1;
-	LanfengLED() {
-		ledids.clear();
-		park_id = "";
-		store_status_1 = 0;
-		store_status_2 = 0;
-		store_status_3 = 0;
-		store_status_4 = 0;
-		store_status_5 = 0;
-		store_status_6 = 0;
-		store_status_7 = 0;
-		store_status_8 = 0;
-	}
-};
 
 namespace ns {
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(JsonArea, name, value, fontSize, fontColor);
+	struct  JsonArea {
+		std::string name;
+		std::string value;
 
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LanfengLED, ledids, pgmfilepath, park_id, isip,
-		store_status_1,
-		store_status_2,
-		store_status_3,
-		store_status_4,
-		store_status_5,
-		store_status_6,
-		store_status_7,
-	    store_status_8,  fontSize, fontColor);
+		int fontSize = -1;
+		int fontColor = -1;
+	};
+
+	struct  LanfengLED {
+		std::vector<std::string> ledids;
+		int isIP = 0;
+		std::string pgmfilepath;
+		std::string park_id;
+		std::vector< JsonArea> areas;
+		int fontSize = -1;
+		int fontColor = -1;
+		LanfengLED() {
+			ledids.clear();
+			park_id = "";
+		}
+		bool  find(std::string aeraName, JsonArea&area) {
+			for (auto & item : areas)
+			{
+				if (item.name == aeraName)
+				{
+					area = item;
+					return true;
+				}
+			}
+			return	false;
+		}
+	};
+
+	// 为JsonArea结构体实现from_json函数
+	inline void from_json(const nlohmann::json& j, JsonArea& area) {
+		j.at("name").get_to(area.name);
+		j.at("value").get_to(area.value);
+		area.name = UTF8_ASCI::UTF_82ASCII(area.name);
+		area.value = UTF8_ASCI::UTF_82ASCII(area.value);
+		if(j.contains("fontSize"))
+			j.at("fontSize").get_to(area.fontSize);
+		if (j.contains("fontColor"))
+			j.at("fontColor").get_to(area.fontColor);
+	}
+
+	// 为LanfengLED结构体实现from_json函数
+	inline void from_json(const nlohmann::json& j, LanfengLED& person) {
+		j.at("ledids").get_to(person.ledids);
+		j.at("pgmfilepath").get_to(person.pgmfilepath);
+		person.pgmfilepath = UTF8_ASCI::UTF_82ASCII(person.pgmfilepath);
+		j.at("park_id").get_to(person.park_id);
+		j.at("isip").get_to(person.isIP);
+		j.at("fontSize").get_to(person.fontSize);
+		j.at("fontColor").get_to(person.fontColor);
+		j.at("areas").get_to(person.areas);
+	}
 
 }
