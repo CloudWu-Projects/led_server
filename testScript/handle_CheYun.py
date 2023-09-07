@@ -134,8 +134,8 @@ def handle_led_infos():
         leds =query_db('''select ledid,park_id from leds;''')        
         response=f'<section> <section><div><h1>LEDs</h1><ul>'
         for row in leds:
-            formHtml=f'''<input type="submit" value="delete" onclick="deleteLed({row[0]})">'''
-            response +='<li>'+formHtml+str(row)+'</li>'
+            #formHtml=f'''<input type="submit" value="delete" onclick="deleteLed({row[0]})">'''
+            response +=f'<li>{{row[0]}}   '+str(row)+'</li>'
         response+='</ul></div></section>'
         response+='<section><div>" " </div></section>'
         parkinfos = query_db('''select park_id,park_name,pgmfilepath from parkinfo;''')
