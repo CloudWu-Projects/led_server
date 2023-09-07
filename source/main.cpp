@@ -19,6 +19,7 @@
 #include <thread>
 
 #include "hv_server.h"
+
 int main(int argc, char* argv[])
 {
 	auto a = std::filesystem::path(argv[0]);

@@ -8,6 +8,7 @@
 
 #include "stringHelper.h"
 
+#include "StructDefine.h"
 int HV_server::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Server *ledServer)
 {
 	Imp = new HV_serverImp();
@@ -56,7 +57,52 @@ int HV_serverImp::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Serv
 	http_server(httpPort);
 	return 0;
 }
+int HV_serverImp::updateLedContent_LanfengLED(HttpRequest* req, HttpResponse* resp)
+{/*
+			dat={
+	"ledids":[
+		"192.168.123.199"
+	],
+	"isip":True,
+	"pgmfilepath":"D:\\ledpgm\\lanfengled.lsprj",
+	"park_id":park_id,
+	"fontSize": 5,
+	"fontColor": 0xff,
 
+	"store_status_1": 1 ,
+	"store_status_2": 1 ,
+	"store_status_3": 1 ,
+	"store_status_4": 3 ,
+	"store_status_5": 3 ,
+	"store_status_6": 3 ,
+	"store_status_7": 2 ,
+	"store_status_8": 3 ,
+}
+			*/
+	auto jsonD = req->GetJson();
+	auto textA = jsonD.dump();
+	ns::LanfengLED lled;
+	ns::from_json(jsonD, lled);
+	//convert LangFentLED to LedContent
+	
+	
+	
+
+	ExtSeting extSetting;
+	extSetting.FontColor = lled.fontColor;
+	extSetting.FontSize = lled.fontSize;
+
+	std::string htmlContent = "{";
+	auto createRet = m_ledSever->createPGM_withLspj(lled, extSetting);
+
+	htmlContent += fmt::format("\"ret\":{},\"msg\":{{ {} }},", std::get<0>(createRet), std::get<1>(createRet));
+	htmlContent += fmt::format("\"requestJson\":\"{}\",", (jsonD.dump()));
+	htmlContent += m_ledSever->getNetWorkIDList();
+	htmlContent += "}";
+	/**/
+	SPDLOG_DEBUG(htmlContent);
+	return resp->String(htmlContent);
+}
 inline int HV_serverImp::list_Handler(HttpRequest *req, HttpResponse *resp)
 {
 	auto s = m_ledSever->getNetWorkIDList();
@@ -161,10 +207,17 @@ inline int HV_serverImp::http_server(int httpPort)
 
 	router.GET("/create_withPGM", [this](HttpRequest *req, HttpResponse *resp)
 			   { return CreatePGM_Handler(req, resp); });
-
+	router.GET("/updateLedContent_LanfengLED", [this](HttpRequest* req, HttpResponse* resp)
+		{
+			return updateLedContent_LanfengLED(req, resp);
+		});
+	router.POST("/updateLedContent_LanfengLED", [this](HttpRequest* req, HttpResponse* resp)
+		{
+			return updateLedContent_LanfengLED(req, resp);
+		});
 	router.GET("/empty_plot", [this](HttpRequest *req, HttpResponse *resp)
 			   {
-				   // url = f'{led_server_empty_plot}?ledids={ledids}&empty_plot={empty_plot}&pgmfilepath={pgmfilepath}'
+				   // url = f'/empty_plot?ledids={ledids}&empty_plot={empty_plot}&pgmfilepath={pgmfilepath}&park_id={park_id}&fontcolor={fontcolor}'
 				   std::unique_lock<std::mutex> lock(led_neima_mutex, std::defer_lock);
 				   if (!lock.try_lock())
 				   {

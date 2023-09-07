@@ -16,6 +16,7 @@ private:
 	HttpServer httpServer;
 	int list_Handler(HttpRequest* req, HttpResponse* resp);;
 	int CreatePGM_Handler(HttpRequest* req, HttpResponse* res);;
+	int updateLedContent_LanfengLED(HttpRequest* req, HttpResponse* resp);
 
 	int http_server(int httpPort);
 

@@ -9,6 +9,8 @@ import logging
 from dbFunc import *;
 last_update_response =""
 last_parkJson=""
+last_updateLED=""
+last_updateLED_time=0
 last_update_time=0
 current_empty_plot =0
 from config import *;
@@ -40,6 +42,8 @@ def handle_root():
     a+=f"<p> Current empty plot: {current_empty_plot}</p>"
     a+=f"<p>   last_update_time: {last_update_time}</p>"
     a+=f"<p>      last_parkJson: {last_parkJson}</p>"
+    a+=f"<p>      last_updateLED: {last_updateLED}</p>"
+    a+=f"<p> last_updateLED_time: {last_updateLED_time}</p>"
 
     return a
         
@@ -94,6 +98,56 @@ def handle_park(park_id,empty_plot):
         print(e)
         return str(e)
 
+@app.route('/updateLED',methods=['POST'])
+def updateLED():
+    json_body = request.json
+    global last_updateLED
+    global last_updateLED_time
+    last_updateLED_time = time.asctime(time.localtime() )  
+    app.logger.debug(json.dumps(json_body).encode('utf-8'))
+    json_template={
+            "service_name":"Receive_LED",
+            "park_id":"12345678",
+            "sign":"",
+            "order_id":"10001",
+            "LED_id":"11112312135",
+            "data": [
+                {
+                    "F_id":1,
+                    "F_message":"car1 coming",
+                    "F_color":1
+                },
+                {
+                    "F_id":2,
+                    "F_message":"car2 coming",
+                    "F_color":1
+                }
+            ]
+        }
+    try:
+        last_updateLED = json.dumps(json_body)
+        # 找出parkid 对应的led记录 【ledid，ledpgmpath】
+        park_id=json_body['park_id']
+        LED_id = json_body['LED_id']
+
+        c = get_db().cursor()
+        sql = f'select ledid,a.park_id,b.park_name ,b.pgmfilepath from leds a,parkinfo b where a.park_id=b.park_id '
+        if park_id!="":
+            sql += f'and a.park_id={park_id}'
+        if LED_id!="":
+            sql+= f' and a.ledid="{LED_id}"'
+            
+        print(sql)
+        c.execute(sql)
+        pgmfilepath=""
+        ledids=""        
+        for row in c.fetchall():                       
+            ledids += str(row[0])+","
+            pgmfilepath = str(row[3])
+        c.close()
+
+    except Exception as e:
+        return str(e)
 
 
 

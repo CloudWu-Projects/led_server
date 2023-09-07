@@ -34,8 +34,12 @@
 
     API ：
 
-        updateParkNumber
-            updateParkNumber?parkid=车场号&content="123,456,789"
+        empty_plot
+           empty_plot?ledids={ledids}&empty_plot={empty_plot}&pgmfilepath={pgmfilepath}&park_id={park_id}&fontcolor={fontcolor}
+				   
+        
+        updateLedContent
+            updateLedContent?ledids={ledids}&parkid=车场号&1号库状态(areaName)=value1&2号库状态=value2
 
 # 车场云 API
 

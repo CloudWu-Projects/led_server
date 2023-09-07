@@ -1,9 +1,11 @@
 #pragma once
 #include "led.h"
 #include <vector>
+#include <string>
 struct Area
 {
     int AreaNo = 1;
+    std::string AreaName;
     AREARECT AreaRect;
     
 	struct SingleLineArea {
