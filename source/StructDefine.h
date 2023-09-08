@@ -36,7 +36,7 @@ namespace ns {
 		}
 	};
 
-	// 为JsonArea结构体实现from_json函数
+	// 涓篔sonArea閿熺粨鏋勯敓鏂ゆ嫹瀹為敓鏂ゆ嫹from_json閿熸枻鎷烽敓鏂ゆ嫹
 	inline void from_json(const nlohmann::json& j, JsonArea& area) {
 		j.at("name").get_to(area.name);
 		j.at("value").get_to(area.value);
@@ -48,7 +48,7 @@ namespace ns {
 			j.at("fontColor").get_to(area.fontColor);
 	}
 
-	// 为LanfengLED结构体实现from_json函数
+	// 涓篖anfengLED閿熺粨鏋勯敓鏂ゆ嫹瀹為敓鏂ゆ嫹from_json閿熸枻鎷烽敓鏂ゆ嫹
 	inline void from_json(const nlohmann::json& j, LanfengLED& person) {
 		j.at("ledids").get_to(person.ledids);
 		j.at("pgmfilepath").get_to(person.pgmfilepath);
