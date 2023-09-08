@@ -105,6 +105,21 @@ inline std::string urf8_toAString(std::string_view strUTF8)
 	std::wstring result = utf8_to_unicode(strUTF8);
 	return getAString(result);
 }
+
+#else
+#define to_wide_string(x) x
+#define to_byte_string(x) x
+
+namespace UTF8_ASCI {
+inline std::string UTF_82ASCII(std::string& strUtf8Code)
+	{
+		return strUtf8Code;
+	}
+}
+#endif
+
+
+
 inline std::vector<std::string> split_string(const std::string& s, char delim = ',')
 {
 	if (s.empty())
@@ -118,15 +133,3 @@ inline std::vector<std::string> split_string(const std::string& s, char delim = 
 		elems.push_back(item);
 	return elems;
 }
-
-#else
-#define to_wide_string(x) x
-#define to_byte_string(x) x
-
-namespace UTF8_ASCI {
-inline std::string UTF_82ASCII(std::string& strUtf8Code)
-	{
-		return strUtf8Code;
-	}
-}
-#endif
