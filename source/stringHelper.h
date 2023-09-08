@@ -20,12 +20,6 @@ inline std::string to_byte_string(const std::wstring& input)
 	return converter.to_bytes(input);
 }
 
-#else
-#define to_wide_string(x) x
-#define to_byte_string(x) x
-
-
-#endif
 namespace UTF8_ASCI {
 	inline std::wstring Utf82Unicode(const std::string& utf8string)
 	{
@@ -69,9 +63,9 @@ namespace UTF8_ASCI {
 	inline std::string UTF_82ASCII(std::string& strUtf8Code)
 	{
 		std::string strRet("");
-		//先把 utf8 转为 unicode 
+		//锟饺帮拷 utf8 转为 unicode 
 		std::wstring wstr = Utf82Unicode(strUtf8Code);
-		//最后把 unicode 转为 ascii 
+		//锟斤拷锟斤拷 unicode 转为 ascii 
 		strRet = WideByte2Acsi(wstr);
 		return strRet;
 	}
@@ -124,3 +118,10 @@ inline std::vector<std::string> split_string(const std::string& s, char delim = 
 		elems.push_back(item);
 	return elems;
 }
+
+#else
+#define to_wide_string(x) x
+#define to_byte_string(x) x
+
+
+#endif
