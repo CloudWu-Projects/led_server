@@ -2,14 +2,14 @@
 #include "tinyxml2.h"
 #include "cpp-base64/base64.h"
 #include "ledPgm.h"
-#include "logLib.h"
+//#include "logLib.h"
 
 bool LED_lsprj::loadFile(const char*filePath,std::vector<LED>&leds) {
 	tinyxml2::XMLDocument doc;
 	if (auto error = doc.LoadFile(filePath);
 		error != tinyxml2::XMLError::XML_SUCCESS)
 	{
-		SPDLOG_ERROR("LoadFile xml failed. {}", error);
+		//SPDLOG_ERROR("LoadFile xml failed. {}", error);
 		return false;
 	}
 	parse(&doc, leds);
@@ -22,7 +22,7 @@ bool LED_lsprj::loadMem(const char* pText,std::vector<LED>&leds) {
 	if (auto error = doc.Parse(pText);
 		error != tinyxml2::XMLError::XML_SUCCESS)
 	{
-		SPDLOG_ERROR("loadMem xml failed. {}", error);
+		//SPDLOG_ERROR("loadMem xml failed. {}", error);
 		return false;
 	}
 	parse(&doc, leds);
