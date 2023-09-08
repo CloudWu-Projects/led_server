@@ -61,7 +61,7 @@ def try_openDB():
         conn.close()
     except Exception as e:
         print(e)
-        create_database(dbfilePath)
+        create_database()
     
     
    
