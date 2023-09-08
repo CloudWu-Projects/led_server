@@ -109,6 +109,7 @@ inline std::string urf8_toAString(std::string_view strUTF8)
 #else
 #define to_wide_string(x) x
 #define to_byte_string(x) x
+#define utf8_to_unicode(x) x
 
 namespace UTF8_ASCI {
 inline std::string UTF_82ASCII(std::string& strUtf8Code)
