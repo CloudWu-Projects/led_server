@@ -483,6 +483,19 @@ HPROGRAM LED_Server::createAProgram_withLspj(const std::string& showText,std::ve
 				return hProgram;
 			}
 			m_hProgram = hProgram;
+			if(m_extSetting->backGroundImage!="")
+			{
+				PLAYPROP PlayProp; // 显示属性
+				PlayProp.DelayTime = 65535;
+				PlayProp.InStyle = 0;
+				PlayProp.OutStyle = 0;
+				PlayProp.Speed = 1;
+#ifdef WIN32
+				nResult = g_Dll->LV_AddFileToImageTextArea(hProgram, 0, 1, GetExePath() + _T("123.png"), &PlayProp);
+#else
+				nResult = LV_AddFileToImageTextArea(hProgram, 0, 1, m_extSetting->backGroundImage.data(), &PlayProp);
+#endif
+			}
 			for (auto area : p.areas)
 			{
 

@@ -234,6 +234,9 @@ inline int HV_serverImp::http_server(int httpPort)
 				   if(fontColor != "-1")
 				   	   extSetting.FontColor = atoi(fontColor.data());
 
+					extSetting.backGroundImage= req->GetParam("backgroundImage","");
+					
+
 				   std::string htmlContent = "{";
 				   auto createRet = m_ledSever->createPGM_withLspj(ledids, empty_plot, pgmfilepath, extSetting);
 
