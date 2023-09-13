@@ -139,3 +139,5 @@ cheyun.db
 55.lsprj
 cheyun.db
 __pycache__/
+
+build/
