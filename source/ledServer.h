@@ -15,8 +15,8 @@ struct ExtSeting {
 	int FontColor = -1;//BBGGRR（如：红色 0xff 绿色 0xff00 黄色 0xffff）
 	std::string backGroundImage="";
 };
-#include "StructDefine.h"
-using LedContent = ns::LanfengLED;
+
+struct LedContent {};
 class LED_Server
 {
 public:

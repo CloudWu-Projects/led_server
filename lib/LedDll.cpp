@@ -64,7 +64,7 @@ BOOL CLedDll::InitDll()
 	LV_AddProgram=(_LV_AddProgram)GetProcAddress(m_hDll,"LV_AddProgram");
 //	LV_SetProgramTime=(_LV_SetProgramTime)GetProcAddress(m_hDll,"LV_SetProgramTime");
 	LV_AddImageTextArea = (_LV_AddImageTextArea)GetProcAddress(m_hDll, "LV_AddImageTextArea");
-	//	LV_AddFileToImageTextArea=(_LV_AddFileToImageTextArea)GetProcAddress(m_hDll,"LV_AddFileToImageTextArea");
+		LV_AddFileToImageTextArea=(_LV_AddFileToImageTextArea)GetProcAddress(m_hDll,"LV_AddFileToImageTextArea");
 	LV_AddSingleLineTextToImageTextArea = (_LV_AddSingleLineTextToImageTextArea)GetProcAddress(m_hDll, "LV_AddSingleLineTextToImageTextArea");
 	//	LV_AddMultiLineTextToImageTextArea=(_LV_AddMultiLineTextToImageTextArea)GetProcAddress(m_hDll,"LV_AddMultiLineTextToImageTextArea");
 	//	LV_AddStaticTextToImageTextArea=(_LV_AddStaticTextToImageTextArea)GetProcAddress(m_hDll,"LV_AddStaticTextToImageTextArea");

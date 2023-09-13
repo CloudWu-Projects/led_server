@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fmt/format.h>
+#include <fmt/fmt.h>
 #define SPDLOG_ACTIVE_LEVEL 0
 #ifdef WIN32
 #define SPDLOG_WCHAR_TO_UTF8_SUPPORT

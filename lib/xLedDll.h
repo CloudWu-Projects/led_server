@@ -31,7 +31,7 @@ public:
 	_LV_AddProgram							LV_AddProgram;
 //	_LV_SetProgramTime						LV_SetProgramTime;
 	_LV_AddImageTextArea					LV_AddImageTextArea;
-//	_LV_AddFileToImageTextArea				LV_AddFileToImageTextArea;
+	_LV_AddFileToImageTextArea				LV_AddFileToImageTextArea;
 	_LV_AddSingleLineTextToImageTextArea	LV_AddSingleLineTextToImageTextArea;
 //	_LV_AddMultiLineTextToImageTextArea		LV_AddMultiLineTextToImageTextArea;
 //	_LV_AddStaticTextToImageTextArea		LV_AddStaticTextToImageTextArea;

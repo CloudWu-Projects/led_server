@@ -6,7 +6,6 @@
 #include "ledPgm.h"
 #include <filesystem>
 #include <functional>
-#include "hv/iniparser.h"
 #include "stringHelper.h"
 //#define NEED_TCPSERVER_FOR_NEIMA 
 namespace fs = std::filesystem;
@@ -132,23 +131,20 @@ private:
 	LED_lsprj led_lsprj;
 	std::vector<LED> leds;
 	fs::path pgmFIlePath=("./single_area.lsprj");
-	IniParser iniParser;
+	//IniParser iniParser;
 	std::string GetValue(const std::string& key, const std::string& section = "")
 	{
-		if (bWriteIni)
-			iniParser.SetValue(key,"", section);
-
-		return iniParser.GetValue(key, section);
+		//if (bWriteIni)
+		//	iniParser.SetValue(key,"", section);
+		return "";
+		//return iniParser.GetValue(key, section);
 	}
 	
 	// T = [bool, int, float]
 	template<typename T>
 	T Get(const std::string& key, const std::string& section = "", T defvalue = 0)
 	{
-		if (bWriteIni)
-			iniParser.Set(key, defvalue, section);
-
-		return iniParser.Get(key, section, defvalue);
+		return defvalue;
 	}
 
 
@@ -163,10 +159,7 @@ private:
 		//strcat(szBuf1, "\\config.ini");
 		curpath.append("ledServer_config.ini");
 		m_ConfigPathA = curpath.string();
-		if (0 != iniParser.LoadFromFile(m_ConfigPathA.data()))
-		{
-			bWriteIni = true;
-		}
+		
 		int nret = 0;
 
 		httpPort = Get("httpport", "main", httpPort);
@@ -189,8 +182,6 @@ private:
 		ReloadPGM(lsprj_path);
 		bLoaded = true;
 
-		if (bWriteIni)
-			iniParser.Save();
 		
 		return true;
 	}

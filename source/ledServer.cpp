@@ -115,65 +115,66 @@ std::string LED_Server::getNetWorkIDList()
 
 std::tuple<int, std::string> LED_Server::createPGM_withLspj(LedContent& ledContent, ExtSeting& extSetting)
 {
-	std::lock_guard<std::mutex> lock(queue_mutex);
-	
-	if (!ledContent.isIP &&clientNetWorkID.empty())
-		return std::make_tuple(-1, "networkID is empty\n");
-	std::vector<LED> leds;
-	LED_lsprj led_lsprj;
-	if (!led_lsprj.loadFile(ledContent.pgmfilepath.data(), leds))
-	{
-		return std::make_tuple(-2, fmt::format("load file[{}] failed.", ledContent.pgmfilepath));
-	}
-	std::string retHtml = "";
-	m_hProgram = nullptr;
-
-	std::string noinItem = "";
-	std::string sucessItem = "";
-	for (auto ledid : ledContent.ledids)
-	{
-		if (!ledContent.isIP && !clientNetWorkID.contains(ledid))
-		{
-			if (noinItem.length() > 0)
-				noinItem += ",";
-			noinItem += "\"" + ledid + "\"";
-			continue;
-		}
-		if (m_hProgram == nullptr)
-		{
-			int ledType = leds[0].LedType;
-			int ledWidth = leds[0].LedWidth;
-			int ledHeight = leds[0].LedHeight;
-			int ledColor = leds[0].LedColor;
-			int ledGraylevel = leds[0].LedGray;
-			m_hProgram = createAProgram_withLspj(ledContent, leds, &extSetting);
-		}
-		if (m_hProgram == nullptr)
-		{
-			retHtml = "createAProgram_withLspj failed.";
-			break;
-		}
-		auto ret = sendProgram(ledid, m_hProgram,ledContent.isIP);
-		if (sucessItem.length() > 0)
-			sucessItem += ",";
-		sucessItem += "\"" + std::get<1>(ret);
-		sucessItem += "\"";
-
-	}
-	std::string noInHtml = "\"noin\":[" + noinItem + "]";
-
-	std::string sucessHtml = "\"sucess\":[" + sucessItem + "]";
-
-	retHtml = noInHtml + "," + sucessHtml;
-
-#ifdef WIN32
-	g_Dll->LV_DeleteProgram(m_hProgram);					   // 删除节目内存对象，详见函数声明注示
-#else
-	LV_DeleteProgram(m_hProgram);					   // 删除节目内存对象，详见函数声明注示
-#endif	
-	m_hProgram = nullptr;
-
-	return std::make_tuple(0, retHtml);
+	return std::make_tuple(-1, "networkID is empty\n");
+//	std::lock_guard<std::mutex> lock(queue_mutex);
+//	
+//	if (!ledContent.isIP &&clientNetWorkID.empty())
+//		return std::make_tuple(-1, "networkID is empty\n");
+//	std::vector<LED> leds;
+//	LED_lsprj led_lsprj;
+//	if (!led_lsprj.loadFile(ledContent.pgmfilepath.data(), leds))
+//	{
+//		return std::make_tuple(-2, fmt::format("load file[{}] failed.", ledContent.pgmfilepath));
+//	}
+//	std::string retHtml = "";
+//	m_hProgram = nullptr;
+//
+//	std::string noinItem = "";
+//	std::string sucessItem = "";
+//	for (auto ledid : ledContent.ledids)
+//	{
+//		if (!ledContent.isIP && !clientNetWorkID.contains(ledid))
+//		{
+//			if (noinItem.length() > 0)
+//				noinItem += ",";
+//			noinItem += "\"" + ledid + "\"";
+//			continue;
+//		}
+//		if (m_hProgram == nullptr)
+//		{
+//			int ledType = leds[0].LedType;
+//			int ledWidth = leds[0].LedWidth;
+//			int ledHeight = leds[0].LedHeight;
+//			int ledColor = leds[0].LedColor;
+//			int ledGraylevel = leds[0].LedGray;
+//			m_hProgram = createAProgram_withLspj(ledContent, leds, &extSetting);
+//		}
+//		if (m_hProgram == nullptr)
+//		{
+//			retHtml = "createAProgram_withLspj failed.";
+//			break;
+//		}
+//		auto ret = sendProgram(ledid, m_hProgram,ledContent.isIP);
+//		if (sucessItem.length() > 0)
+//			sucessItem += ",";
+//		sucessItem += "\"" + std::get<1>(ret);
+//		sucessItem += "\"";
+//
+//	}
+//	std::string noInHtml = "\"noin\":[" + noinItem + "]";
+//
+//	std::string sucessHtml = "\"sucess\":[" + sucessItem + "]";
+//
+//	retHtml = noInHtml + "," + sucessHtml;
+//
+//#ifdef WIN32
+//	g_Dll->LV_DeleteProgram(m_hProgram);					   // 删除节目内存对象，详见函数声明注示
+//#else
+//	LV_DeleteProgram(m_hProgram);					   // 删除节目内存对象，详见函数声明注示
+//#endif	
+//	m_hProgram = nullptr;
+//
+//	return std::make_tuple(0, retHtml);
 }
 std::tuple<int, std::string> LED_Server::createPGM_withLspj(const std::string &ledids, const std::string &empty_plot, const std::string &pgmfilepath, ExtSeting &extSetting)
 {
@@ -494,7 +495,7 @@ HPROGRAM LED_Server::createAProgram_withLspj(const std::string& showText,std::ve
 				PlayProp.OutStyle = 0;
 				PlayProp.Speed = 1;
 #ifdef WIN32
-				nResult = g_Dll->LV_AddFileToImageTextArea(hProgram, 0, 1, GetExePath() + _T("123.png"), &PlayProp);
+				nResult = g_Dll->LV_AddFileToImageTextArea(hProgram, 0, 1,  _T("123.png"), &PlayProp);
 #else
 				nResult = LV_AddFileToImageTextArea(hProgram, 0, 1, m_extSetting->backGroundImage.data(), &PlayProp);
 				
@@ -546,85 +547,85 @@ HPROGRAM LED_Server::createAProgram_withLspj(const std::string& showText,std::ve
 
 HPROGRAM LED_Server::createAProgram_withLspj(LedContent&ledContent, std::vector<LED>& leds, ExtSeting* m_extSetting)
 {
-	int nResult = 0;
+//	int nResult = 0;
 	HPROGRAM hProgram = nullptr;																			 // 节目句柄
-
-	for (auto led : leds)
-	{
-		for (auto p : led.programs)
-		{
-
-#ifdef WIN32
-			hProgram = g_Dll->LV_CreateProgramEx(led.LedWidth, led.LedHeight, led.LedColor, led.LedGray, 0); // 注意此处屏宽高及颜色参数必需与设置屏参的屏宽高及颜色一致，否则发送时会提示错误
-
-			nResult = g_Dll->LV_AddProgram(hProgram, 0, 0, 1); // 添加一个节目，参数说明见函数声明注示
-#else
-
-			hProgram = LV_CreateProgramEx(led.LedWidth, led.LedHeight, led.LedColor, led.LedGray, 0); // 注意此处屏宽高及颜色参数必需与设置屏参的屏宽高及颜色一致，否则发送时会提示错误
-
-			nResult = LV_AddProgram(hProgram, 0, 0, 1); // 添加一个节目，参数说明见函数声明注示
-#endif
-			if (nResult)
-			{
-				TCHAR ErrStr[256];
-
-#ifdef WIN32
-				g_Dll->LV_GetError(nResult, 256, ErrStr); // 见函数声明注示
-#else
-				LV_GetError(nResult, 256, ErrStr);		// 见函数声明注示
-#endif
-
-				if (hProgram)
-				{
-#ifdef WIN32
-					g_Dll->LV_DeleteProgram(hProgram); // 删除节目内存对象，详见函数声明注示
-#else
-					LV_DeleteProgram(hProgram);			// 删除节目内存对象，详见函数声明注示
-#endif
-					hProgram = nullptr;
-
-				}
-				return hProgram;
-			}
-			m_hProgram = hProgram;
-			for (auto area : p.areas)
-			{
-				const char* pShowText = area.AreaName.data();
-				ns::JsonArea jsonArea;
-				if(ledContent.find(area.AreaName, jsonArea))
-					pShowText = jsonArea.value.data();
-				
-				if (area.areaType == Area::SINGLELINEAREA)
-					nResult = createSingleLineArea(area, pShowText, m_extSetting);
-				else if (area.areaType == Area::TIME_AREA)
-					nResult = createTimeClockArea(area, m_extSetting);
-				else if (area.areaType == Area::NEIMA_AREA)
-					nResult = createNeimaArea(area, pShowText, m_extSetting);
-
-				if (nResult)
-				{
-					TCHAR ErrStr[256];
-#ifdef WIN32
-					g_Dll->LV_GetError(nResult, 256, ErrStr); // 见函数声明注示
-#else
-					LV_GetError(nResult, 256, ErrStr);	// 见函数声明注示
-#endif
-					if (hProgram)
-					{
-#ifdef WIN32
-						g_Dll->LV_DeleteProgram(hProgram); // 删除节目内存对象，详见函数声明注示
-#else
-						LV_DeleteProgram(hProgram);		// 删除节目内存对象，详见函数声明注示
-#endif
-						hProgram = nullptr;
-						return hProgram;
-					}
-				}
-			}
-
-			return hProgram;
-		}
-	}
+//
+//	for (auto led : leds)
+//	{
+//		for (auto p : led.programs)
+//		{
+//
+//#ifdef WIN32
+//			hProgram = g_Dll->LV_CreateProgramEx(led.LedWidth, led.LedHeight, led.LedColor, led.LedGray, 0); // 注意此处屏宽高及颜色参数必需与设置屏参的屏宽高及颜色一致，否则发送时会提示错误
+//
+//			nResult = g_Dll->LV_AddProgram(hProgram, 0, 0, 1); // 添加一个节目，参数说明见函数声明注示
+//#else
+//
+//			hProgram = LV_CreateProgramEx(led.LedWidth, led.LedHeight, led.LedColor, led.LedGray, 0); // 注意此处屏宽高及颜色参数必需与设置屏参的屏宽高及颜色一致，否则发送时会提示错误
+//
+//			nResult = LV_AddProgram(hProgram, 0, 0, 1); // 添加一个节目，参数说明见函数声明注示
+//#endif
+//			if (nResult)
+//			{
+//				TCHAR ErrStr[256];
+//
+//#ifdef WIN32
+//				g_Dll->LV_GetError(nResult, 256, ErrStr); // 见函数声明注示
+//#else
+//				LV_GetError(nResult, 256, ErrStr);		// 见函数声明注示
+//#endif
+//
+//				if (hProgram)
+//				{
+//#ifdef WIN32
+//					g_Dll->LV_DeleteProgram(hProgram); // 删除节目内存对象，详见函数声明注示
+//#else
+//					LV_DeleteProgram(hProgram);			// 删除节目内存对象，详见函数声明注示
+//#endif
+//					hProgram = nullptr;
+//
+//				}
+//				return hProgram;
+//			}
+//			m_hProgram = hProgram;
+//			for (auto area : p.areas)
+//			{
+//				const char* pShowText = area.AreaName.data();
+//				ns::JsonArea jsonArea;
+//				if(ledContent.find(area.AreaName, jsonArea))
+//					pShowText = jsonArea.value.data();
+//				
+//				if (area.areaType == Area::SINGLELINEAREA)
+//					nResult = createSingleLineArea(area, pShowText, m_extSetting);
+//				else if (area.areaType == Area::TIME_AREA)
+//					nResult = createTimeClockArea(area, m_extSetting);
+//				else if (area.areaType == Area::NEIMA_AREA)
+//					nResult = createNeimaArea(area, pShowText, m_extSetting);
+//
+//				if (nResult)
+//				{
+//					TCHAR ErrStr[256];
+//#ifdef WIN32
+//					g_Dll->LV_GetError(nResult, 256, ErrStr); // 见函数声明注示
+//#else
+//					LV_GetError(nResult, 256, ErrStr);	// 见函数声明注示
+//#endif
+//					if (hProgram)
+//					{
+//#ifdef WIN32
+//						g_Dll->LV_DeleteProgram(hProgram); // 删除节目内存对象，详见函数声明注示
+//#else
+//						LV_DeleteProgram(hProgram);		// 删除节目内存对象，详见函数声明注示
+//#endif
+//						hProgram = nullptr;
+//						return hProgram;
+//					}
+//				}
+//			}
+//
+//			return hProgram;
+//		}
+//	}
 
 	return hProgram;
 }

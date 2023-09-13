@@ -141,3 +141,5 @@ cheyun.db
 __pycache__/
 
 build/
+source/HV_serverImp.cpp
+buildx/
