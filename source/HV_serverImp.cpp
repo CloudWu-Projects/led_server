@@ -244,6 +244,7 @@ inline int HV_serverImp::http_server(int httpPort)
 				   htmlContent += fmt::format("\"ledids\":\"{}\",", (ledids));
 				   htmlContent += fmt::format("\"empty_plot\":\"{}\",", (empty_plot));
 				   htmlContent += fmt::format("\"pgmfilepath\":\"{}\",", (pgmfilepath));
+				   htmlContent += fmt::format("\"backgroundImage\":\"{}\",", (extSetting.backGroundImage));
 				   htmlContent += m_ledSever->getNetWorkIDList();
 				   htmlContent += "}";
 				   /**/

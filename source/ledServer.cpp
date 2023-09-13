@@ -498,6 +498,8 @@ HPROGRAM LED_Server::createAProgram_withLspj(const std::string& showText,std::ve
 			}
 			for (auto area : p.areas)
 			{
+				if(m_extSetting->backGroundImage!="")
+					area.AreaNo++;
 
 				auto pShowText = showText.data();
 				if (p.areas.size() > 1 && stringArr.size() == p.areas.size())
@@ -657,11 +659,20 @@ int LED_Server::createSingleLineArea(Area&area,const char*pShowText,ExtSeting *m
 	FontProp.FontColor = area.singleLineArea.FontColor;
 	if(m_extSetting->FontColor!=-1)
 		FontProp.FontColor = m_extSetting->FontColor;
+	int nAlignment = 0;
+	if (_tcslen(pShow) < 5)
+	{
+		PlayProp.InStyle = 0;
+		nAlignment = 2;
+	}
 	//BBGGRR（如：红色 0xff 绿色 0xff00 黄色 0xffff）
 #ifdef WIN32
 	nResult = g_Dll->LV_AddSingleLineTextToImageTextArea(m_hProgram, m_nProgramNo, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
 #else
-	nResult = LV_AddSingleLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
+	//nResult = LV_AddSingleLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
+	nResult = LV_AddImageTextArea(m_hProgram, 0, area.AreaNo, &AreaRect, 1);
+	nResult = LV_AddMultiLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp, nAlignment, FALSE);//通过字符串添加一个多行文本到图文区，参数说明见声明注示
+		
 #endif
 	//nResult = g_Dll->LV_AddStaticTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, area.DelayTime, 0, true);
 	
