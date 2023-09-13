@@ -31,7 +31,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PRIVATE 
       
     )
-
+    
+if(UNIX)
+    TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/lib/dll/libledplayer7.so" -lpthread -lm)
+    
+    
+endif()
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
