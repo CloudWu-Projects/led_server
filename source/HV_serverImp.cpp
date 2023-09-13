@@ -142,10 +142,14 @@ inline int HV_serverImp::http_server(int httpPort)
 					   ledids = req.get_param_value("ledids");
 				   }
 
-				   std::string  empty_plot = "";
-				   if(req.has_param("empty_plot"))
-						empty_plot = req.get_param_value("empty_plot");
-
+				   std::string  empty_plotcount = "";
+				   if(req.has_param("empty_plotcount"))
+						empty_plotcount = req.get_param_value("empty_plotcount");
+					std::vector<std::string> empty_plot;
+				   for (int i = 0; i < atoi(empty_plotcount.data()); i++)
+				   {
+					   empty_plot.push_back(req.get_param_value(fmt::format("empty_plot_{}",i)));
+				   }
 				   std::string  pgmfilepath = "";
 				   if (req.has_param("pgmfilepath"))
 						pgmfilepath =req.get_param_value("pgmfilepath");
@@ -172,11 +176,11 @@ inline int HV_serverImp::http_server(int httpPort)
 					
 
 				   std::string htmlContent = "{";
-				   auto createRet = m_ledSever->createPGM_withLspj(ledids, empty_plot, pgmfilepath, extSetting);
+				   auto createRet = m_ledSever->createPGM_empty_plot(ledids, empty_plot, pgmfilepath, extSetting);
 
 				   htmlContent += fmt::format("\"ret\":{},\"msg\":{{ {} }},", std::get<0>(createRet), std::get<1>(createRet));
 				   htmlContent += fmt::format("\"ledids\":\"{}\",", (ledids));
-				   htmlContent += fmt::format("\"empty_plot\":\"{}\",", (empty_plot));
+				   //htmlContent += fmt::format("\"empty_plot\":\"{}\",", (empty_plot));
 				   htmlContent += fmt::format("\"pgmfilepath\":\"{}\",", (pgmfilepath));
 				   htmlContent += fmt::format("\"backgroundImage\":\"{}\",", (extSetting.backGroundImage));
 				   htmlContent += m_ledSever->getNetWorkIDList();

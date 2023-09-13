@@ -176,7 +176,7 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(LedContent& ledConte
 //
 //	return std::make_tuple(0, retHtml);
 }
-std::tuple<int, std::string> LED_Server::createPGM_withLspj(const std::string &ledids, const std::string &empty_plot, const std::string &pgmfilepath, ExtSeting &extSetting)
+std::tuple<int, std::string> LED_Server::createPGM_empty_plot(const std::string &ledids, const std::vector<std::string> &empty_plot, const std::string &pgmfilepath, ExtSeting &extSetting)
 {
 	std::lock_guard<std::mutex> lock(queue_mutex);
 	if (clientNetWorkID.empty())
@@ -256,7 +256,7 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(std::string& showTex
 		if (m_hProgram == nullptr)
 		{
 			IConfig.foreach_PGM([&](auto &leds){				
-				m_hProgram =createAProgram_withLspj(showText,leds,&extSetting);				
+			//	m_hProgram =createAProgram_withLspj(showText,leds,&extSetting);				
 			});
 		}
 		if (m_hProgram == nullptr)
@@ -440,12 +440,12 @@ std::tuple<int, std::string> LED_Server::createAProgram(NETWORKID WnetworkID, st
 
 
 
-HPROGRAM LED_Server::createAProgram_withLspj(const std::string& showText,std::vector<LED> &leds,ExtSeting *m_extSetting)
+HPROGRAM LED_Server::createAProgram_withLspj(const std::vector<std::string>& showText,std::vector<LED> &leds,ExtSeting *m_extSetting)
 {
 	int nResult = 0;
 	HPROGRAM hProgram = nullptr;																			 // 节目句柄
 
-	auto stringArr = split_string(showText, ',');
+	
 
 	for (auto led : leds)
 	{
@@ -507,9 +507,9 @@ HPROGRAM LED_Server::createAProgram_withLspj(const std::string& showText,std::ve
 				if(m_extSetting->backGroundImage!="")
 					area.AreaNo++;
 
-				auto pShowText = showText.data();
-				if (p.areas.size() > 1 && stringArr.size() == p.areas.size())
-					pShowText = stringArr[area.AreaNo - 1].data();
+				const char* pShowText = (const char*)showText.data();
+				if (p.areas.size() > 1 && showText.size() == p.areas.size())
+					pShowText = showText[area.AreaNo - 1].data();
 				if (area.areaType == Area::SINGLELINEAREA)
 					nResult = createSingleLineArea(area, pShowText, m_extSetting);
 				else if (area.areaType == Area::TIME_AREA)

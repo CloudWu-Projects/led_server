@@ -25,7 +25,7 @@ public:
 	std::string getNetWorkIDList();
 	std::tuple<int,std::string> createPGM_withLspj(std::string& showText, ExtSeting&extSetting);
 	std::tuple<int,std::string> createPGM_withLspj(LedContent& ledContent, ExtSeting&extSetting);
-	std::tuple<int,std::string> createPGM_withLspj(const std::string& ledids,const std::string& empty_plot,const std::string& pgmfilepath,ExtSeting&extSetting);
+	std::tuple<int,std::string> createPGM_empty_plot(const std::string& ledids,const std::vector<std::string> &empty_plot,const std::string& pgmfilepath,ExtSeting&extSetting);
 	std::tuple<int, std::string> create_onPGM_byCode(std::string& showText, ExtSeting& extSetting);
 	void test();
 private:
@@ -36,7 +36,7 @@ private:
 	std::tuple<int, std::string> sendProgram(NETWORKID WnetworkID, HPROGRAM hProgram, bool isIP=false);
 	std::tuple<int, std::string> createAProgram(NETWORKID networkID, std::string& showText, const Config::LEDParam& ledParam,ExtSeting *m_extSetting);
 
-	HPROGRAM createAProgram_withLspj(const  std::string& showText,std::vector<LED> &leds,ExtSeting *m_extSetting);
+	HPROGRAM createAProgram_withLspj(const  std::vector<std::string>& showText,std::vector<LED> &leds,ExtSeting *m_extSetting);
 
 	HPROGRAM createAProgram_withLspj(LedContent& ledContent, std::vector<LED>& leds, ExtSeting* m_extSetting);
 	int createSingleLineArea(Area& area, const char* pShowText, ExtSeting* m_extSetting);
