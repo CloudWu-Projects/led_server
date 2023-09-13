@@ -497,7 +497,9 @@ HPROGRAM LED_Server::createAProgram_withLspj(const std::string& showText,std::ve
 				nResult = g_Dll->LV_AddFileToImageTextArea(hProgram, 0, 1, GetExePath() + _T("123.png"), &PlayProp);
 #else
 				nResult = LV_AddFileToImageTextArea(hProgram, 0, 1, m_extSetting->backGroundImage.data(), &PlayProp);
+				
 #endif
+				SPDLOG_DEBUG("LV_AddFileToImageTextArea rest :{}   {}",nResult, m_extSetting->backGroundImage );
 			}
 			for (auto area : p.areas)
 			{
