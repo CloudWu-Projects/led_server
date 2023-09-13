@@ -209,7 +209,7 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(const std::string &l
 			int ledHeight = leds[0].LedHeight;
 			int ledColor = leds[0].LedColor;
 			int ledGraylevel = leds[0].LedGray;
-			SPDLOG_DEBUG("ledid:{} ledType:{} ledWidth:{} ledHeight:{} ledColor:{} ledGraylevel:{}\n", ledid, ledType, ledWidth, ledHeight, ledColor, ledGraylevel);
+			SPDLOG_DEBUG("ledid:{} ledType:{} ledWidth:{} ledHeight:{} ledColor:{} ledGraylevel:{} \nbackground:{}", ledid, ledType, ledWidth, ledHeight, ledColor, ledGraylevel,extSetting.backGroundImage);
 			m_hProgram = createAProgram_withLspj(empty_plot, leds,&extSetting);
 		}
 		if (m_hProgram == nullptr)
@@ -484,6 +484,8 @@ HPROGRAM LED_Server::createAProgram_withLspj(const std::string& showText,std::ve
 				return hProgram;
 			}
 			m_hProgram = hProgram;
+			
+			
 			if(m_extSetting->backGroundImage!="")
 			{
 				PLAYPROP PlayProp; // 显示属性
@@ -671,8 +673,7 @@ int LED_Server::createSingleLineArea(Area&area,const char*pShowText,ExtSeting *m
 		PlayProp.InStyle = 0;
 		nAlignment = 2;
 	}
-	//nResult = LV_AddSingleLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
-	nResult = LV_AddImageTextArea(m_hProgram, 0, area.AreaNo, &area.AreaRect, 1);
+	//nResult = LV_AddSingleLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);	
 	nResult = LV_AddMultiLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp, nAlignment, FALSE);//通过字符串添加一个多行文本到图文区，参数说明见声明注示
 		
 #endif

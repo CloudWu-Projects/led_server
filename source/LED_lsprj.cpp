@@ -74,7 +74,7 @@ void parseFontColor_size_From_RTF(std::string &RTFtext,int &color,int &size)
 		return;
 	}
 	fontsizeStart += 3;
-	printf("fontsizeStart %s\n",RTFtext.substr(fontsizeStart,fontsizeEnd-fontsizeStart).data());
+	//printf("fontsizeStart %s\n",RTFtext.substr(fontsizeStart,fontsizeEnd-fontsizeStart).data());
 	size = std::stoi(RTFtext.substr(fontsizeStart,fontsizeEnd-fontsizeStart));
 }
 void LED_lsprj::parse(tinyxml2::XMLDocument* doc,std::vector<LED>&leds)
