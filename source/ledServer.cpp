@@ -209,6 +209,7 @@ std::tuple<int, std::string> LED_Server::createPGM_withLspj(const std::string &l
 			int ledHeight = leds[0].LedHeight;
 			int ledColor = leds[0].LedColor;
 			int ledGraylevel = leds[0].LedGray;
+			SPDLOG_DEBUG("ledid:{} ledType:{} ledWidth:{} ledHeight:{} ledColor:{} ledGraylevel:{}\n", ledid, ledType, ledWidth, ledHeight, ledColor, ledGraylevel);
 			m_hProgram = createAProgram_withLspj(empty_plot, leds,&extSetting);
 		}
 		if (m_hProgram == nullptr)
