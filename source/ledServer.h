@@ -3,8 +3,11 @@
 #include <tuple>
 #include "config.h"
 #include <map>
-class CLedDll;
-typedef void*				HPROGRAM;
+#include "json.hpp"
+
+#include "ledAPI.h"
+#include "structDefine.h"
+
 #ifdef UNICODE
 #define NETWORKID std::wstring
 #else
@@ -17,33 +20,25 @@ struct ExtSeting {
 };
 
 struct LedContent {};
-class LED_Server
+class LED_Server:public LedAPI
 {
 public:
 	LED_Server();
 	int start(int port );
 	std::string getNetWorkIDList();
-	std::tuple<int,std::string> createPGM_withLspj(std::string& showText, ExtSeting&extSetting);
-	std::tuple<int,std::string> createPGM_withLspj(LedContent& ledContent, ExtSeting&extSetting);
+	std::tuple<int, std::string> updateLedContent_JSON(const LedTask& ledTask);
 	std::tuple<int,std::string> createPGM_empty_plot(const std::string& ledids,const std::vector<std::string> &empty_plot,const std::string& pgmfilepath,ExtSeting&extSetting);
-	std::tuple<int, std::string> create_onPGM_byCode(std::string& showText, ExtSeting& extSetting);
 	void test();
 private:
 
-#ifdef WIN32
-	CLedDll *g_Dll;
-#endif
-	std::tuple<int, std::string> sendProgram(NETWORKID WnetworkID, HPROGRAM hProgram, bool isIP=false);
-	std::tuple<int, std::string> createAProgram(NETWORKID networkID, std::string& showText, const Config::LEDParam& ledParam,ExtSeting *m_extSetting);
 
-	HPROGRAM createAProgram_withLspj(const  std::vector<std::string>& showText,std::vector<LED> &leds,ExtSeting *m_extSetting);
+	HPROGRAM createAProgram_NoLSPJ(const  std::vector<std::string>& showText,const LED& led,ExtSeting *m_extSetting);
 
-	HPROGRAM createAProgram_withLspj(LedContent& ledContent, std::vector<LED>& leds, ExtSeting* m_extSetting);
-	int createSingleLineArea(Area& area, const char* pShowText, ExtSeting* m_extSetting);
-	int createTimeClockArea(Area& area,ExtSeting *m_extSetting);
-	int createNeimaArea(Area& area,const char* pShowText,ExtSeting *m_extSetting);
+	
+	int api_createSingleLineArea(HPROGRAM m_hProgram, Area& area, const char* pShowText, ExtSeting* m_extSetting);
+	int api_createTimeClockArea(HPROGRAM m_hProgram, Area& area,ExtSeting *m_extSetting);
+	int api_createNeimaArea(HPROGRAM m_hProgram, Area& area,const char* pShowText,ExtSeting *m_extSetting);
 
-	HPROGRAM m_hProgram=nullptr;
 	int m_nProgramNo=0;
 
 	

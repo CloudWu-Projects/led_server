@@ -1,4 +1,3 @@
-#pragma  once
 #ifndef LEDPLAYER7_H
 #define LEDPLAYER7_H
 
@@ -7,7 +6,7 @@ typedef LPVOID				HPROGRAM;	//节目句柄类型
 typedef unsigned long       DWORD;
 typedef DWORD   COLORREF;
 typedef char TCHAR;
-
+typedef bool BOOL;
 typedef unsigned int        UINT;
 #define FALSE   0
 #define TRUE    1
@@ -75,9 +74,9 @@ struct FONTPROP
     char		FontPath[MAX_PATH];		//字体路径
     int			FontSize;			//字号(单位像素)
     COLORREF	FontColor;			//字体颜色
-    bool		FontBold;			//是否加粗
-    bool		FontItalic;			//是否斜体
-    bool		FontUnderLine;		//时否下划线
+    BOOL		FontBold;			//是否加粗
+    BOOL		FontItalic;			//是否斜体
+    BOOL		FontUnderLine;		//时否下划线
 };
 //****************************************************************************
 
@@ -97,17 +96,17 @@ typedef struct DIGITALCLOCKAREAINFO
     int TimeFormat;
     COLORREF TimeColor;
 
-    bool IsShowYear;
-    bool IsShowWeek;
-    bool IsShowMonth;
-    bool IsShowDay;
-    bool IsShowHour;
-    bool IsShowMinute;
-    bool IsShowSecond;
+    BOOL IsShowYear;
+    BOOL IsShowWeek;
+    BOOL IsShowMonth;
+    BOOL IsShowDay;
+    BOOL IsShowHour;
+    BOOL IsShowMinute;
+    BOOL IsShowSecond;
 
     //int HourType;
     //int YearType;
-    bool IsMutleLineShow;
+    BOOL IsMutleLineShow;
 
 }*LPDIGITALCLOCKAREAINFO;
 //**页面显示的属性结构体****************************************************
@@ -130,11 +129,11 @@ typedef struct TIMEAREAINFO
     int         nHour;                  //结束时
     int         nMinute;                //结束分
     int         nSecond;                //结束秒
-    bool        IsShowDay;              //是否显示天
-    bool        IsShowHour;             //是否显示时
-    bool        IsShowMinute;           //是否显示分
-    bool        IsShowSecond;           //是否显示秒
-    bool        IsMutleLineShow;        //是否多行显示，指的是自定义文字与计时文字是否分行显示
+    BOOL        IsShowDay;              //是否显示天
+    BOOL        IsShowHour;             //是否显示时
+    BOOL        IsShowMinute;           //是否显示分
+    BOOL        IsShowSecond;           //是否显示秒
+    BOOL        IsMutleLineShow;        //是否多行显示，指的是自定义文字与计时文字是否分行显示
     TCHAR       ShowStr[128];           //自定义文字字符串
     COLORREF    TimeStrColor;           //计时文字的颜色
     FONTPROP    ShowFont;               //自定义文字及计时文字颜色，其中FontColor只对文定义文字有效，计时文字颜色为TimeStrColor
@@ -165,6 +164,19 @@ typedef struct _card_info
 *               workPath        缓存文件路径
 ********************************************************************************************/
 void LV_LedInit(const char *workPath);
+
+
+
+/********************************************************************************************
+*	LV_InitLed			初始化屏的类型和颜色顺序(C卡)
+*  当Led上显示的文字区域的颜色与下发的不一致, 请的确认Led 屏的RGB顺序,并调用此接口
+*	参数说明
+*				nLedType		屏类型  0.6代T系A系XC系    1.6代E系     2.X1X2		3.7代C系 4: E5,E6
+*				nRgb		模组的RGB顺序,仅C卡有效,其他卡固定为0. C卡时, 0:  R->G->B 1: G->R->B 2:R->B->G 3:B->R->G 4:B->G->R 5:G->B->R
+*	返回值   无
+*				
+********************************************************************************************/
+void LV_InitLed(int nLedType, int nRgb);
 
 /********************************************************************************************
 *	LV_CreateProgramEx			创建节目对象，返回类型为 HPROGRAM
@@ -207,7 +219,7 @@ int LV_AddProgram(HPROGRAM hProgram,int ProgramNo,int ProgramTime,int LoopCount)
 *				0					成功
 *				非0					失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int LV_AddImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,bool IsBackgroundArea);
+int LV_AddImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,LPAREARECT pAreaRect,BOOL IsBackgroundArea);
 /*********************************************************************************************
 *	LV_AddFileToImageTextArea			添加一个文件到图文区
 *
@@ -255,7 +267,7 @@ int LV_AddSingleLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int Area
 *				0						成功
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
-int	LV_AddMultiLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp,int nAlignment,bool IsVCenter);
+int	LV_AddMultiLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,PLAYPROP *pPlayProp,int nAlignment,BOOL IsVCenter);
 /*********************************************************************************************
  *	LV_AddStaticTextToImageTextArea		添加一个静止文本到图文区
  *	
@@ -273,7 +285,7 @@ int	LV_AddMultiLineTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaN
  *				0						成功
  *				非0						失败，调用LV_GetError来获取错误信息	
  ********************************************************************************************/
-int	LV_AddStaticTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int DelayTime,int nAlignment,bool IsVCenter);
+int	LV_AddStaticTextToImageTextArea(HPROGRAM hProgram,int ProgramNo,int AreaNo,int AddType,LPCTSTR AddStr,FONTPROP *pFontProp,int DelayTime,int nAlignment,BOOL IsVCenter);
 /*********************************************************************************************
 *	LV_QuickAddSingleLineTextArea		快速添加一个左移单行文本区域
 *
@@ -358,6 +370,20 @@ void LV_DeleteProgram(HPROGRAM hProgram);
 *				非0						失败，调用LV_GetError来获取错误信息
 ********************************************************************************************/
 int LV_Send(LPCOMMUNICATIONINFO pCommunicationInfo,HPROGRAM hProgram);
+
+
+/*********************************************************************************************
+*	LV_RefreshNeiMaArea								刷新内码区域
+*	
+*	参数说明
+*				pCommunicationInfo		通讯参数，赋值方式见COMMUNICATIONINFO结构体注示
+*				NeiMaStr				刷新的数据字符串,格式可以查看<<内码区域局部更新协议>>文档
+*	返回值
+*				0						成功
+*				非0						失败，调用LV_GetError来获取错误信息	
+********************************************************************************************/
+int  LV_RefreshNeiMaArea(LPCOMMUNICATIONINFO pCommunicationInfo,LPCTSTR NeiNaStr);
+
 
 /*********************************************************************************************
 *	LV_SetBasicInfoEx						设置基本屏参
