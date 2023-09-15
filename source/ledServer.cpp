@@ -346,6 +346,7 @@ HPROGRAM LED_Server::createAProgram_NoLSPJ(const std::vector<std::string>& showT
 int LED_Server::api_createSingleLineArea(HPROGRAM m_hProgram,Area&area,const std::string &pShowText,ExtSeting *m_extSetting)
 {
 	int nResult = 0;
+	SPDLOG_DEBUG("{},{},{},{}", area.AreaRect.left, area.AreaRect.top, area.AreaRect.width, area.AreaRect.height);
 #ifdef WIN32
 	nResult = g_Dll->LV_AddImageTextArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, 1);
 #else
