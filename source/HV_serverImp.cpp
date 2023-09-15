@@ -27,8 +27,10 @@ int HV_serverImp::start(int httpPort, int ledSDKport, int ledNeimaPort, LED_Serv
 inline int HV_serverImp::list_Handler(const httplib::Request& req, httplib::Response& resp)
 {
 	auto s = m_ledSever->getNetWorkIDList();
-
-	resp.set_content(s, "application/json");
+	nlohmann::json js;
+	js["haha"] = "haha";
+	js["list"] = s; 
+	resp.set_content(js.dump(4), "application/json");
 	return 0;
 }
 
