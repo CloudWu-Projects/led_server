@@ -393,6 +393,7 @@ int LED_Server::api_createSingleLineArea(HPROGRAM m_hProgram,Area&area,const std
 		PlayProp.InStyle = 0;
 		nAlignment = 2;
 	}
+	SPDLOG_DEBUG("pShowText:{} nAlignment:{} ", pShowText, nAlignment);
 	nResult = LV_AddSingleLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText.data(), &FontProp, &PlayProp);
 	//else
 	//	nResult = LV_AddMultiLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp, nAlignment, FALSE);//通过字符串添加一个多行文本到图文区，参数说明见声明注示
