@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 
-
+add_compile_options( -pthread -g  -ggdb -O0 -Wall   -fstack-protector-all -march=native -fnon-call-exceptions)
 
 
 file(GLOB_RECURSE source_cpp "./*.cpp")
