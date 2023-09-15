@@ -113,7 +113,7 @@ std::tuple<int, std::string> LED_Server::updateLedContent_JSON(const LedTask& le
 {
 	std::lock_guard<std::mutex> lock(queue_mutex);
 	if (clientNetWorkID.empty())
-		return std::make_tuple(-1, "networkID is empty\n");
+		return std::make_tuple(-1, "networkID is empty");
 	auto ledid = ledTask.LED_id;
 
 	if (!clientNetWorkID.contains(ledid))
@@ -146,30 +146,42 @@ std::tuple<int, std::string> LED_Server::updateLedContent_JSON(const LedTask& le
 			if (nResult)break;
 			areaId++;
 		}
-		//根据json数据更新led数
-		static AREARECT g_arect[4] = {
-			{1,1,  78,39},
-			{1,41, 78,39},
-			{1,81, 78,39},
-			{1,121,78,38} };
-
+		
 		for (int i=0; i<ledTask.data.size(); i++) {			
 			Area area{
 				.AreaNo = areaId,
-				.AreaRect = g_arect[i],
+				.AreaRect = {
+					.left=ledTask.data[i].left,
+					.top = ledTask.data[i].top,
+					.width = ledTask.data[i].width,
+					.height = ledTask.data[i].height
+					},
 			};
+			if (area.AreaRect.left == -1 || area.AreaRect.top == -1 || area.AreaRect.width == -1 || area.AreaRect.height == -1)
+			{
+				area.AreaRect.left = 1;
+				area.AreaRect.top = ledHeight * i / ledTask.data.size()+1;
+				area.AreaRect.width = ledWidth - 2;
+				area.AreaRect.height = ledHeight/ledTask.data.size() -1;
+				if (area.AreaRect.height + area.AreaRect.top >= ledHeight)
+					area.AreaRect.height = ledHeight - area.AreaRect.top - 1;
+			}
+
+			area.singleLineArea.DelayTime=3;
+			area.singleLineArea.InStyle=0;
+			area.singleLineArea.OutStyle=0;
+			area.singleLineArea.InSpeed=32;
+
 			areaId++;
-			area.AreaRect.width = ledWidth - 2;
+			//SPDLOG_DEBUG("id:{} left:{} top:{} width:{} height:{} ", area.AreaNo, area.AreaRect.left, area.AreaRect.top, area.AreaRect.width, area.AreaRect.height);
 
 			ExtSeting extSetting;
 			extSetting.FontColor = ledTask.data[i].F_color;
 			area.singleLineArea.FontSize = ledTask.data[i].F_size;
-			auto showText = ledTask.data[i].F_message;
+			auto showText = ledTask.data[i].F_message;			
 			nResult = api_createSingleLineArea(m_hProgram,area,showText.data(),&extSetting);
 			if (nResult)
-				break;
-			if(i>2)
-			break;
+				break;			
 		}
 		if (nResult)
 			break;
@@ -180,7 +192,18 @@ std::tuple<int, std::string> LED_Server::updateLedContent_JSON(const LedTask& le
 	{
 		TCHAR ErrStr[256];
 		api_getLastError(nResult, ErrStr);
-		return std::make_tuple(nResult, ErrStr);
+		std::string msg = ErrStr;
+		if (55992 == nResult)
+		{
+			nResult=api_setBasicInfo(ledid, ledType, ledWidth, ledHeight, ledColor, ledGraylevel);
+			msg = "屏幕参数不正确 自动修正";
+			if (nResult)
+			{
+				api_getLastError(nResult, ErrStr);
+				msg = fmt::format( "屏幕参数不正确 自动修正失败 {}",ErrStr);
+			}
+		}
+		return std::make_tuple(nResult, msg);
 	}
 
 	return std::make_tuple(0, "sucessd");
@@ -190,7 +213,7 @@ std::tuple<int, std::string> LED_Server::createPGM_empty_plot(const std::string 
 {
 	std::lock_guard<std::mutex> lock(queue_mutex);
 	if (clientNetWorkID.empty())
-		return std::make_tuple(-1, "networkID is empty\n");
+		return std::make_tuple(-1, "networkID is empty");
 	std::vector<LED> leds;
 
 	LED_lsprj led_lsprj;
@@ -320,7 +343,7 @@ HPROGRAM LED_Server::createAProgram_NoLSPJ(const std::vector<std::string>& showT
 	return hProgram;
 }
 
-int LED_Server::api_createSingleLineArea(HPROGRAM m_hProgram,Area&area,const char*pShowText,ExtSeting *m_extSetting)
+int LED_Server::api_createSingleLineArea(HPROGRAM m_hProgram,Area&area,const std::string &pShowText,ExtSeting *m_extSetting)
 {
 	int nResult = 0;
 #ifdef WIN32
@@ -362,13 +385,17 @@ int LED_Server::api_createSingleLineArea(HPROGRAM m_hProgram,Area&area,const cha
 	nResult = g_Dll->LV_AddSingleLineTextToImageTextArea(m_hProgram, m_nProgramNo, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);
 #else
 	int nAlignment = 0;
-	if (strlen(pShowText) < 5)
+	PlayProp.InStyle = 2;
+	PlayProp.DelayTime = 1;
+	PlayProp.Speed = 1;
+	if (pShowText.length() < 36)
 	{
 		PlayProp.InStyle = 0;
 		nAlignment = 2;
 	}
-	//nResult = LV_AddSingleLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp);	
-	nResult = LV_AddMultiLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp, nAlignment, FALSE);//通过字符串添加一个多行文本到图文区，参数说明见声明注示
+	nResult = LV_AddSingleLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText.data(), &FontProp, &PlayProp);
+	//else
+	//	nResult = LV_AddMultiLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp, nAlignment, FALSE);//通过字符串添加一个多行文本到图文区，参数说明见声明注示
 		
 #endif
 	//nResult = g_Dll->LV_AddStaticTextToImageTextArea(hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, area.DelayTime, 0, true);

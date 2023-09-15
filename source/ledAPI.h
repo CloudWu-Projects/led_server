@@ -115,6 +115,20 @@ public:
 			hProgram = nullptr;
 		}
 	}
+	int api_setBasicInfo(std::string& WnetworkID, int ledType, int ledWidth, int ledHeight, int colorType, int grayLevel)
+	{
+		int nResult;
+
+		COMMUNICATIONINFO CommunicationInfo; // 定义一通讯参数结构体变量用于对设定的LED通讯，具体对此结构体元素赋值说明见COMMUNICATIONINFO结构体定义部份注示
+		memset(&CommunicationInfo, 0, sizeof(COMMUNICATIONINFO));
+		CommunicationInfo.LEDType = ledType;
+
+		CommunicationInfo.SendType = 4;
+		_tcscpy(CommunicationInfo.NetworkIdStr, (TCHAR*)WnetworkID.data()); // 指定唯一网络ID
+
+		nResult = LV_SetBasicInfoEx(&CommunicationInfo, colorType, grayLevel, ledWidth, ledHeight);//设置屏参，具体函数参数说明查看文档
+		return nResult;
+	}
 
 protected:
 

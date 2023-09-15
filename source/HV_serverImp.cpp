@@ -141,6 +141,7 @@ inline int HV_serverImp::http_server(int httpPort)
 			}
 			std::string sendValue = req.body;
 			nlohmann::json jsonValue = nlohmann::json::parse(sendValue);
+			//SPDLOG_DEBUG(sendValue);
 			LedTask task;
 			from_json(jsonValue, task);
 

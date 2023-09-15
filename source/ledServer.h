@@ -35,7 +35,7 @@ private:
 	HPROGRAM createAProgram_NoLSPJ(const  std::vector<std::string>& showText,const LED& led,ExtSeting *m_extSetting);
 
 	
-	int api_createSingleLineArea(HPROGRAM m_hProgram, Area& area, const char* pShowText, ExtSeting* m_extSetting);
+	int api_createSingleLineArea(HPROGRAM m_hProgram, Area& area, const std::string& pShowText, ExtSeting* m_extSetting);
 	int api_createTimeClockArea(HPROGRAM m_hProgram, Area& area,ExtSeting *m_extSetting);
 	int api_createNeimaArea(HPROGRAM m_hProgram, Area& area,const char* pShowText,ExtSeting *m_extSetting);
 

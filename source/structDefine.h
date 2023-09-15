@@ -3,8 +3,12 @@
 struct TaskData {
 	int F_id;
 	std::string F_message;
-	int F_color;
-	int F_size;
+	int F_color=0xFF;
+	int F_size=14;
+	int top =-1;
+	int left=-1;
+	int width=-1;
+	int height=-1;
 };
 struct LedInfo {
 	int LedType;
@@ -27,8 +31,20 @@ struct LedTask{
 inline void from_json(const nlohmann::json& j, TaskData& p) {
 	j.at("F_id").get_to(p.F_id);
 	j.at("F_message").get_to(p.F_message);
-	j.at("F_color").get_to(p.F_color);
-	j.at("F_size").get_to(p.F_size);
+		
+	if(j.contains("F_color"))
+		j.at("F_color").get_to(p.F_color);
+	if(j.contains("F_size"))
+		j.at("F_size").get_to(p.F_size);
+		
+	if(j.contains("top"))
+		j.at("top").get_to(p.top);
+	if(j.contains("left"))
+		j.at("left").get_to(p.left);
+	if(j.contains("width"))
+		j.at("width").get_to(p.width);
+	if(j.contains("height"))
+		j.at("height").get_to(p.height);
 }
 
 inline void from_json(const nlohmann::json& j, LedInfo& p) {
