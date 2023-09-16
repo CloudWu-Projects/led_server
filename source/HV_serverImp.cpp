@@ -28,7 +28,8 @@ inline int HV_serverImp::list_Handler(const httplib::Request& req, httplib::Resp
 {
 	auto s = m_ledSever->getNetWorkIDList();
 	nlohmann::json js;
-	js["haha"] = "haha";
+	time_t t = time(NULL);
+	js["haha"] = t;
 	js["list"] = s; 
 	resp.set_content(js.dump(4), "application/json");
 	return 0;
@@ -135,7 +136,7 @@ inline int HV_serverImp::http_server(int httpPort)
 	//			{ return updateLedContent_LanfengLED(req, resp); });
 	auto updatecontentHandler = [this](const httplib::Request& req, httplib::Response& resp)
 		{
-			//此处是json
+			//锟剿达拷锟斤拷json
 			std::unique_lock<std::mutex> lock(led_neima_mutex, std::defer_lock);
 			if (!lock.try_lock())
 			{
