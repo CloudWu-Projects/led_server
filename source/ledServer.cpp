@@ -192,17 +192,18 @@ std::tuple<int, std::string> LED_Server::updateLedContent_JSON(const LedTask& le
 	{
 		TCHAR ErrStr[256];
 		api_getLastError(nResult, ErrStr);
-		std::string msg = ErrStr;
+		std::string msg =fmt::format( "{} 添加节目失败 {}",ledid,ErrStr);
 		if (55992 == nResult)
 		{
 			nResult=api_setBasicInfo(ledid, ledType, ledWidth, ledHeight, ledColor, ledGraylevel);
-			msg = "屏幕参数不正确 自动修正";
+			msg = fmt::format( "{} 屏幕参数不正确 自动修正成功",ledid);
 			if (nResult)
 			{
 				api_getLastError(nResult, ErrStr);
-				msg = fmt::format( "屏幕参数不正确 自动修正失败 {}",ErrStr);
+				msg = fmt::format( "{} 屏幕参数不正确 自动修正失败 {}",ledid,ErrStr);
 			}
 		}
+		SPDLOG_ERROR("updateLedContent_JSON failed. {}", msg);
 		return std::make_tuple(nResult, msg);
 	}
 
@@ -346,7 +347,7 @@ HPROGRAM LED_Server::createAProgram_NoLSPJ(const std::vector<std::string>& showT
 int LED_Server::api_createSingleLineArea(HPROGRAM m_hProgram,Area&area,const std::string &pShowText,ExtSeting *m_extSetting)
 {
 	int nResult = 0;
-	SPDLOG_DEBUG("{},{},{},{}", area.AreaRect.left, area.AreaRect.top, area.AreaRect.width, area.AreaRect.height);
+	//SPDLOG_DEBUG("{},{},{},{}", area.AreaRect.left, area.AreaRect.top, area.AreaRect.width, area.AreaRect.height);
 #ifdef WIN32
 	nResult = g_Dll->LV_AddImageTextArea(m_hProgram, m_nProgramNo, area.AreaNo, &area.AreaRect, 1);
 #else
@@ -394,7 +395,7 @@ int LED_Server::api_createSingleLineArea(HPROGRAM m_hProgram,Area&area,const std
 		PlayProp.InStyle = 0;
 		nAlignment = 2;
 	}
-	SPDLOG_DEBUG("pShowText:{} nAlignment:{} ", pShowText, nAlignment);
+	//SPDLOG_DEBUG("pShowText:{} nAlignment:{} ", pShowText, nAlignment);
 	nResult = LV_AddSingleLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText.data(), &FontProp, &PlayProp);
 	//else
 	//	nResult = LV_AddMultiLineTextToImageTextArea(m_hProgram, 0, area.AreaNo, ADDTYPE_STRING, pShowText, &FontProp, &PlayProp, nAlignment, FALSE);//通过字符串添加一个多行文本到图文区，参数说明见声明注示
