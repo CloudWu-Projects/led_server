@@ -81,7 +81,7 @@ public:
 		int ledHeight = 40;
 		int ledColor = 3;
 		int ledGraylevel = 1;	
-		int SaveType=0;
+		int SaveType=3;
 	};
 
 	int httpPort = 11007;

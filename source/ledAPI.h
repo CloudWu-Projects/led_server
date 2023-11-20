@@ -14,6 +14,8 @@ public:
 	{
 		HPROGRAM hProgram = nullptr;
 		int nResult = 0;
+		SPDLOG_DEBUG("api_createProgram(width:{},height:{},color:{},gray:{} savetype:{})"
+		, LedWidth, LedHeight, LedColor, LedGray,SaveType);
 #ifdef WIN32
 		hProgram = g_Dll->LV_CreateProgramEx(LedWidth, LedHeight, LedColor, LedGray, SaveType); // ע��˴������߼���ɫ�����������������ε������߼���ɫһ�£�������ʱ����ʾ����
 
