@@ -10,27 +10,27 @@
 class LedAPI
 {
 public:
-	HPROGRAM api_createProgram(int LedWidth, int LedHeight, int LedColor, int LedGray)
+	HPROGRAM api_createProgram(int LedWidth, int LedHeight, int LedColor, int LedGray,int SaveType)
 	{
 		HPROGRAM hProgram = nullptr;
 		int nResult = 0;
 #ifdef WIN32
-		hProgram = g_Dll->LV_CreateProgramEx(LedWidth, LedHeight, LedColor, LedGray, 0); // ×¢Òâ´Ë´¦ÆÁ¿í¸ß¼°ÑÕÉ«²ÎÊý±ØÐèÓëÉèÖÃÆÁ²ÎµÄÆÁ¿í¸ß¼°ÑÕÉ«Ò»ÖÂ£¬·ñÔò·¢ËÍÊ±»áÌáÊ¾´íÎó
+		hProgram = g_Dll->LV_CreateProgramEx(LedWidth, LedHeight, LedColor, LedGray, SaveType); // ×¢ï¿½ï¿½Ë´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½É«Ò»ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½
 
-		nResult = g_Dll->LV_AddProgram(hProgram, 0, 0, 1); // Ìí¼ÓÒ»¸ö½ÚÄ¿£¬²ÎÊýËµÃ÷¼ûº¯ÊýÉùÃ÷×¢Ê¾
+		nResult = g_Dll->LV_AddProgram(hProgram, 0, 0, 1); // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
 #else
 
-		hProgram = LV_CreateProgramEx(LedWidth, LedHeight, LedColor, LedGray, 0); // ×¢Òâ´Ë´¦ÆÁ¿í¸ß¼°ÑÕÉ«²ÎÊý±ØÐèÓëÉèÖÃÆÁ²ÎµÄÆÁ¿í¸ß¼°ÑÕÉ«Ò»ÖÂ£¬·ñÔò·¢ËÍÊ±»áÌáÊ¾´íÎó
+		hProgram = LV_CreateProgramEx(LedWidth, LedHeight, LedColor, LedGray, SaveType); // ×¢ï¿½ï¿½Ë´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½É«Ò»ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½
 
-		nResult = LV_AddProgram(hProgram, 0, 0, 1); // Ìí¼ÓÒ»¸ö½ÚÄ¿£¬²ÎÊýËµÃ÷¼ûº¯ÊýÉùÃ÷×¢Ê¾
+		nResult = LV_AddProgram(hProgram, 0, 0, 1); // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
 #endif
 		if (nResult) {
 			TCHAR ErrStr[256];
 
 #ifdef WIN32
-			g_Dll->LV_GetError(nResult, 256, ErrStr); // ¼ûº¯ÊýÉùÃ÷×¢Ê¾
+			g_Dll->LV_GetError(nResult, 256, ErrStr); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
 #else
-			LV_GetError(nResult, 256, ErrStr);		// ¼ûº¯ÊýÉùÃ÷×¢Ê¾
+			LV_GetError(nResult, 256, ErrStr);		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
 #endif
 			SPDLOG_ERROR("api_createProgram error ,{} ", ErrStr);
 			return nullptr;
@@ -40,13 +40,13 @@ public:
 
 	int api_addBackground(HPROGRAM hProgram, int ledWidth, int ledHeight, const std::string& backgroundImae)
 	{
-		PLAYPROP PlayProp; // ÏÔÊ¾ÊôÐÔ
+		PLAYPROP PlayProp; // ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½
 		PlayProp.DelayTime = 65535;
 		PlayProp.InStyle = 0;
 		PlayProp.OutStyle = 0;
 		PlayProp.Speed = 1;
 
-		AREARECT AreaRect;//ÇøÓò×ø±êÊôÐÔ½á¹¹Ìå±äÁ¿
+		AREARECT AreaRect;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô½á¹¹ï¿½ï¿½ï¿½ï¿½ï¿½
 		AreaRect.left = 0;
 		AreaRect.top = 0;
 		AreaRect.width = ledWidth;
@@ -75,21 +75,21 @@ public:
 	int api_send(HPROGRAM& hProgram, int ledType, std::string& WnetworkID)
 	{
 
-		COMMUNICATIONINFO CommunicationInfo; // ¶¨ÒåÒ»Í¨Ñ¶²ÎÊý½á¹¹Ìå±äÁ¿ÓÃÓÚ¶ÔÉè¶¨µÄLEDÍ¨Ñ¶£¬¾ßÌå¶Ô´Ë½á¹¹ÌåÔªËØ¸³ÖµËµÃ÷¼ûCOMMUNICATIONINFO½á¹¹Ìå¶¨Òå²¿·Ý×¢Ê¾
+		COMMUNICATIONINFO CommunicationInfo; // ï¿½ï¿½ï¿½ï¿½Ò»Í¨Ñ¶ï¿½ï¿½ï¿½ï¿½ï¿½á¹¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½è¶¨ï¿½ï¿½LEDÍ¨Ñ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´Ë½á¹¹ï¿½ï¿½Ôªï¿½Ø¸ï¿½ÖµËµï¿½ï¿½ï¿½ï¿½COMMUNICATIONINFOï¿½á¹¹ï¿½å¶¨ï¿½å²¿ï¿½ï¿½×¢Ê¾
 		memset(&CommunicationInfo, 0, sizeof(COMMUNICATIONINFO));
 		CommunicationInfo.LEDType = ledType;
 
 		CommunicationInfo.SendType = 4;
-		_tcscpy(CommunicationInfo.NetworkIdStr, (TCHAR*)WnetworkID.data()); // Ö¸¶¨Î¨Ò»ÍøÂçID
+		_tcscpy(CommunicationInfo.NetworkIdStr, (TCHAR*)WnetworkID.data()); // Ö¸ï¿½ï¿½Î¨Ò»ï¿½ï¿½ï¿½ï¿½ID
 
 		int nResult = 0;
 
 #ifdef WIN32
-		nResult = g_Dll->LV_Send(&CommunicationInfo, hProgram); // ·¢ËÍ£¬¼ûº¯ÊýÉùÃ÷×¢Ê¾
-		g_Dll->LV_DeleteProgram(hProgram);					   // É¾³ý½ÚÄ¿ÄÚ´æ¶ÔÏó£¬Ïê¼ûº¯ÊýÉùÃ÷×¢Ê¾
+		nResult = g_Dll->LV_Send(&CommunicationInfo, hProgram); // ï¿½ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
+		g_Dll->LV_DeleteProgram(hProgram);					   // É¾ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
 #else
-		nResult = LV_Send(&CommunicationInfo, hProgram); // ·¢ËÍ£¬¼ûº¯ÊýÉùÃ÷×¢Ê¾
-		LV_DeleteProgram(hProgram);					   // É¾³ý½ÚÄ¿ÄÚ´æ¶ÔÏó£¬Ïê¼ûº¯ÊýÉùÃ÷×¢Ê¾
+		nResult = LV_Send(&CommunicationInfo, hProgram); // ï¿½ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
+		LV_DeleteProgram(hProgram);					   // É¾ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
 #endif
 		hProgram = nullptr;
 		return nResult;
@@ -98,9 +98,9 @@ public:
 	{
 
 #ifdef WIN32
-		g_Dll->LV_GetError(nResult, 256, ErrStr); // ¼ûº¯ÊýÉùÃ÷×¢Ê¾
+		g_Dll->LV_GetError(nResult, 256, ErrStr); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
 #else
-		LV_GetError(nResult, 256, ErrStr);		// ¼ûº¯ÊýÉùÃ÷×¢Ê¾
+		LV_GetError(nResult, 256, ErrStr);		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
 #endif
 	}
 	void api_deleteProgram(HPROGRAM& hProgram)
@@ -108,9 +108,9 @@ public:
 		if (hProgram)
 		{
 #ifdef WIN32
-			g_Dll->LV_DeleteProgram(hProgram); // É¾³ý½ÚÄ¿ÄÚ´æ¶ÔÏó£¬Ïê¼ûº¯ÊýÉùÃ÷×¢Ê¾
+			g_Dll->LV_DeleteProgram(hProgram); // É¾ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
 #else
-			LV_DeleteProgram(hProgram);			// É¾³ý½ÚÄ¿ÄÚ´æ¶ÔÏó£¬Ïê¼ûº¯ÊýÉùÃ÷×¢Ê¾
+			LV_DeleteProgram(hProgram);			// É¾ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢Ê¾
 #endif
 			hProgram = nullptr;
 		}
@@ -119,14 +119,14 @@ public:
 	{
 		int nResult;
 
-		COMMUNICATIONINFO CommunicationInfo; // ¶¨ÒåÒ»Í¨Ñ¶²ÎÊý½á¹¹Ìå±äÁ¿ÓÃÓÚ¶ÔÉè¶¨µÄLEDÍ¨Ñ¶£¬¾ßÌå¶Ô´Ë½á¹¹ÌåÔªËØ¸³ÖµËµÃ÷¼ûCOMMUNICATIONINFO½á¹¹Ìå¶¨Òå²¿·Ý×¢Ê¾
+		COMMUNICATIONINFO CommunicationInfo; // ï¿½ï¿½ï¿½ï¿½Ò»Í¨Ñ¶ï¿½ï¿½ï¿½ï¿½ï¿½á¹¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½è¶¨ï¿½ï¿½LEDÍ¨Ñ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´Ë½á¹¹ï¿½ï¿½Ôªï¿½Ø¸ï¿½ÖµËµï¿½ï¿½ï¿½ï¿½COMMUNICATIONINFOï¿½á¹¹ï¿½å¶¨ï¿½å²¿ï¿½ï¿½×¢Ê¾
 		memset(&CommunicationInfo, 0, sizeof(COMMUNICATIONINFO));
 		CommunicationInfo.LEDType = ledType;
 
 		CommunicationInfo.SendType = 4;
-		_tcscpy(CommunicationInfo.NetworkIdStr, (TCHAR*)WnetworkID.data()); // Ö¸¶¨Î¨Ò»ÍøÂçID
+		_tcscpy(CommunicationInfo.NetworkIdStr, (TCHAR*)WnetworkID.data()); // Ö¸ï¿½ï¿½Î¨Ò»ï¿½ï¿½ï¿½ï¿½ID
 
-		nResult = LV_SetBasicInfoEx(&CommunicationInfo, colorType, grayLevel, ledWidth, ledHeight);//ÉèÖÃÆÁ²Î£¬¾ßÌåº¯Êý²ÎÊýËµÃ÷²é¿´ÎÄµµ
+		nResult = LV_SetBasicInfoEx(&CommunicationInfo, colorType, grayLevel, ledWidth, ledHeight);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î£ï¿½ï¿½ï¿½ï¿½åº¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½é¿´ï¿½Äµï¿½
 		return nResult;
 	}
 

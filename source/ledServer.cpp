@@ -132,7 +132,7 @@ std::tuple<int, std::string> LED_Server::updateLedContent_JSON(const LedTask& le
 	std::string backGroundImage = ledTask.background;
 
 	SPDLOG_DEBUG("ledid:{} ledType:{} ledWidth:{} ledHeight:{} ledColor:{} ledGraylevel:{} \nbackground:{}", ledid, ledType, ledWidth, ledHeight, ledColor, ledGraylevel, backGroundImage);
-	m_hProgram = api_createProgram( ledWidth, ledHeight, ledColor, ledGraylevel);
+	m_hProgram = api_createProgram( ledWidth, ledHeight, ledColor, ledGraylevel,Config::instance().ledParam.SaveType);
 	if (m_hProgram == nullptr)
 	{
 		return std::make_tuple(-1, "createAProgram failed.");
@@ -288,7 +288,7 @@ HPROGRAM LED_Server::createAProgram_NoLSPJ(const std::vector<std::string>& showT
 	auto p = led.programs[0];
 	std::string callAPi = "";
 	do {
-		hProgram = api_createProgram(led.LedWidth, led.LedHeight, led.LedColor, led.LedGray);
+		hProgram = api_createProgram(led.LedWidth, led.LedHeight, led.LedColor, led.LedGray,Config::instance().ledParam.SaveType);
 		if (hProgram == nullptr)break;
 
 		if (m_extSetting->backGroundImage != "")

@@ -80,9 +80,9 @@ public:
 		int ledWidth = 320; 
 		int ledHeight = 40;
 		int ledColor = 3;
-		int ledGraylevel = 1;		
+		int ledGraylevel = 1;	
+		int SaveType=0;
 	};
-	
 
 	int httpPort = 11007;
 	int ledSDKPort = 11008;
@@ -174,6 +174,7 @@ private:
 		ledParam.ledHeight = Get("ledHeight", "LED", ledParam.ledHeight);
 		ledParam.ledColor = Get("ledColor", "LED", ledParam.ledColor);
 		ledParam.ledGraylevel = Get("ledType", "LED", ledParam.ledGraylevel);
+		ledParam.SaveType = Get("SaveType", "LED", ledParam.SaveType);
 		mainAppPath = GetValue("mainAppPath","main");
 		auto aa = utf8_to_unicode(mainAppPath);
 		auto lsprj_path = GetValue("lsprj_path");
